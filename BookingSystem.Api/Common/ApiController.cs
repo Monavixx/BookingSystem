@@ -1,5 +1,4 @@
-﻿using System.Collections.Frozen;
-using BookingSystem.Domain.Common.Errors;
+﻿using BookingSystem.Domain.Common.Errors;
 using FluentResults;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -18,14 +17,14 @@ public abstract class ApiController(IMediator mediator) : ControllerBase
         return HandleErrors(result);
     }
 
-    protected IActionResult HandleResultNoContent<T>(Result result)
+    protected IActionResult HandleResultNoContent(Result result)
     {
         if (result.IsSuccess)
             return NoContent();
         return HandleErrors(result);
     }
 
-    protected IActionResult HandleErrors(ResultBase result)
+    protected IActionResult HandleErrors(IResultBase result)
     {
         var errorTypes = result.Errors.DistinctBy(e => e.GetType()).ToArray();
         var typesCount = errorTypes.Length;
