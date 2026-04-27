@@ -17,6 +17,7 @@ builder.Services.AddMediatR(configuration =>
     configuration.RegisterServicesFromAssembly(typeof(AppDbContext).Assembly);
 });
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
+builder.Services.AddProblemDetails();
 
 var app = builder.Build();
 
