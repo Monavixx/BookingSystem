@@ -11,4 +11,4 @@ public sealed record SignUpCommand(
     string LastName,
     string PhoneNumber,
     DateOnly DateOfBirth
-) : IRequest<Result<SuccessfulSignUpResultDto>>;
+) : IRequest<Result<SuccessfulSignUpResult>>;

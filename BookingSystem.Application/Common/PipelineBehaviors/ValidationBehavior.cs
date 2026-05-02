@@ -25,7 +25,8 @@ public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TReq
             .Select(e =>
             {
                 var error = new ValidationError(e.ErrorCode, e.ErrorMessage);
-                error.Metadata.Add("PropertyName", e.PropertyName);
+                if(!string.IsNullOrWhiteSpace(e.PropertyName))
+                    error.Metadata.Add("PropertyName", e.PropertyName);
                 return error;
             })
             .ToArray();

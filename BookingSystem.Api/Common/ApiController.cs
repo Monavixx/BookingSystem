@@ -68,6 +68,7 @@ public abstract class ApiController(IMediator mediator) : ControllerBase
             ValidationError => StatusCodes.Status400BadRequest,
             NotFoundError => StatusCodes.Status404NotFound,
             ConflictError => StatusCodes.Status409Conflict,
+            UnauthorizedError => StatusCodes.Status401Unauthorized,
             _ => StatusCodes.Status500InternalServerError
         };
 

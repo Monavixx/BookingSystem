@@ -7,7 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Features\Users\Commands\LogIn\" />
       <Folder Include="Features\Users\Queries\" />
     </ItemGroup>
 

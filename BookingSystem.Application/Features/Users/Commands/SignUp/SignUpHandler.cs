@@ -12,9 +12,9 @@ public class SignUpHandler(
     AppDbContext appDbContext,
     IRefreshTokenService refreshTokenService,
     IJwtTokenService jwtTokenService)
-    : IRequestHandler<SignUpCommand, Result<SuccessfulSignUpResultDto>>
+    : IRequestHandler<SignUpCommand, Result<SuccessfulSignUpResult>>
 {
-    public async Task<Result<SuccessfulSignUpResultDto>> Handle(SignUpCommand request,
+    public async Task<Result<SuccessfulSignUpResult>> Handle(SignUpCommand request,
         CancellationToken cancellationToken)
     {
         
@@ -29,7 +29,7 @@ public class SignUpHandler(
         );
         if (result.IsFailed)
         {
-            return Result.Fail<SuccessfulSignUpResultDto>(result.Errors);
+            return Result.Fail<SuccessfulSignUpResult>(result.Errors);
         }
 
         var user = result.Value;
@@ -43,7 +43,7 @@ public class SignUpHandler(
         
         var jwtToken = jwtTokenService.GenerateJwtToken(user);
 
-        return Result.Ok(new SuccessfulSignUpResultDto()
+        return Result.Ok(new SuccessfulSignUpResult()
         {
             Id = user.Id.Value,
             AuthTokens = new AuthTokens(AccessToken: jwtToken,
