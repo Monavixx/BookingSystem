@@ -26,6 +26,9 @@ public sealed class User : Entity<UserId>
     public string FirstName { get; private set; } = null!;
     public string LastName { get; private set; } = null!;
 
+    private readonly List<Session> _sessions = [];
+    public IReadOnlyCollection<Session> Sessions => _sessions;
+
     private readonly List<FavoriteRestaurant> _favoriteRestaurants = [];
     public IReadOnlyCollection<FavoriteRestaurant> FavoriteRestaurants => _favoriteRestaurants;
 
@@ -71,5 +74,11 @@ public sealed class User : Entity<UserId>
             FirstName = firstName,
             LastName = lastName
         };
+    }
+
+    public Result AddSession(RefreshToken refreshToken)
+    {
+        _sessions.Add(Session.Create(Id, refreshToken));
+        return Result.Ok();
     }
 }

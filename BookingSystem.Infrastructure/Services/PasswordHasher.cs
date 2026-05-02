@@ -1,5 +1,5 @@
 ﻿using System.Security.Cryptography;
-using BookingSystem.Application.Abstractions;
+using BookingSystem.Application.Common.Abstractions;
 using Konscious.Security.Cryptography;
 
 namespace BookingSystem.Infrastructure.Services;

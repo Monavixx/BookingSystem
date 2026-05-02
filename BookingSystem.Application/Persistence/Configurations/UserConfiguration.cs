@@ -51,5 +51,12 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(x=>x.PasswordHash)
             .HasMaxLength(128+16)
             .IsRequired();
+        
+        builder.HasMany(x=>x.Sessions)
+            .WithOne()
+            .HasForeignKey(x=>x.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+        builder.Navigation(x=>x.Sessions)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

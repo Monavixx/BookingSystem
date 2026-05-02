@@ -1,6 +1,9 @@
-﻿namespace BookingSystem.Application.Features.Users.Commands.SignUp;
+﻿using BookingSystem.Application.Common.DTOs;
 
-public class SuccessfulSignUpResultDto
+namespace BookingSystem.Application.Features.Users.Commands.SignUp;
+
+public sealed record SuccessfulSignUpResultDto
 {
     public Guid Id { get; init; }
+    public AuthTokens AuthTokens { get; init; } = null!;
 }
