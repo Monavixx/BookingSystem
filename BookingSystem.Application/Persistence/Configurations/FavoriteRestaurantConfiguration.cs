@@ -12,17 +12,29 @@ public class FavoriteRestaurantConfiguration : IEntityTypeConfiguration<Favorite
 {
     public void Configure(EntityTypeBuilder<FavoriteRestaurant> builder)
     {
-        builder.ToTable("FavoriteRestaurants");
-        builder.HasKey(fr => new { fr.UserId, fr.RestaurantId });
+        builder.ToTable(TableNames.FavoriteRestaurants);
+        
+        builder.HasKey(fr => new { fr.UserId, fr.RestaurantId })
+            .HasName(Constraints.PrimaryKey(TableNames.FavoriteRestaurants));
+        
         builder.Property(fr => fr.UserId)
-            .HasConversion(id => id.Value, s => new UserId(s));
+            .HasConversion(id => id.Value, s => new UserId(s))
+            .IsRequired()
+            .ValueGeneratedNever();
         builder.Property(fr => fr.RestaurantId)
-            .HasConversion(id => id.Value, s => new RestaurantId(s));
+            .IsRequired()
+            .HasConversion(id => id.Value, s => new RestaurantId(s))
+            .ValueGeneratedNever();
+        
         builder.HasOne<User>()
             .WithMany(u => u.FavoriteRestaurants)
-            .HasForeignKey(fr => fr.UserId);
+            .HasForeignKey(fr => fr.UserId)
+            .OnDelete(DeleteBehavior.Cascade)
+            .HasConstraintName(Constraints.ForeignKey.FavoriteRestaurantsUser.ConstraintName);
         builder.HasOne<Restaurant>()
             .WithMany()
-            .HasForeignKey(fr => fr.RestaurantId);
+            .HasForeignKey(fr => fr.RestaurantId)
+            .OnDelete(DeleteBehavior.Cascade)
+            .HasConstraintName(Constraints.ForeignKey.FavoriteRestaurantsRestaurant.ConstraintName);
     }
 }

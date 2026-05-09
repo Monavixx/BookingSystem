@@ -11,8 +11,9 @@ public class RestaurantConfiguration : IEntityTypeConfiguration<Restaurant>
 {
     public void Configure(EntityTypeBuilder<Restaurant> builder)
     {
-        builder.ToTable("Restaurants");
-        builder.HasKey(x => x.Id);
+        builder.ToTable(TableNames.Restaurants);
+        builder.HasKey(x => x.Id)
+            .HasName(Constraints.PrimaryKey(TableNames.Restaurants));
         builder.Property(r => r.Id)
             .HasConversion(id => id.Value, s => new RestaurantId(s));
         builder.ComplexProperty<Address>(r => r.Address, b =>

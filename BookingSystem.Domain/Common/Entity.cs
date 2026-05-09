@@ -1,6 +1,6 @@
 ﻿namespace BookingSystem.Domain.Common;
 
-public abstract class Entity<TId>
+public abstract class Entity<TId> : IEntity
 {
     protected Entity(TId id) => Id = id;
     protected Entity() { }

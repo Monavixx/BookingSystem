@@ -1,4 +1,5 @@
 using System.Text;
+using BookingSystem.Application;
 using BookingSystem.Application.Common.Abstractions;
 using BookingSystem.Application.Common.PipelineBehaviors;
 using BookingSystem.Application.Persistence;
@@ -15,20 +16,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
-builder.Services.AddDbContext<AppDbContext>(options =>
-{
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
-});
-builder.Services.AddMediatR(configuration =>
-{
-    configuration.RegisterServicesFromAssembly(typeof(AppDbContext).Assembly);
-    configuration.AddOpenBehavior(typeof(ValidationBehavior<,>));
-});
-builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
+
 builder.Services.AddProblemDetails();
 builder.Services.AddValidatorsFromAssembly(typeof(AppDbContext).Assembly);
-builder.Services.AddSingleton<IRefreshTokenService, RefreshTokenService>();
-builder.Services.AddSingleton<IJwtTokenService, JwtTokenService>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -53,21 +43,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 if (context.Request.Cookies.TryGetValue("access_token", out var token))
                 {
                     context.Token = token;
-                    // return Task.CompletedTask;
                 }
-
-                // var authHeader = context.Request.Headers.Authorization.FirstOrDefault();
-                // if (authHeader?.StartsWith("Bearer ") is true)
-                // {
-                //     context.Token = authHeader["Bearer ".Length..].Trim();
-                // }
-
                 return Task.CompletedTask;
             }
         };
     });
 builder.Services.AddAuthorization();
 builder.Services.AddInfrastructure();
+builder.Services.AddApplication(builder.Configuration);
 
 var app = builder.Build();
 

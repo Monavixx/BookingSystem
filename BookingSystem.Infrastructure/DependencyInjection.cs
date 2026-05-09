@@ -1,6 +1,6 @@
-﻿using BookingSystem.Domain.User.ValueObjects;
+﻿using BookingSystem.Application.Common.Abstractions;
 using BookingSystem.Infrastructure.Options;
-using Microsoft.Extensions.Configuration;
+using BookingSystem.Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BookingSystem.Infrastructure;
@@ -17,6 +17,10 @@ public static class DependencyInjection
             .BindConfiguration(JwtOptions.SectionName)
             .ValidateDataAnnotations()
             .ValidateOnStart();
+        services.AddSingleton<IConstraintViolationMapper, ConstraintViolationMapper>();
+        services.AddSingleton<IRefreshTokenService, RefreshTokenService>();
+        services.AddSingleton<IJwtTokenService, JwtTokenService>();
+        services.AddSingleton<IPasswordHasher, PasswordHasher>();
 
         return services;
     }

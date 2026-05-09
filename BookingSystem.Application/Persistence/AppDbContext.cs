@@ -3,6 +3,7 @@ using BookingSystem.Domain.Common;
 using BookingSystem.Domain.Common.ValueObjects;
 using BookingSystem.Domain.Restaurant;
 using BookingSystem.Domain.User;
+using FluentResults;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookingSystem.Application.Persistence;
@@ -21,7 +22,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
                 builder => { builder.Property(nameof(Entity<>.RowVersion)).IsRowVersion(); });
         }
     }
-
+    
+    public DbSet<Restaurant> Restaurants => Set<Restaurant>();
+    public DbSet<User> Users => Set<User>();
+    
+    
     private static bool IsEntity(Type? type)
     {
         while (type != null && type != typeof(object))
@@ -34,7 +39,4 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
 
         return false;
     }
-
-    public DbSet<Restaurant> Restaurants => Set<Restaurant>();
-    public DbSet<User> Users => Set<User>();
 }

@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 
 namespace BookingSystem.Infrastructure.Services;
 
-public class RefreshTokenService (IOptions<RefreshTokenOptions> options) : IRefreshTokenService
+internal class RefreshTokenService (IOptions<RefreshTokenOptions> options) : IRefreshTokenService
 {
     public RefreshToken GenerateRefreshToken()
     {

@@ -1,4 +1,5 @@
-﻿using BookingSystem.Domain.Common.Errors;
+﻿using BookingSystem.Application.Common.Factories;
+using BookingSystem.Domain.Common.Errors;
 using FluentResults;
 using FluentValidation;
 using MediatR;
@@ -19,31 +20,19 @@ public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TReq
         
         var results = await Task.WhenAll(validationTasks);
         if (results.All(r => r.IsValid)) return await next(cancellationToken);
-        
+
         var errors = results.SelectMany(r => r.Errors)
             .Where(e => e is not null)
             .Select(e =>
             {
                 var error = new ValidationError(e.ErrorCode, e.ErrorMessage);
-                if(!string.IsNullOrWhiteSpace(e.PropertyName))
+                if (!string.IsNullOrWhiteSpace(e.PropertyName))
                     error.Metadata.Add("PropertyName", e.PropertyName);
                 return error;
-            })
-            .ToArray();
+            });
         
         var resultType = typeof(TResponse);
-        if (resultType.IsGenericType && resultType.GetGenericTypeDefinition().IsAssignableTo(typeof(Result<>)))
-        {
-            var failMethod = typeof(Result).GetMethod("Fail", 1, [typeof(IEnumerable<IError>)])
-                !.MakeGenericMethod(resultType.GenericTypeArguments[0]);
-            return (TResponse)failMethod.Invoke(null, [errors])!;
-        }
-        if (resultType == typeof(Result))
-        {
-            return (TResponse)(object)Result.Fail(errors);
-        }
-
-        throw new InvalidOperationException($"Unsupported TResponse type: {resultType}");
+        return ResultFactory.CreateFailure<TResponse>(errors);
     }
 }
 // TODO: password validation

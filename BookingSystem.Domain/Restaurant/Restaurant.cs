@@ -17,6 +17,9 @@ public sealed class Restaurant : Entity<RestaurantId>
     public string? Description { get; private set; }
 
     public Url? ImageUrl { get; private set; }
+    
+    private readonly List<Table> _tables = [];
+    public IReadOnlyCollection<Table> Tables => _tables;
     // tables...
     
     public static Result<Restaurant> Create(

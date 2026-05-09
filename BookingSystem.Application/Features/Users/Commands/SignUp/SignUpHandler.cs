@@ -4,6 +4,8 @@ using BookingSystem.Application.Persistence;
 using BookingSystem.Domain.User;
 using FluentResults;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace BookingSystem.Application.Features.Users.Commands.SignUp;
 
@@ -17,7 +19,6 @@ public class SignUpHandler(
     public async Task<Result<SuccessfulSignUpResult>> Handle(SignUpCommand request,
         CancellationToken cancellationToken)
     {
-        
         var result = User.Create(
             username: request.Username,
             email: request.Email,
@@ -38,7 +39,7 @@ public class SignUpHandler(
 
         var rt = refreshTokenService.GenerateRefreshToken();
         user.AddSession(rt);
-        
+
         await appDbContext.SaveChangesAsync(cancellationToken);
         
         var jwtToken = jwtTokenService.GenerateJwtToken(user);

@@ -9,10 +9,12 @@ public class SessionConfiguration : IEntityTypeConfiguration<Session>
 {
     public void Configure(EntityTypeBuilder<Session> builder)
     {
-        builder.ToTable("Sessions");
-        builder.HasKey(s => s.Id);
+        builder.ToTable(TableNames.Sessions);
+        builder.HasKey(s => s.Id)
+            .HasName(Constraints.PrimaryKey(TableNames.Sessions));
         builder.Property(s => s.Id)
-            .HasConversion(id => id.Value, s => new SessionId(s));
+            .HasConversion(id => id.Value, s => new SessionId(s))
+            .ValueGeneratedNever();
         builder.ComplexProperty(x => x.RefreshToken, b =>
         {
             b.Property(rt => rt.Token)
@@ -23,5 +25,11 @@ public class SessionConfiguration : IEntityTypeConfiguration<Session>
                 .HasColumnName("RefreshTokenExpiresAt")
                 .IsRequired();
         });
+        
+        builder.HasOne<User>()
+            .WithMany(u => u.Sessions)
+            .HasForeignKey(x=>x.UserId)
+            .HasConstraintName(Constraints.ForeignKey.SessionsUser.ConstraintName)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

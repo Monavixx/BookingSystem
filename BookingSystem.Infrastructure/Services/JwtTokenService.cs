@@ -9,7 +9,7 @@ using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegiste
 
 namespace BookingSystem.Infrastructure.Services;
 
-public class JwtTokenService : IJwtTokenService
+internal class JwtTokenService : IJwtTokenService
 {
     private readonly JwtOptions _options;
     private readonly SymmetricSecurityKey _key;
