@@ -1,4 +1,4 @@
-﻿namespace BookingSystem.Application.Abstractions;
+﻿namespace BookingSystem.Application.Common.Abstractions;
 
 public interface IPasswordHasher
 {

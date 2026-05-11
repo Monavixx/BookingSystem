@@ -9,4 +9,11 @@ public class Table : Entity<TableId>
 
     public RestaurantId RestaurantId { get; private set; }
     public int TableNumber { get; private set; }
+
+    public static Table Create(RestaurantId restaurantId, int tableNumber)
+        => new()
+        {
+            RestaurantId = restaurantId,
+            TableNumber = tableNumber
+        };
 }

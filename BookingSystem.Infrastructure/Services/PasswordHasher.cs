@@ -1,10 +1,10 @@
 ﻿using System.Security.Cryptography;
-using BookingSystem.Application.Abstractions;
+using BookingSystem.Application.Common.Abstractions;
 using Konscious.Security.Cryptography;
 
 namespace BookingSystem.Infrastructure.Services;
 
-public class PasswordHasher : IPasswordHasher
+internal class PasswordHasher : IPasswordHasher
 {
     public byte[] HashPassword(string password)
     {

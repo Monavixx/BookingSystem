@@ -1,4 +1,5 @@
-﻿using BookingSystem.Application.Persistence.Configurations.Converters;
+﻿using BookingSystem.Application.Persistence.Abstractions;
+using BookingSystem.Application.Persistence.Configurations.Converters;
 using BookingSystem.Domain.Common.ValueObjects;
 using BookingSystem.Domain.Restaurant;
 using BookingSystem.Domain.Restaurant.ValueObjects;
@@ -11,7 +12,6 @@ public class RestaurantConfiguration : IEntityTypeConfiguration<Restaurant>
 {
     public void Configure(EntityTypeBuilder<Restaurant> builder)
     {
-        builder.ToTable("Restaurants");
         builder.HasKey(x => x.Id);
         builder.Property(r => r.Id)
             .HasConversion(id => id.Value, s => new RestaurantId(s));
@@ -27,17 +27,14 @@ public class RestaurantConfiguration : IEntityTypeConfiguration<Restaurant>
         });
         builder.Property(r => r.ContactPhoneNumber)
             .HasConversion<PhoneNumberConverter>()
-            .HasColumnName("ContactPhoneNumber")
             .HasMaxLength(PhoneNumber.MaxLength);
         builder.Property(r => r.Email)
             .HasConversion<EmailAddressConverter>()
-            .HasColumnName("Email")
             .HasMaxLength(EmailAddress.MaxLength);
         builder.Property(r => r.Description)
             .HasMaxLength(Restaurant.DescriptionMaxLength);
         builder.Property(r => r.ImageUrl)
             .HasConversion<UrlConverter>()
-            .HasColumnName("ImageUrl")
             .HasMaxLength(Url.MaxLength);
     }
 }

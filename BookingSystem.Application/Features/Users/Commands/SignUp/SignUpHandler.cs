@@ -1,15 +1,22 @@
-﻿using BookingSystem.Application.Abstractions;
+﻿using BookingSystem.Application.Common.Abstractions;
+using BookingSystem.Application.Common.DTOs;
 using BookingSystem.Application.Persistence;
 using BookingSystem.Domain.User;
 using FluentResults;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace BookingSystem.Application.Features.Users.Commands.SignUp;
 
-public class SignUpHandler(IPasswordHasher passwordHasher, AppDbContext appDbContext)
-    : IRequestHandler<SignUpCommand, Result<SuccessfulSignUpResultDto>>
+public class SignUpHandler(
+    IPasswordHasher passwordHasher,
+    AppDbContext appDbContext,
+    IRefreshTokenService refreshTokenService,
+    IJwtTokenService jwtTokenService)
+    : IRequestHandler<SignUpCommand, Result<SuccessfulSignUpResult>>
 {
-    public async Task<Result<SuccessfulSignUpResultDto>> Handle(SignUpCommand request,
+    public async Task<Result<SuccessfulSignUpResult>> Handle(SignUpCommand request,
         CancellationToken cancellationToken)
     {
         var result = User.Create(
@@ -21,18 +28,28 @@ public class SignUpHandler(IPasswordHasher passwordHasher, AppDbContext appDbCon
             firstName: request.FirstName,
             lastName: request.LastName
         );
-
         if (result.IsFailed)
         {
-            return Result.Fail<SuccessfulSignUpResultDto>(result.Errors);
+            return Result.Fail<SuccessfulSignUpResult>(result.Errors);
         }
-        
-        appDbContext.Users.Add(result.Value);
-        await appDbContext.SaveChangesAsync(cancellationToken);
 
-        return Result.Ok(new SuccessfulSignUpResultDto()
+        var user = result.Value;
+
+        appDbContext.Users.Add(user);
+
+        var rt = refreshTokenService.GenerateRefreshToken();
+        user.AddSession(rt);
+
+        await appDbContext.SaveChangesAsync(cancellationToken);
+        
+        var jwtToken = jwtTokenService.GenerateJwtToken(user);
+
+        return Result.Ok(new SuccessfulSignUpResult()
         {
-            Id = result.Value.Id.Value,
+            Id = user.Id.Value,
+            AuthTokens = new AuthTokens(AccessToken: jwtToken,
+                RefreshToken: rt
+            )
         });
     }
 }

@@ -1,24 +1,56 @@
-using BookingSystem.Application.Abstractions;
+using System.Text;
+using BookingSystem.Application;
 using BookingSystem.Application.Persistence;
-using BookingSystem.Infrastructure.Services;
-using Microsoft.EntityFrameworkCore;
+using BookingSystem.Application.Persistence.Extensions;
+using BookingSystem.Infrastructure;
+using BookingSystem.Infrastructure.Options;
+using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
-builder.Services.AddDbContext<AppDbContext>(options =>
-{
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
-});
-builder.Services.AddMediatR(configuration =>
-{
-    configuration.RegisterServicesFromAssembly(typeof(AppDbContext).Assembly);
-});
-builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
+
+builder.Services.AddProblemDetails();
+builder.Services.AddValidatorsFromAssembly(typeof(AppDbContext).Assembly);
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        var opt = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>()!;
+        options.RequireHttpsMetadata = true;
+        options.SaveToken = true;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = opt.Issuer,
+            ValidAudience = opt.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(opt.Secret)),
+            ClockSkew = TimeSpan.Zero
+        };
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                if (context.Request.Cookies.TryGetValue("access_token", out var token))
+                {
+                    context.Token = token;
+                }
+                return Task.CompletedTask;
+            }
+        };
+    });
+builder.Services.AddAuthorization();
+builder.Services.AddInfrastructure();
+builder.Services.AddApplication(builder.Configuration);
 
 var app = builder.Build();
+
 
 if (app.Environment.IsDevelopment())
 {
@@ -27,6 +59,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
