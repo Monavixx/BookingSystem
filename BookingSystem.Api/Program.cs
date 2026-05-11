@@ -1,14 +1,11 @@
 using System.Text;
 using BookingSystem.Application;
-using BookingSystem.Application.Common.Abstractions;
-using BookingSystem.Application.Common.PipelineBehaviors;
 using BookingSystem.Application.Persistence;
+using BookingSystem.Application.Persistence.Extensions;
 using BookingSystem.Infrastructure;
 using BookingSystem.Infrastructure.Options;
-using BookingSystem.Infrastructure.Services;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -53,6 +50,7 @@ builder.Services.AddInfrastructure();
 builder.Services.AddApplication(builder.Configuration);
 
 var app = builder.Build();
+
 
 if (app.Environment.IsDevelopment())
 {

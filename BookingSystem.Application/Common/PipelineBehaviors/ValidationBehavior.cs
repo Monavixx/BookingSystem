@@ -35,4 +35,3 @@ public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TReq
         return ResultFactory.CreateFailure<TResponse>(errors);
     }
 }
-// TODO: password validation

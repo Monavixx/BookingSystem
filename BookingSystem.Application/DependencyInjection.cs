@@ -12,7 +12,8 @@ public static class DependencyInjection
         {
             services.AddDbContext<AppDbContext>(options =>
             {
-                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
+                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"))
+                    .UseSnakeCaseNamingConvention();
             });
             services.AddMediatR(c =>
             {
@@ -20,6 +21,7 @@ public static class DependencyInjection
                 c.AddOpenBehavior(typeof(ValidationBehavior<,>));
                 c.AddOpenBehavior(typeof(DbExceptionHandlingBehavior<,>));
             });
+            Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
             return services;
         }
 }

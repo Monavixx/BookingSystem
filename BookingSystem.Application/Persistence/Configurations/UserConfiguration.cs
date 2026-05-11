@@ -1,19 +1,20 @@
-﻿using BookingSystem.Application.Persistence.Configurations.Converters;
+﻿using BookingSystem.Application.Persistence.Abstractions;
+using BookingSystem.Application.Persistence.Configurations.Converters;
+using BookingSystem.Domain.Common.Errors;
 using BookingSystem.Domain.Common.ValueObjects;
 using BookingSystem.Domain.User;
+using BookingSystem.Domain.User.Errors;
 using BookingSystem.Domain.User.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace BookingSystem.Application.Persistence.Configurations;
 
-public class UserConfiguration : IEntityTypeConfiguration<User>
+public class UserConfiguration : IEntityTypeConfiguration<User>, IConstraintErrorConfiguration
 {
     public void Configure(EntityTypeBuilder<User> builder)
     {
-        builder.ToTable(TableNames.Users);
-        builder.HasKey(x => x.Id)
-            .HasName(Constraints.PrimaryKey(TableNames.Users));
+        builder.HasKey(x => x.Id);
         builder.Property(x => x.Id)
             .HasConversion(id => id.Value, value => new UserId(value))
             .ValueGeneratedNever();
@@ -35,24 +36,21 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasMaxLength(EmailAddress.MaxLength)
             .IsRequired();
         builder.HasIndex(x => x.Email)
-            .IsUnique()
-            .HasDatabaseName(Constraints.Unique.UserEmail.ConstraintName);
+            .IsUnique();
         
         builder.Property(x => x.PhoneNumber)
             .HasConversion<PhoneNumberConverter>()
             .HasMaxLength(PhoneNumber.MaxLength)
             .IsRequired();
         builder.HasIndex(x => x.PhoneNumber)
-            .IsUnique()
-            .HasDatabaseName(Constraints.Unique.UserPhoneNumber.ConstraintName);
+            .IsUnique();
         
         builder.Property(x => x.Username)
             .HasConversion(username => username.Value, value => Username.Create(value).Value)
             .HasMaxLength(Username.MaxLength)
             .IsRequired();
         builder.HasIndex(x => x.Username)
-            .IsUnique()
-            .HasDatabaseName(Constraints.Unique.UserUsername.ConstraintName);
+            .IsUnique();
         
         builder.Property(x => x.BirthDate)
             .HasConversion(birthDate => birthDate.Value, value => Birthdate.Create(value).Value)
@@ -63,5 +61,13 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(x=>x.PasswordHash)
             .HasMaxLength(128+16)
             .IsRequired();
+    }
+
+    public void Configure(ConstraintErrorRegistryBase registry)
+    {
+        registry
+            .RegisterUnique<User>(u => u.Username, UserErrors.Username.AlreadyInUse)
+            .RegisterUnique<User>(u => u.Email, UserErrors.Email.AlreadyInUse)
+            .RegisterUnique<User>(u => u.PhoneNumber, UserErrors.PhoneNumber.AlreadyInUse);
     }
 }

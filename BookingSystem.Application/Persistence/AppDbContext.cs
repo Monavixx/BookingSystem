@@ -1,6 +1,7 @@
 ﻿using BookingSystem.Application.Persistence.Configurations.Converters;
 using BookingSystem.Domain.Common;
 using BookingSystem.Domain.Common.ValueObjects;
+using BookingSystem.Domain.FavoriteRestaurant;
 using BookingSystem.Domain.Restaurant;
 using BookingSystem.Domain.User;
 using FluentResults;
@@ -25,6 +26,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     
     public DbSet<Restaurant> Restaurants => Set<Restaurant>();
     public DbSet<User> Users => Set<User>();
+    public DbSet<Session> Sessions => Set<Session>();
+    public DbSet<Table> Tables => Set<Table>();
+    public DbSet<FavoriteRestaurant> FavoriteRestaurants => Set<FavoriteRestaurant>();
     
     
     private static bool IsEntity(Type? type)
