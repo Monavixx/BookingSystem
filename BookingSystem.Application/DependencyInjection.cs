@@ -19,6 +19,7 @@ public static class DependencyInjection
             {
                 c.RegisterServicesFromAssembly(typeof(AppDbContext).Assembly);
                 c.AddOpenBehavior(typeof(ValidationBehavior<,>));
+                c.AddOpenBehavior(typeof(LoggingBehavior<,>));
                 c.AddOpenBehavior(typeof(DbExceptionHandlingBehavior<,>));
             });
             Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;

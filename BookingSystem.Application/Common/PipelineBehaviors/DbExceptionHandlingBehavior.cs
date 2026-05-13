@@ -1,5 +1,4 @@
-﻿using BookingSystem.Application.Common.Abstractions;
-using BookingSystem.Application.Common.Factories;
+﻿using BookingSystem.Application.Common.Factories;
 using BookingSystem.Application.Persistence.Abstractions;
 using BookingSystem.Domain.Common.Errors;
 using FluentResults;
