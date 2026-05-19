@@ -20,4 +20,8 @@ public record RefreshToken
     {
         return Convert.ToBase64String(Token);
     }
+    public static byte[] FromString(string token)
+    {
+        return Convert.FromBase64String(token);
+    }
 }

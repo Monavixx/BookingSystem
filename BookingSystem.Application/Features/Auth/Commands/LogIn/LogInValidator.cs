@@ -9,7 +9,6 @@ public class LogInValidator : AbstractValidator<LogInCommand>
 {
     public LogInValidator()
     {
-
         Unless(u => string.IsNullOrEmpty(u.Email) && string.IsNullOrEmpty(u.Username), () =>
         {
             RuleFor(u => u.Username)

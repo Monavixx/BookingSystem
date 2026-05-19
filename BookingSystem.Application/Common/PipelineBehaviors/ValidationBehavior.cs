@@ -31,7 +31,6 @@ public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TReq
                 return error;
             });
         
-        var resultType = typeof(TResponse);
         return ResultFactory.CreateFailure<TResponse>(errors);
     }
 }

@@ -13,7 +13,7 @@ public class UsersController(IMediator mediator) : ApiController(mediator)
     [HttpGet("me")]
     public async Task<IActionResult> GetCurrentUser()
     {
-        var result = await Mediator.Send(GetUserQuery.Default);
+        var result = await Mediator.Send(GetCurrentUserQuery.Default);
         if (result.IsFailed) return HandleErrors(result);
         return Ok(result.Value);
     }

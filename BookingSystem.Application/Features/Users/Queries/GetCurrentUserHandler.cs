@@ -10,17 +10,18 @@ using Microsoft.Extensions.Logging;
 
 namespace BookingSystem.Application.Features.Users.Queries;
 
-public class GetUserHandler(AppDbContext dbContext, ILogger<GetUserHandler> logger, ICurrentUserService currentUserService)
-    : IRequestHandler<GetUserQuery, Result<UserDto>>
+public class GetCurrentUserHandler(AppDbContext dbContext, ILogger<GetCurrentUserHandler> logger, ICurrentUserService currentUserService)
+    : IRequestHandler<GetCurrentUserQuery, Result<UserDto>>
 {
-    private const string SqlQuery = """
-                                     SELECT u.id, u.username, u.email, u.phone_number, 
-                                            u.registration_date_time, u.birth_date, u.first_name, u.last_name
-                                     FROM users u
-                                     WHERE u.id = @UserId
-                                     """;
+    private const string SqlQuery =
+        """
+        SELECT u.id, u.username, u.email, u.phone_number, 
+               u.registration_date_time, u.birth_date, u.first_name, u.last_name
+        FROM users u
+        WHERE u.id = @UserId
+        """;
 
-    public async Task<Result<UserDto>> Handle(GetUserQuery request, CancellationToken cancellationToken)
+    public async Task<Result<UserDto>> Handle(GetCurrentUserQuery request, CancellationToken cancellationToken)
     {
         var userId = currentUserService.GetRequiredUserId();
         logger.LogInformation("Trying to get user with id '{UserId}'", userId);

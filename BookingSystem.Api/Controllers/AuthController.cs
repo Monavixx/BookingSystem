@@ -1,6 +1,7 @@
 ﻿using BookingSystem.Api.Common;
 using BookingSystem.Application.Common.DTOs;
 using BookingSystem.Application.Features.Auth.Commands.LogIn;
+using BookingSystem.Application.Features.Auth.Commands.Refresh;
 using BookingSystem.Application.Features.Auth.Commands.SignUp;
 using BookingSystem.Infrastructure.Options;
 using MediatR;
@@ -35,7 +36,16 @@ public class AuthController(IMediator mediator, IOptions<JwtOptions> jwtOptions)
         AddAuthTokensToCookie(result.Value.AuthTokens);
         return Ok(new { result.Value.Id });
     }
-    
+
+    [HttpPost("refresh")]
+    public async Task<IActionResult> Refresh()
+    {
+        var result = await Mediator.Send(new RefreshCommand(Request.Cookies["refresh_token"]!));
+        if (result.IsFailed) return HandleErrors(result);
+
+        AddAuthTokensToCookie(result.Value);
+        return NoContent();
+    }
 
     private void AddAuthTokensToCookie(AuthTokens authTokens)
     {

@@ -7,6 +7,7 @@ public sealed class Session : Entity<SessionId>
 {
     public UserId UserId { get; private set; }
     public RefreshToken RefreshToken { get; private set; } = null!;
+    public User? User { get; private set; }
 
     public static Session Create(UserId userId, RefreshToken refreshToken)
         => new Session()
@@ -15,4 +16,7 @@ public sealed class Session : Entity<SessionId>
             UserId = userId,
             RefreshToken = refreshToken
         };
+
+    public void UpdateRefreshToken(RefreshToken refreshToken)
+        => RefreshToken = refreshToken;
 }

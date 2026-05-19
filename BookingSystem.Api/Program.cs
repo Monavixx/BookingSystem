@@ -33,7 +33,7 @@ try
         .ReadFrom.Configuration(builder.Configuration)
         .ReadFrom.Services(services)
         .Enrich.FromLogContext()
-        .WriteTo.Console(LogEventLevel.Debug)
+        .WriteTo.Console(LogEventLevel.Debug, outputTemplate:"[{Timestamp:HH:mm:ss} {Level:u3}] ({SourceContext}, {Properties}) {Message:lj}{NewLine}{Exception}")
         .WriteTo.Seq("http://localhost:5341")
     );
 

@@ -4,7 +4,7 @@ using MediatR;
 
 namespace BookingSystem.Application.Features.Users.Queries;
 
-public sealed record GetUserQuery : IRequest<Result<UserDto>>
+public sealed record GetCurrentUserQuery : IRequest<Result<UserDto>>
 {
-    public static readonly GetUserQuery Default = new(); 
+    public static readonly GetCurrentUserQuery Default = new(); 
 }

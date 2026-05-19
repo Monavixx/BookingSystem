@@ -24,7 +24,7 @@ public class SessionConfiguration : IEntityTypeConfiguration<Session>, IConstrai
                 .IsRequired();
         });
 
-        builder.HasOne<User>()
+        builder.HasOne<User>(session => session.User)
             .WithMany(u => u.Sessions)
             .HasForeignKey(x => x.UserId)
             .OnDelete(DeleteBehavior.Cascade)
