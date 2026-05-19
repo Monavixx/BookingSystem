@@ -1,0 +1,18 @@
+services:
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: BookingSystemDB
+    ports:
+      - "5432:5432"
+    container_name: BookingSystemDB
+  seq:
+    image: datalust/seq:latest
+    ports:
+      - "5341:80"
+    environment:
+        ACCEPT_EULA: "Y"
+        SEQ_FIRSTRUN_ADMINPASSWORD: "admin"
+    container_name: BookingSystemSeq
