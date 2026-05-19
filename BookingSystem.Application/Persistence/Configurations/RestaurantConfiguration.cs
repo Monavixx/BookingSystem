@@ -3,6 +3,7 @@ using BookingSystem.Application.Persistence.Configurations.Converters;
 using BookingSystem.Domain.Common.ValueObjects;
 using BookingSystem.Domain.Restaurant;
 using BookingSystem.Domain.Restaurant.ValueObjects;
+using BookingSystem.Domain.User.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -36,5 +37,13 @@ public class RestaurantConfiguration : IEntityTypeConfiguration<Restaurant>
         builder.Property(r => r.ImageUrl)
             .HasConversion<UrlConverter>()
             .HasMaxLength(Url.MaxLength);
+
+        builder.Property(r => r.OwnerId)
+            .HasConversion(id => id.Value, s => new UserId(s))
+            .IsRequired(false);
+        builder.HasOne(r => r.Owner)
+            .WithMany(m => m.Restaurants)
+            .HasForeignKey(r => r.OwnerId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

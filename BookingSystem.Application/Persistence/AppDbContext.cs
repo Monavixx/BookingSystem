@@ -29,6 +29,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<Session> Sessions => Set<Session>();
     public DbSet<Table> Tables => Set<Table>();
     public DbSet<FavoriteRestaurant> FavoriteRestaurants => Set<FavoriteRestaurant>();
+    public DbSet<Manager> Managers => Set<Manager>();
     
     
     private static bool IsEntity(Type? type)

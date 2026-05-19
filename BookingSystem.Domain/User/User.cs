@@ -27,6 +27,7 @@ public sealed class User : Entity<UserId>
     public Birthdate BirthDate { get; private set; } = null!;
     public string FirstName { get; private set; } = null!;
     public string LastName { get; private set; } = null!;
+    public UserRole Role { get; private set; } = UserRole.Guest;
 
     private readonly List<Session> _sessions = [];
     public IReadOnlyCollection<Session> Sessions => _sessions;
@@ -42,13 +43,15 @@ public sealed class User : Entity<UserId>
         byte[]? passwordHash,
         DateOnly birthdate,
         string firstName,
-        string lastName)
+        string lastName,
+        UserRole role = UserRole.Guest)
     {
         var usernameResult = Username.Create(username);
         var emailResult = EmailAddress.Create(email);
         var phoneNumberResult = PhoneNumber.Create(phoneNumber);
         var birthdateResult = Birthdate.Create(birthdate);
-
+        if (!Enum.IsDefined(role))
+            throw new ArgumentException("Invalid user role", nameof(role));
         List<IError> errors =
         [
             ..usernameResult.Errors,
@@ -85,7 +88,8 @@ public sealed class User : Entity<UserId>
             RegistrationDateTime = RegistrationDateTime.New(),
             BirthDate = birthdateResult.Value,
             FirstName = firstName,
-            LastName = lastName
+            LastName = lastName,
+            Role = role
         };
     }
 

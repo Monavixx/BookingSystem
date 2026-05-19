@@ -2,6 +2,8 @@
 using BookingSystem.Domain.Common.ValueObjects;
 using BookingSystem.Domain.Restaurant.Errors;
 using BookingSystem.Domain.Restaurant.ValueObjects;
+using BookingSystem.Domain.User;
+using BookingSystem.Domain.User.ValueObjects;
 using FluentResults;
 
 namespace BookingSystem.Domain.Restaurant;
@@ -20,7 +22,8 @@ public sealed class Restaurant : Entity<RestaurantId>
     
     private readonly List<Table> _tables = [];
     public IReadOnlyCollection<Table> Tables => _tables;
-    // tables...
+    public UserId OwnerId { get; private set; }
+    public Manager Owner { get; private set; } = null!;
     
     public static Result<Restaurant> Create(
         string country,
@@ -33,7 +36,8 @@ public sealed class Restaurant : Entity<RestaurantId>
         string contactPhoneNumber,
         string email,
         string? description,
-        string? imageUrl
+        string? imageUrl,
+        UserId ownerId
         )
     {
         var addressResult = Address.Create(country, state, city, street, houseNumber, apartmentNumber, zipCode);
@@ -60,7 +64,8 @@ public sealed class Restaurant : Entity<RestaurantId>
             ContactPhoneNumber = contactPhoneNumberResult.Value,
             Email = emailResult.Value,
             Description = description,
-            ImageUrl = imageUrlResult.Value
+            ImageUrl = imageUrlResult.Value,
+            OwnerId = ownerId
         };
     }
 }
