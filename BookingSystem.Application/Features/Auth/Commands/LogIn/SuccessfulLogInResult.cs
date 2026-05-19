@@ -1,6 +1,6 @@
 ﻿using BookingSystem.Application.Common.DTOs;
 
-namespace BookingSystem.Application.Features.Users.Commands.LogIn;
+namespace BookingSystem.Application.Features.Auth.Commands.LogIn;
 
 public sealed record SuccessfulLogInResult
 {

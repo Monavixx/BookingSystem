@@ -3,7 +3,7 @@ using BookingSystem.Domain.User;
 using BookingSystem.Domain.User.ValueObjects;
 using FluentValidation;
 
-namespace BookingSystem.Application.Features.Users.Commands.LogIn;
+namespace BookingSystem.Application.Features.Auth.Commands.LogIn;
 
 public class LogInValidator : AbstractValidator<LogInCommand>
 {

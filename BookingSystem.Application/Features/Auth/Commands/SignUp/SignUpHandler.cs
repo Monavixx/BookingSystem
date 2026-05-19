@@ -4,21 +4,22 @@ using BookingSystem.Application.Persistence;
 using BookingSystem.Domain.User;
 using FluentResults;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Npgsql;
+using Microsoft.Extensions.Logging;
 
-namespace BookingSystem.Application.Features.Users.Commands.SignUp;
+namespace BookingSystem.Application.Features.Auth.Commands.SignUp;
 
 public class SignUpHandler(
     IPasswordHasher passwordHasher,
     AppDbContext appDbContext,
     IRefreshTokenService refreshTokenService,
-    IJwtTokenService jwtTokenService)
+    IJwtTokenService jwtTokenService,
+    ILogger<SignUpHandler> logger)
     : IRequestHandler<SignUpCommand, Result<SuccessfulSignUpResult>>
 {
     public async Task<Result<SuccessfulSignUpResult>> Handle(SignUpCommand request,
         CancellationToken cancellationToken)
     {
+        logger.LogInformation("Trying to sign up user {UserName}", request.Username);
         var result = User.Create(
             username: request.Username,
             email: request.Email,
@@ -28,21 +29,22 @@ public class SignUpHandler(
             firstName: request.FirstName,
             lastName: request.LastName
         );
+        
         if (result.IsFailed)
         {
+            logger.LogWarning("User creation failed for {UserName}: {@Errors}", request.Username, result.Errors);
             return Result.Fail<SuccessfulSignUpResult>(result.Errors);
         }
 
         var user = result.Value;
-
         appDbContext.Users.Add(user);
 
         var rt = refreshTokenService.GenerateRefreshToken();
         user.AddSession(rt);
-
-        await appDbContext.SaveChangesAsync(cancellationToken);
-        
         var jwtToken = jwtTokenService.GenerateJwtToken(user);
+        
+        await appDbContext.SaveChangesAsync(cancellationToken);
+        logger.LogInformation("User {UserName} signed up successfully with id {UserId}", request.Username, user.Id);
 
         return Result.Ok(new SuccessfulSignUpResult()
         {

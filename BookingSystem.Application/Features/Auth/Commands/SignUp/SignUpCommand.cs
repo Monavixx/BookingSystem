@@ -2,7 +2,7 @@
 using FluentResults;
 using MediatR;
 
-namespace BookingSystem.Application.Features.Users.Commands.SignUp;
+namespace BookingSystem.Application.Features.Auth.Commands.SignUp;
 
 public sealed record SignUpCommand(
     string Username,

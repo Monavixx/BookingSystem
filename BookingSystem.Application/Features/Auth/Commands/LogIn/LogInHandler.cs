@@ -9,7 +9,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace BookingSystem.Application.Features.Users.Commands.LogIn;
+namespace BookingSystem.Application.Features.Auth.Commands.LogIn;
 
 public class LogInHandler(
     AppDbContext dbContext,

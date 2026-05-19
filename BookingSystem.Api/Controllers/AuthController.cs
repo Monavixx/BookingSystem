@@ -1,7 +1,7 @@
 ﻿using BookingSystem.Api.Common;
 using BookingSystem.Application.Common.DTOs;
-using BookingSystem.Application.Features.Users.Commands.LogIn;
-using BookingSystem.Application.Features.Users.Commands.SignUp;
+using BookingSystem.Application.Features.Auth.Commands.LogIn;
+using BookingSystem.Application.Features.Auth.Commands.SignUp;
 using BookingSystem.Infrastructure.Options;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

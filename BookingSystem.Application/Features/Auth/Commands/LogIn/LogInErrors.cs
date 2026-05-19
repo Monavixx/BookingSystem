@@ -1,6 +1,6 @@
 ﻿using BookingSystem.Domain.Common.Errors;
 
-namespace BookingSystem.Application.Features.Users.Commands.LogIn;
+namespace BookingSystem.Application.Features.Auth.Commands.LogIn;
 
 public static class LogInErrors
 {

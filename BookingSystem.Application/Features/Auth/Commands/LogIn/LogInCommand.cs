@@ -2,7 +2,7 @@
 using FluentResults;
 using MediatR;
 
-namespace BookingSystem.Application.Features.Users.Commands.LogIn;
+namespace BookingSystem.Application.Features.Auth.Commands.LogIn;
 
 public sealed record LogInCommand (
     [property: SensitiveCommandProperty] string? Email, 

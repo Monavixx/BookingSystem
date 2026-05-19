@@ -1,6 +1,9 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using BookingSystem.Api.Middlewares;
+using BookingSystem.Api.Services;
 using BookingSystem.Application;
+using BookingSystem.Application.Common.Abstractions;
 using BookingSystem.Application.Persistence;
 using BookingSystem.Infrastructure;
 using BookingSystem.Infrastructure.Options;
@@ -18,6 +21,12 @@ Log.Logger = new LoggerConfiguration()
 
 try
 {
+    // Disable legacy WS-Federation claim type mapping.
+    // Without this, standard JWT claims like "sub" get remapped to long URI-based
+    // claim types (e.g., sub → NameIdentifier URI), which breaks direct claim lookups.
+    JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+    JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
+    
     var builder = WebApplication.CreateBuilder(args);
 
     builder.Services.AddSerilog((services, s) => s
@@ -48,7 +57,9 @@ try
                 ValidIssuer = opt.Issuer,
                 ValidAudience = opt.Audience,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(opt.Secret)),
-                ClockSkew = TimeSpan.Zero
+                ClockSkew = TimeSpan.Zero,
+                NameClaimType = JwtRegisteredClaimNames.Sub,
+                RoleClaimType = "role"
             };
             options.Events = new JwtBearerEvents
             {
@@ -63,9 +74,11 @@ try
                 }
             };
         });
-    builder.Services.AddAuthorization();
+    builder.Services.AddAuthorizationBuilder();
     builder.Services.AddInfrastructure();
     builder.Services.AddApplication(builder.Configuration);
+    builder.Services.AddHttpContextAccessor();
+    builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
     var app = builder.Build();
 
@@ -87,6 +100,7 @@ try
 
     app.Run();
 }
+catch(HostAbortedException){}
 catch (Exception ex)
 {
     Log.Fatal(ex, "Application terminated unexpectedly");
