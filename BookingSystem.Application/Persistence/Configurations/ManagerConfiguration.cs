@@ -11,7 +11,6 @@ public class ManagerConfiguration : IEntityTypeConfiguration<Manager>
     {
         builder.HasKey(m => m.UserId);
         builder.Property(m => m.UserId)
-            .IsRequired()
             .HasConversion(id => id.Value, value => new UserId(value));
         builder.HasOne(m => m.User)
             .WithOne()

@@ -23,6 +23,7 @@
 
     <ItemGroup>
       <Folder Include="Features\Auth\" />
+      <Folder Include="Features\Restaurants\Queries\" />
     </ItemGroup>
 
 </Project>

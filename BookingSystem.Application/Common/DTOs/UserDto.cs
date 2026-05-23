@@ -1,7 +1,8 @@
-﻿namespace BookingSystem.Application.Common.DTOs;
+﻿using BookingSystem.Domain.User;
 
-public sealed record UserDto
-(
+namespace BookingSystem.Application.Common.DTOs;
+
+public sealed record UserDto(
     Guid Id,
     string Username,
     string Email,
@@ -9,5 +10,20 @@ public sealed record UserDto
     DateTime RegistrationDateTime,
     DateOnly BirthDate,
     string FirstName,
-    string LastName
-);
+    string LastName,
+    string Role
+)
+{
+    public static UserDto FromUser(User user)
+        => new (
+            Id: user.Id.Value,
+            Username : user.Username.Value,
+            Email: user.Email.Value,
+            PhoneNumber: user.PhoneNumber.Value,
+            RegistrationDateTime: user.RegistrationDateTime.Value,
+            BirthDate: user.BirthDate.Value,
+            FirstName: user.FirstName,
+            LastName: user.LastName,
+            Role: user.Role.ToString()
+        );
+}

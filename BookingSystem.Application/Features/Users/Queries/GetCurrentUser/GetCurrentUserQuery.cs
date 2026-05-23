@@ -2,7 +2,7 @@
 using FluentResults;
 using MediatR;
 
-namespace BookingSystem.Application.Features.Users.Queries;
+namespace BookingSystem.Application.Features.Users.Queries.GetCurrentUser;
 
 public sealed record GetCurrentUserQuery : IRequest<Result<UserDto>>
 {

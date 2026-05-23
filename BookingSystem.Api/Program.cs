@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using BookingSystem.Api;
 using BookingSystem.Api.Middlewares;
 using BookingSystem.Api.Services;
 using BookingSystem.Application;
@@ -8,6 +9,7 @@ using BookingSystem.Application.Persistence;
 using BookingSystem.Infrastructure;
 using BookingSystem.Infrastructure.Options;
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
@@ -79,6 +81,7 @@ try
     builder.Services.AddApplication(builder.Configuration);
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+    builder.Services.AddScoped<IClaimsTransformation, RoleClaimsTransformation>();
 
     var app = builder.Build();
 

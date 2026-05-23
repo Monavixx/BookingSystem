@@ -43,19 +43,15 @@ public sealed class Restaurant : Entity<RestaurantId>
         var addressResult = Address.Create(country, state, city, street, houseNumber, apartmentNumber, zipCode);
         var contactPhoneNumberResult = PhoneNumber.Create(contactPhoneNumber);
         var emailResult = EmailAddress.Create(email);
-        Result<Url?> imageUrlResult = (imageUrl is not null ? Url.Create(imageUrl) : Result.Ok<Url?>(null)!)!;
+        var imageUrlResult = imageUrl is not null ? Url.Create(imageUrl) : Result.Ok<Url?>(null)!;
+        
+        var descriptionResult = (!string.IsNullOrWhiteSpace(description) && description.Length > DescriptionMaxLength)
+            ? Result.Fail(RestaurantErrors.Description.TooLong)
+            : Result.Ok();
 
-        List<IError> errors =
-        [
-            ..addressResult.Errors,
-            ..contactPhoneNumberResult.Errors,
-            ..emailResult.Errors,
-            ..imageUrlResult.Errors
-        ];
-        if(!string.IsNullOrWhiteSpace(description) && description.Length > DescriptionMaxLength)
-            errors.Add(RestaurantErrors.Description.TooLong);
-        if(errors.Count > 0)
-            return Result.Fail<Restaurant>(errors);
+        var validationResult = Result.Merge(descriptionResult, addressResult, contactPhoneNumberResult, emailResult,
+            imageUrlResult);
+        if (validationResult.IsFailed) return validationResult.ToResult<Restaurant>();
         
         return new Restaurant
         {

@@ -97,4 +97,6 @@ public sealed class User : Entity<UserId>
     {
         _sessions.Add(Session.Create(Id, refreshToken));
     }
+
+    public void MakeManager() => Role = UserRole.Manager;
 }

@@ -39,11 +39,11 @@ public class RestaurantConfiguration : IEntityTypeConfiguration<Restaurant>
             .HasMaxLength(Url.MaxLength);
 
         builder.Property(r => r.OwnerId)
-            .HasConversion(id => id.Value, s => new UserId(s))
-            .IsRequired(false);
+            .HasConversion(id => id.Value, s => new UserId(s));
+        
         builder.HasOne(r => r.Owner)
             .WithMany(m => m.Restaurants)
             .HasForeignKey(r => r.OwnerId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
