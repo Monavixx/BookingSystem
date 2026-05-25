@@ -11,9 +11,7 @@ public class TableConfiguration : IEntityTypeConfiguration<Table>, IConstraintEr
 {
     public void Configure(EntityTypeBuilder<Table> builder)
     {
-        builder.HasKey(r => r.Id);
-        builder.Property(r => r.Id)
-            .HasConversion(id => id.Value, s => new TableId(s));
+        builder.HasKey(r => new { r.RestaurantId, r.TableNumber });
         
         builder.Property(r => r.RestaurantId)
             .HasConversion(id => id.Value, s => new RestaurantId(s));

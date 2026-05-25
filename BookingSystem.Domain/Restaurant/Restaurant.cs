@@ -64,4 +64,12 @@ public sealed class Restaurant : Entity<RestaurantId>
             OwnerId = ownerId
         };
     }
+
+    public Result AddTable(int tableNumber, int capacity)
+    {
+        var tableResult = Table.Create(Id, tableNumber, capacity);
+        if (tableResult.IsFailed) return tableResult.ToResult();
+        _tables.Add(tableResult.Value);
+        return Result.Ok();
+    }
 }

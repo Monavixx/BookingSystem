@@ -1,5 +1,4 @@
-﻿using BookingSystem.Application.Persistence.Abstractions;
-using BookingSystem.Application.Persistence.Configurations.Converters;
+﻿using BookingSystem.Application.Persistence.Configurations.Converters;
 using BookingSystem.Domain.Common.ValueObjects;
 using BookingSystem.Domain.Restaurant;
 using BookingSystem.Domain.Restaurant.ValueObjects;
@@ -45,5 +44,8 @@ public class RestaurantConfiguration : IEntityTypeConfiguration<Restaurant>
             .WithMany(m => m.Restaurants)
             .HasForeignKey(r => r.OwnerId)
             .OnDelete(DeleteBehavior.Restrict);
+        
+        builder.Navigation(r => r.Tables)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }
