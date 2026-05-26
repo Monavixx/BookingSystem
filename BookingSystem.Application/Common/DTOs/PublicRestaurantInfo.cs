@@ -1,16 +1,15 @@
-
 using BookingSystem.Domain.Common.ValueObjects;
-using BookingSystem.Domain.Restaurant;
 
-namespace BookingSystem.Application.Features.Restaurants.Queries.GetPublicRestaurantInfo;
+namespace BookingSystem.Application.Common.DTOs;
 
-public sealed record GetPublicRestaurantInfoResponse(
+public sealed record PublicRestaurantInfo(
     Guid RestaurantId,
+    Guid OwnerId,
     string? ImageUrl,
     string? Description,
-    GetPublicRestaurantInfoResponse.AddressDto? Address,
-    GetPublicRestaurantInfoResponse.ContactDto? Contact,
-    IEnumerable<GetPublicRestaurantInfoResponse.TableDto> Tables)
+    PublicRestaurantInfo.AddressDto? Address,
+    PublicRestaurantInfo.ContactDto? Contact,
+    IEnumerable<PublicRestaurantInfo.TableDto> Tables)
 {
     // public static GetPublicRestaurantInfoResponse FromRestaurant(Restaurant restaurant)
     // {

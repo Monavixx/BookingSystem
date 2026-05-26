@@ -1,3 +1,4 @@
+using BookingSystem.Application.Common.DTOs;
 using BookingSystem.Application.Persistence;
 using BookingSystem.Domain.Restaurant;
 using BookingSystem.Domain.Restaurant.Errors;
@@ -9,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace BookingSystem.Application.Features.Restaurants.Queries.GetPublicRestaurantInfo;
 
-public class GetPublicRestaurantInfoHandler (AppDbContext dbContext, ILogger<GetPublicRestaurantInfoHandler> logger) : IRequestHandler<GetPublicRestaurantInfoQuery, Result<GetPublicRestaurantInfoResponse>>
+public class GetPublicRestaurantInfoHandler (AppDbContext dbContext, ILogger<GetPublicRestaurantInfoHandler> logger) : IRequestHandler<GetPublicRestaurantInfoQuery, Result<PublicRestaurantInfo>>
 {
     private const string SqlQuery =
         """
@@ -30,21 +31,23 @@ public class GetPublicRestaurantInfoHandler (AppDbContext dbContext, ILogger<Get
         FROM tables
         WHERE restaurant_id = @RestaurantId;
         """;
-    public async Task<Result<GetPublicRestaurantInfoResponse>> Handle(GetPublicRestaurantInfoQuery request, CancellationToken cancellationToken)
+    
+    public async Task<Result<PublicRestaurantInfo>> Handle(GetPublicRestaurantInfoQuery request, CancellationToken cancellationToken)
     {
         var connection = dbContext.Database.GetDbConnection();
         var reader = await connection.QueryMultipleAsync(SqlQuery, new { RestaurantId = request.RestaurantId });
         var restaurantResult = await reader.ReadFirstOrDefaultAsync();
-        if (restaurantResult is null) return Result.Fail<GetPublicRestaurantInfoResponse>(RestaurantErrors.NotFound);
+        if (restaurantResult is null) return Result.Fail<PublicRestaurantInfo>(RestaurantErrors.NotFound);
         
-        return new GetPublicRestaurantInfoResponse(
+        return new PublicRestaurantInfo(
             RestaurantId: request.RestaurantId,
+            OwnerId: restaurantResult.owner_id,
             ImageUrl: restaurantResult.image_url,
             Description:restaurantResult.description,
-            Contact: new GetPublicRestaurantInfoResponse.ContactDto(
+            Contact: new PublicRestaurantInfo.ContactDto(
                 PhoneNumber: restaurantResult.contact_phone_number, 
                 Email: restaurantResult.email),
-            Address: new GetPublicRestaurantInfoResponse.AddressDto(
+            Address: new PublicRestaurantInfo.AddressDto(
                 Country: restaurantResult.address_country,
                 City: restaurantResult.address_city,
                 State: restaurantResult.address_state,
@@ -52,7 +55,7 @@ public class GetPublicRestaurantInfoHandler (AppDbContext dbContext, ILogger<Get
                 HouseNumber: restaurantResult.address_house_number,
                 ApartmentNumber: restaurantResult.address_apartment_number,
                 ZipCode: restaurantResult.address_zip_code),
-            Tables: (await reader.ReadAsync<GetPublicRestaurantInfoResponse.TableDto>()).AsList()
+            Tables: (await reader.ReadAsync<PublicRestaurantInfo.TableDto>()).AsList()
         );
     }
 }
