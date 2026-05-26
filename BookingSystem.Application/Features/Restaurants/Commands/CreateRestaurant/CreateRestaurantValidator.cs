@@ -2,9 +2,9 @@ using FluentValidation;
 
 namespace BookingSystem.Application.Features.Restaurants.Commands.CreateRestaurant;
 
-public class CreateRestaurantValidation : AbstractValidator<CreateRestaurantCommand>
+public class CreateRestaurantValidator : AbstractValidator<CreateRestaurantCommand>
 {
-    public CreateRestaurantValidation()
+    public CreateRestaurantValidator()
     {
         RuleFor(x => x.Address)
             .NotNull()
