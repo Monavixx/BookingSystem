@@ -1,7 +1,9 @@
+using BookingSystem.Application.Common.Abstractions;
 using BookingSystem.Application.Persistence;
 using BookingSystem.Domain.Common.Errors;
 using BookingSystem.Domain.Restaurant.Errors;
 using BookingSystem.Domain.Restaurant.ValueObjects;
+using Dapper;
 using FluentResults;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -9,11 +11,22 @@ using Microsoft.Extensions.Logging;
 
 namespace BookingSystem.Application.Features.Restaurants.Commands.DeleteRestaurant;
 
-public class DeleteRestaurantHandler(AppDbContext dbContext, ILogger<DeleteRestaurantHandler> logger)
+public class DeleteRestaurantHandler(
+    AppDbContext dbContext,
+    ILogger<DeleteRestaurantHandler> logger,
+    ICurrentUserService currentUserService)
     : IRequestHandler<DeleteRestaurantCommand, Result>
 {
+    private record RestaurantRow(Guid OwnerId);
+
     public async Task<Result> Handle(DeleteRestaurantCommand request, CancellationToken cancellationToken)
     {
+        var ownerId = await dbContext.Database.GetDbConnection().QueryFirstOrDefaultAsync<RestaurantRow>(
+            "SELECT owner_id FROM Restaurants WHERE id = @Id", new { Id = request.RestaurantId });
+        if (ownerId is null) return Result.Fail(RestaurantErrors.NotFound);
+        if(ownerId.OwnerId != currentUserService.UserIdGuid)
+            return Result.Fail(RestaurantErrors.AccessError);
+
         int rows = await dbContext.Restaurants
             .Where(r => r.Id == new RestaurantId(request.RestaurantId))
             .ExecuteDeleteAsync(cancellationToken);
