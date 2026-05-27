@@ -1,6 +1,8 @@
 using BookingSystem.Api.Common;
 using BookingSystem.Application.Features.Restaurants.Commands.AddTableToRestaurant;
 using BookingSystem.Application.Features.Restaurants.Commands.CreateRestaurant;
+using BookingSystem.Application.Features.Restaurants.Commands.DeleteRestaurant;
+using BookingSystem.Application.Features.Restaurants.Commands.UpdateRestaurant;
 using BookingSystem.Application.Features.Restaurants.Queries.GetPublicRestaurantInfo;
 using BookingSystem.Application.Features.Restaurants.Queries.GetRestaurantList;
 using BookingSystem.Domain.User;
@@ -19,7 +21,10 @@ public class RestaurantsController(IMediator mediator) : ApiController(mediator)
     {
         var result = await Mediator.Send(command);
         if (result.IsFailed) return HandleErrors(result);
-        return Ok(result.Value);
+        return CreatedAtAction(
+            nameof(GetPublicRestaurantInfo),
+            new { restaurantId = result.Value.Id },
+            result.Value);
     }
 
     public record AddTableToRestaurantRequestBody(int TableNumber, int Capacity);
@@ -53,4 +58,30 @@ public class RestaurantsController(IMediator mediator) : ApiController(mediator)
         if (result.IsFailed) return HandleErrors(result);
         return Ok(result.Value);
     }
+
+    [HttpDelete("{restaurantId:guid}")]
+    [Authorize(Roles = nameof(UserRole.Manager))]
+    public async Task<IActionResult> DeleteRestaurant([FromRoute] Guid restaurantId)
+    {
+        var result = await Mediator.Send(new DeleteRestaurantCommand(restaurantId));
+        if (result.IsFailed) return HandleErrors(result);
+        return NoContent();
+    }
+
+    [HttpPut("{restaurantId:guid}")]
+    [Authorize(Roles = nameof(UserRole.Manager))]
+    public async Task<IActionResult> UpdateRestaurant([FromRoute] Guid restaurantId,
+        [FromBody] UpdateRestaurantRequestBody request)
+    {
+        var result = await Mediator.Send(new UpdateRestaurantCommand(restaurantId, request.Address, request.Contact,
+            request.Description, request.ImageUrl));
+        if (result.IsFailed) return HandleErrors(result);
+        return NoContent();
+    }
+
+    public record UpdateRestaurantRequestBody(
+        UpdateRestaurantCommand.AddressDto Address,
+        UpdateRestaurantCommand.ContactDto Contact,
+        string? Description,
+        string? ImageUrl);
 }

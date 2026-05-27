@@ -37,8 +37,8 @@ public sealed class Restaurant : Entity<RestaurantId>
         string email,
         string? description,
         string? imageUrl,
-        UserId ownerId
-        )
+        UserId ownerId,
+        RestaurantId? id = null)
     {
         var addressResult = Address.Create(country, state, city, street, houseNumber, apartmentNumber, zipCode);
         var contactPhoneNumberResult = PhoneNumber.Create(contactPhoneNumber);
@@ -55,7 +55,7 @@ public sealed class Restaurant : Entity<RestaurantId>
         
         return new Restaurant
         {
-            Id = RestaurantId.Create(),
+            Id = id ?? RestaurantId.Create(),
             Address = addressResult.Value,
             ContactPhoneNumber = contactPhoneNumberResult.Value,
             Email = emailResult.Value,

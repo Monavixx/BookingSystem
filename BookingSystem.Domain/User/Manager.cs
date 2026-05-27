@@ -13,7 +13,7 @@ public sealed class Manager : IEntity
     public UserId UserId { get; private set; }
     public User User { get; private set; } = null!;
     
-    public uint RowVersion { get; private set; }
+    public uint RowVersion { get; set; }
 
     public static Manager Create(UserId userId)
     {

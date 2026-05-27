@@ -2,5 +2,5 @@
 
 public interface IEntity
 {
-    protected uint RowVersion { get; }
+    uint RowVersion { get; set; }
 }

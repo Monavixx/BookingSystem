@@ -24,5 +24,5 @@ public class Table : IEntity
         };
     }
 
-    public uint RowVersion { get; private set; }
+    public uint RowVersion { get; set; }
 }

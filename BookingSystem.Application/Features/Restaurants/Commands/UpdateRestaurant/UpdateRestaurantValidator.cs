@@ -1,10 +1,11 @@
+using BookingSystem.Application.Features.Restaurants.Commands.CreateRestaurant;
 using FluentValidation;
 
-namespace BookingSystem.Application.Features.Restaurants.Commands.CreateRestaurant;
+namespace BookingSystem.Application.Features.Restaurants.Commands.UpdateRestaurant;
 
-public class CreateRestaurantValidator : AbstractValidator<CreateRestaurantCommand>
+public class UpdateRestaurantValidator : AbstractValidator<UpdateRestaurantCommand>
 {
-    public CreateRestaurantValidator()
+    public UpdateRestaurantValidator()
     {
         RuleFor(x => x.Address)
             .NotNull()
