@@ -1,4 +1,5 @@
 using BookingSystem.Application.Common.DTOs;
+using BookingSystem.Application.Features.Restaurants.DTOs;
 using BookingSystem.Application.Persistence;
 using BookingSystem.Domain.Restaurant;
 using BookingSystem.Domain.Restaurant.Errors;

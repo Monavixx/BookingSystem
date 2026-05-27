@@ -17,8 +17,8 @@ public sealed class Restaurant : Entity<RestaurantId>
     public PhoneNumber ContactPhoneNumber { get; private set; } = null!;
     public EmailAddress Email { get; private set; } = null!;
     public string? Description { get; private set; }
-
     public Url? ImageUrl { get; private set; }
+    public WorkingSchedule? WorkingSchedule { get; private set; } = null;
     
     private readonly List<Table> _tables = [];
     public IReadOnlyCollection<Table> Tables => _tables;
@@ -71,5 +71,10 @@ public sealed class Restaurant : Entity<RestaurantId>
         if (tableResult.IsFailed) return tableResult.ToResult();
         _tables.Add(tableResult.Value);
         return Result.Ok();
+    }
+
+    public void SetWorkingSchedule(WorkingSchedule workingSchedule)
+    {
+        WorkingSchedule = workingSchedule;
     }
 }

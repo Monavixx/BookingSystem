@@ -1,6 +1,6 @@
 using BookingSystem.Domain.Common.ValueObjects;
 
-namespace BookingSystem.Application.Common.DTOs;
+namespace BookingSystem.Application.Features.Restaurants.DTOs;
 
 public sealed record PublicRestaurantInfo(
     Guid RestaurantId,

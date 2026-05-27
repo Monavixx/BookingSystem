@@ -21,10 +21,11 @@ public class DeleteRestaurantHandler(
 
     public async Task<Result> Handle(DeleteRestaurantCommand request, CancellationToken cancellationToken)
     {
-        var ownerId = await dbContext.Database.GetDbConnection().QueryFirstOrDefaultAsync<RestaurantRow>(
+        var restaurantRow = await dbContext.Database.GetDbConnection()
+            .QueryFirstOrDefaultAsync<RestaurantRow>(
             "SELECT owner_id FROM Restaurants WHERE id = @Id", new { Id = request.RestaurantId });
-        if (ownerId is null) return Result.Fail(RestaurantErrors.NotFound);
-        if(ownerId.OwnerId != currentUserService.UserIdGuid)
+        if (restaurantRow is null) return Result.Fail(RestaurantErrors.NotFound);
+        if(restaurantRow.OwnerId != currentUserService.UserIdGuid)
             return Result.Fail(RestaurantErrors.AccessError);
 
         int rows = await dbContext.Restaurants

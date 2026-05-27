@@ -47,5 +47,18 @@ public class RestaurantConfiguration : IEntityTypeConfiguration<Restaurant>
         
         builder.Navigation(r => r.Tables)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.OwnsOne(r => r.WorkingSchedule, b =>
+        {
+            b.OwnsMany(a => a.DayOfWeekSchedules, p =>
+            {
+                p.WithOwner().HasForeignKey("restaurant_id");
+                p.ToTable("restaurant_daily_schedules");
+                p.Property(d => d.Day)
+                    .HasColumnName("day_of_week")
+                    .HasConversion<byte>();
+                p.HasKey("restaurant_id", "Day");
+            });
+        });
     }
 }
