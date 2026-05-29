@@ -1,0 +1,5 @@
+using BookingSystem.Domain.Restaurant.ValueObjects;
+
+namespace BookingSystem.Application.Features.Restaurants.Queries.GetRestaurantWorkingSchedule;
+
+public record GetRestaurantWorkingScheduleResponse(IEnumerable<DayOfWeekSchedule> Schedules);

@@ -7,6 +7,7 @@ using BookingSystem.Application.Features.Restaurants.Commands.UpdateRestaurant;
 using BookingSystem.Application.Features.Restaurants.DTOs;
 using BookingSystem.Application.Features.Restaurants.Queries.GetPublicRestaurantInfo;
 using BookingSystem.Application.Features.Restaurants.Queries.GetRestaurantList;
+using BookingSystem.Application.Features.Restaurants.Queries.GetRestaurantWorkingSchedule;
 using BookingSystem.Domain.User;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -97,5 +98,13 @@ public class RestaurantsController(IMediator mediator) : ApiController(mediator)
         return NoContent();
     }
 
-    public record SetWorkingScheduleRequestBody(IEnumerable<DayOfWeekScheduleDto> WorkingDays);
+    public record SetWorkingScheduleRequestBody(IEnumerable<DayOfWeekScheduleRequest> WorkingDays);
+
+    [HttpGet("{restaurantId:guid}/working-schedule")]
+    public async Task<IActionResult> GetWorkingSchedule([FromRoute] Guid restaurantId)
+    {
+        var result = await Mediator.Send(new GetRestaurantWorkingScheduleQuery(restaurantId));
+        if (result.IsFailed) return HandleErrors(result);
+        return Ok(result.Value);
+    }
 }

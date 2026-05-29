@@ -6,7 +6,7 @@ namespace BookingSystem.Domain.Restaurant.ValueObjects;
 public sealed record DayOfWeekSchedule
 {
     private DayOfWeekSchedule(){}
-    public DayOfWeek Day { get; private init; }
+    public DayOfWeek DayOfWeek { get; private init; }
     public TimeOnly? OpeningTime { get; private init; } = null;
     public TimeOnly? ClosingTime { get; private init; } = null;
     public bool IsClosed { get; private init; }
@@ -21,7 +21,7 @@ public sealed record DayOfWeekSchedule
             return Result.Fail<DayOfWeekSchedule>(DayOfWeekScheduleErrors.AmbiguousSchedule);
         return new DayOfWeekSchedule()
         {
-            Day = dayOfWeek,
+            DayOfWeek = dayOfWeek,
             OpeningTime = openingTime,
             ClosingTime = closingTime,
             IsClosed = isClosed
@@ -31,7 +31,7 @@ public sealed record DayOfWeekSchedule
     public static DayOfWeekSchedule Create(DayOfWeek dayOfWeek, TimeOnly openingTime, TimeOnly closingTime)
         => new DayOfWeekSchedule()
         {
-            Day = dayOfWeek,
+            DayOfWeek = dayOfWeek,
             OpeningTime = openingTime,
             ClosingTime = closingTime,
             IsClosed = false
@@ -39,7 +39,7 @@ public sealed record DayOfWeekSchedule
     public static DayOfWeekSchedule CreateDayOff(DayOfWeek dayOfWeek)
         => new DayOfWeekSchedule()
         {
-            Day = dayOfWeek,
+            DayOfWeek = dayOfWeek,
             IsClosed = true
         };
 }

@@ -1,6 +1,6 @@
 namespace BookingSystem.Application.Features.Restaurants.DTOs;
 
-public class DayOfWeekScheduleDto
+public class DayOfWeekScheduleRequest
 {
     public DayOfWeek? DayOfWeek { get; set; }
     public TimeOnly? OpeningTime { get; set; }

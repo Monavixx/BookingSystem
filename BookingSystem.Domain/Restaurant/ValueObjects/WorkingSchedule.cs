@@ -13,7 +13,7 @@ public sealed class WorkingSchedule
     public static Result<WorkingSchedule> Create(IEnumerable<DayOfWeekSchedule> dayOfWeekSchedules)
     {
         var schedules = dayOfWeekSchedules.ToList();
-        if(schedules.Count != 7 || schedules.DistinctBy(s=>s.Day).Count() != 7)
+        if(schedules.Count != 7 || schedules.DistinctBy(s=>s.DayOfWeek).Count() != 7)
             return Result.Fail<WorkingSchedule>(WorkingScheduleErrors.DaysOutOfRange);
         return new WorkingSchedule
         {
@@ -22,5 +22,5 @@ public sealed class WorkingSchedule
     }
 
     public DayOfWeekSchedule GetDayOfWeekSchedule(DayOfWeek dayOfWeek)
-        => _dayOfWeekSchedules.First(d => d.Day == dayOfWeek);
+        => _dayOfWeekSchedules.First(d => d.DayOfWeek == dayOfWeek);
 }

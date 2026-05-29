@@ -54,10 +54,10 @@ public class RestaurantConfiguration : IEntityTypeConfiguration<Restaurant>
             {
                 p.WithOwner().HasForeignKey("restaurant_id");
                 p.ToTable("restaurant_daily_schedules");
-                p.Property(d => d.Day)
+                p.Property(d => d.DayOfWeek)
                     .HasColumnName("day_of_week")
                     .HasConversion<byte>();
-                p.HasKey("restaurant_id", "Day");
+                p.HasKey("restaurant_id", nameof(DayOfWeekSchedule.DayOfWeek));
             });
         });
     }

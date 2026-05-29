@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using System.Text.Json.Serialization;
 using BookingSystem.Api;
 using BookingSystem.Api.Middlewares;
 using BookingSystem.Api.Services;
@@ -39,7 +40,10 @@ try
         .WriteTo.Seq("http://localhost:5341")
     );
 
-    builder.Services.AddControllers();
+    builder.Services.AddControllers().AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    });
     builder.Services.AddOpenApi();
 
     builder.Services.AddProblemDetails();

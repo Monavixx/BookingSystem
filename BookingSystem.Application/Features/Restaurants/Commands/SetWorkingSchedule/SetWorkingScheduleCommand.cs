@@ -4,5 +4,5 @@ using MediatR;
 
 namespace BookingSystem.Application.Features.Restaurants.Commands.SetWorkingSchedule;
 
-public sealed record SetWorkingScheduleCommand(Guid RestaurantId, IEnumerable<DayOfWeekScheduleDto> Schedules)
+public sealed record SetWorkingScheduleCommand(Guid RestaurantId, IEnumerable<DayOfWeekScheduleRequest> Schedules)
     : IRequest<Result>;
