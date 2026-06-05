@@ -14,4 +14,14 @@ public class BookingCancellationService(AppDbContext dbContext) : IBookingCancel
         booking.CancelBySystem();
         await dbContext.SaveChangesAsync();
     }
+
+    public Task CancelIfNotConfirmedAsync(BookingId bookingId)
+    {
+        var booking = dbContext.Bookings.Find(bookingId);
+        if (booking is null or { Status: not (BookingStatus.Pending or BookingStatus.ConfirmedByGuest) })
+            return Task.CompletedTask;
+        
+        booking.CancelBySystem();
+        return dbContext.SaveChangesAsync();
+    }
 }

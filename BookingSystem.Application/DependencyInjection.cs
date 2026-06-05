@@ -1,4 +1,5 @@
 ﻿using BookingSystem.Application.Common.Abstractions;
+using BookingSystem.Application.Common.Options;
 using BookingSystem.Application.Common.PipelineBehaviors;
 using BookingSystem.Application.Persistence;
 using BookingSystem.Application.Services;
@@ -27,6 +28,10 @@ public static class DependencyInjection
             });
             services.AddScoped<IBookingCancellationService, BookingCancellationService>();
             services.AddSingleton<BookingDurationCalculator>();
+            services.AddOptions<BookingOptions>()
+                .BindConfiguration(BookingOptions.SectionName)
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
             Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
             return services;
         }

@@ -15,6 +15,13 @@ public class BackgroundJobService(IBackgroundJobClientV2 backgroundJobClient, IR
         => backgroundJobClient.Schedule(methodCall, delay);
     public string Schedule<T>(Expression<Action<T>> methodCall, TimeSpan delay)
     => backgroundJobClient.Schedule(methodCall, delay);
+
+    public string Schedule(Expression<Action> methodCall, DateTimeOffset scheduleAt)
+        => backgroundJobClient.Schedule(methodCall, scheduleAt);
+
+    public string Schedule<T>(Expression<Action<T>> methodCall, DateTimeOffset scheduleAt)
+        => backgroundJobClient.Schedule(methodCall, scheduleAt);
+
     public void AddOrUpdateRecurring(
         string jobId,
         Expression<Action> recurringJobExpression,

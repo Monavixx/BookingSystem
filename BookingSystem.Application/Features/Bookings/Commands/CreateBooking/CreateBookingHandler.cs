@@ -15,27 +15,33 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace BookingSystem.Application.Features.Bookings.Commands.CreateBooking;
 
-public class CreateBookingHandler(AppDbContext dbContext, BookingDurationCalculator durationCalculator) : IRequestHandler<CreateBookingCommand, Result<CreateBookingResponse>>
+public class CreateBookingHandler(AppDbContext dbContext, BookingDurationCalculator durationCalculator)
+    : IRequestHandler<CreateBookingCommand, Result<CreateBookingResponse>>
 {
     private sealed record TableDto(int Capacity, Guid RestaurantId, int TableNumber);
-    public async Task<Result<CreateBookingResponse>> Handle(CreateBookingCommand request, CancellationToken cancellationToken)
+
+    public async Task<Result<CreateBookingResponse>> Handle(CreateBookingCommand request,
+        CancellationToken cancellationToken)
     {
         var durationResult = durationCalculator.CalculateDuration(request.GuestCount);
-        if(durationResult.IsFailed) return durationResult.ToResult<CreateBookingResponse>();
-        
-        var endTime = request.ScheduledAt.Add(durationResult.Value);
-        
-        await using var transaction = await dbContext.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
+        if (durationResult.IsFailed) return durationResult.ToResult<CreateBookingResponse>();
+
+        var scheduledAt = request.ScheduledAt.ToUniversalTime();
+        var endTime = scheduledAt.Add(durationResult.Value);
+
+        await using var transaction =
+            await dbContext.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
         try
         {
             var dbTransaction = transaction.GetDbTransaction();
 
-            var table = await GetTableAsync(dbTransaction, request, endTime);
+            var table = await GetTableAsync(dbTransaction, request.RestaurantId, request.GuestCount, scheduledAt,
+                request.TableNumber, endTime);
             if (table is null) return Result.Fail<CreateBookingResponse>(TableErrors.NotFound);
             if (table.Capacity < request.GuestCount)
                 return Result.Fail<CreateBookingResponse>(BookingErrors.CapacityExceeded);
 
-            var slot = BookingTimeSlot.Create(request.ScheduledAt, endTime);
+            var slot = BookingTimeSlot.Create(scheduledAt, endTime);
             if (slot.IsFailed) return slot.ToResult<CreateBookingResponse>();
 
             var booking = Booking.Create(new UserId(request.GuestId), request.GuestCount,
@@ -45,7 +51,7 @@ public class CreateBookingHandler(AppDbContext dbContext, BookingDurationCalcula
             dbContext.Bookings.Add(booking.Value);
             await dbContext.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
-            
+
             return new CreateBookingResponse(booking.Value.Id.Value, booking.Value.TimeSlot.Start,
                 booking.Value.TimeSlot.End, table.TableNumber);
         }
@@ -56,31 +62,37 @@ public class CreateBookingHandler(AppDbContext dbContext, BookingDurationCalcula
         }
     }
 
-    private async Task<TableDto?> GetTableAsync(IDbTransaction transaction, CreateBookingCommand request, DateTimeOffset endTime)
+    private async Task<TableDto?> GetTableAsync(IDbTransaction transaction, Guid restaurantId, int guestCount,
+        DateTimeOffset scheduledAt, int? tableNumber, DateTimeOffset endTime)
     {
-        if (request.TableNumber is null)
+        if (tableNumber is null)
         {
             return await dbContext.Database.GetDbConnection().QueryFirstOrDefaultAsync<TableDto>(
                 $"""
-                SELECT t.capacity as Capacity, 
-                       t.restaurant_id as RestaurantId, 
-                       t.table_number as TableNumber
-                FROM tables t
-                WHERE t.restaurant_id = @RestaurantId 
-                  AND t.capacity >= @GuestCount 
-                  AND NOT EXISTS (
-                      SELECT 1 FROM bookings b
-                      WHERE b.restaurant_id = t.restaurant_id
-                        AND b.table_number = t.table_number
-                        AND b.start_time < @EndTime
-                        AND b.end_time > @ScheduledAt 
-                        AND b.status != {(int)BookingStatus.Canceled}
-                  )
-                ORDER BY t.capacity
-                LIMIT 1
-                FOR UPDATE
-                """, new { request.RestaurantId, request.GuestCount, request.ScheduledAt, EndTime = endTime }, transaction: transaction);
+                 SELECT t.capacity as Capacity, 
+                        t.restaurant_id as RestaurantId, 
+                        t.table_number as TableNumber
+                 FROM tables t
+                 WHERE t.restaurant_id = @RestaurantId 
+                   AND t.capacity >= @GuestCount 
+                   AND NOT EXISTS (
+                       SELECT 1 FROM bookings b
+                       WHERE b.restaurant_id = t.restaurant_id
+                         AND b.table_number = t.table_number
+                         AND b.start_time < @EndTime
+                         AND b.end_time > @ScheduledAt 
+                         AND b.status != {(int)BookingStatus.Canceled}
+                   )
+                 ORDER BY t.capacity
+                 LIMIT 1
+                 FOR UPDATE
+                 """,
+                new
+                {
+                    RestaurantId = restaurantId, GuestCount = guestCount, ScheduledAt = scheduledAt, EndTime = endTime
+                }, transaction: transaction);
         }
+
         return await dbContext.Database.GetDbConnection().QueryFirstOrDefaultAsync<TableDto>(
             """
             SELECT capacity as Capacity, 
@@ -91,6 +103,6 @@ public class CreateBookingHandler(AppDbContext dbContext, BookingDurationCalcula
             LIMIT 1
             FOR UPDATE
             """,
-            new { request.RestaurantId, request.TableNumber }, transaction: transaction);
+            new { RestaurantId = restaurantId, TableNumber = tableNumber }, transaction: transaction);
     }
 }

@@ -9,6 +9,8 @@ public interface IBackgroundJobService
     string Enqueue<T>(Expression<Action<T>> methodCall);
     string Schedule(Expression<Action> methodCall, TimeSpan delay);
     string Schedule<T>(Expression<Action<T>> methodCall, TimeSpan delay);
+    string Schedule(Expression<Action> methodCall, DateTimeOffset scheduleAt);
+    string Schedule<T>(Expression<Action<T>> methodCall, DateTimeOffset scheduleAt);
 
     void AddOrUpdateRecurring(
         string jobId,

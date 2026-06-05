@@ -35,7 +35,7 @@ public class Booking : AggregateRoot<BookingId>
             TimeSlot = timeSlot,
             Status = BookingStatus.Pending
         };
-        booking.AddDomainEvent(new BookingCreatedEvent(booking.Id));
+        booking.AddDomainEvent(new BookingCreatedEvent(booking));
         return booking;
     }
 
