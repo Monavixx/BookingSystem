@@ -17,7 +17,7 @@ public class SetWorkingScheduleHandler (AppDbContext dbContext, ICurrentUserServ
             await dbContext.Restaurants.FindAsync([new RestaurantId(request.RestaurantId)], cancellationToken);
         if (restaurant is null) return Result.Fail(RestaurantErrors.NotFound);
         if (restaurant.OwnerId.Value != currentUserService.UserIdGuid)
-            return Result.Fail(RestaurantErrors.AccessError);
+            return Result.Fail(RestaurantErrors.AccessDenied);
 
         List<DayOfWeekSchedule> schedules = [];
         var currentDayOfWeek = DayOfWeek.Sunday;

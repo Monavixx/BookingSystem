@@ -1,5 +1,6 @@
 using BookingSystem.Api.Common;
 using BookingSystem.Api.Extensions;
+using BookingSystem.Application.Features.Bookings.Commands.ConfirmBookingByGuest;
 using BookingSystem.Application.Features.Bookings.Commands.CreateBooking;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -28,5 +29,14 @@ public class BookingsController(IMediator mediator) : ApiController(mediator)
             ScheduledAt: request.ScheduledAt));
         if (result.IsFailed) return HandleErrors(result);
         return Ok(result.Value);
+    }
+    
+    [HttpPost("{id:guid}/confirm-by-guest")]
+    [Authorize]
+    public async Task<IActionResult> ConfirmBookingByGuest([FromRoute] Guid id)
+    {
+        var result = await Mediator.Send(new ConfirmBookingByGuestCommand(BookingId: id));
+        if (result.IsFailed) return HandleErrors(result);
+        return Ok();
     }
 }

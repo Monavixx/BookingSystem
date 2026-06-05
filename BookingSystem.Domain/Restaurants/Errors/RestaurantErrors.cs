@@ -6,7 +6,7 @@ public static class RestaurantErrors
 {
     public static readonly DomainError NotFound = new NotFoundError("Restaurant.NotFound", "Restaurant not found");
 
-    public static readonly DomainError AccessError =
+    public static readonly DomainError AccessDenied =
         new ForbiddenError("Restaurant.AccessDenied", "Access to this restaurant is denied");
     public static class Description
     {

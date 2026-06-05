@@ -26,7 +26,7 @@ public class UpdateRestaurantHandler (AppDbContext dbContext, ILogger<UpdateRest
         if (oldRestaurant is null) return Result.Fail(RestaurantErrors.NotFound);
         
         if (currentUserService.UserIdGuid is not { } userId || userId != oldRestaurant.OwnerId)
-            return Result.Fail(RestaurantErrors.AccessError);
+            return Result.Fail(RestaurantErrors.AccessDenied);
 
         var newRestaurant = Restaurant.Create(
             request.Address.Country,

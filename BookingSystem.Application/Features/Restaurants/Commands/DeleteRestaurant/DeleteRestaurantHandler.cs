@@ -26,7 +26,7 @@ public class DeleteRestaurantHandler(
             "SELECT owner_id FROM Restaurants WHERE id = @Id", new { Id = request.RestaurantId });
         if (restaurantRow is null) return Result.Fail(RestaurantErrors.NotFound);
         if(restaurantRow.OwnerId != currentUserService.UserIdGuid)
-            return Result.Fail(RestaurantErrors.AccessError);
+            return Result.Fail(RestaurantErrors.AccessDenied);
 
         int rows = await dbContext.Restaurants
             .Where(r => r.Id == new RestaurantId(request.RestaurantId))

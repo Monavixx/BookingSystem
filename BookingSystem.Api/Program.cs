@@ -10,6 +10,7 @@ using BookingSystem.Application.Persistence;
 using BookingSystem.Infrastructure;
 using BookingSystem.Infrastructure.Options;
 using FluentValidation;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -93,6 +94,7 @@ try
     if (app.Environment.IsDevelopment())
     {
         app.MapOpenApi();
+        app.MapHangfireDashboard();
     }
 
     app.UseHttpsRedirection();

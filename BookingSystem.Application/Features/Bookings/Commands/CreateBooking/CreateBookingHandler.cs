@@ -61,7 +61,7 @@ public class CreateBookingHandler(AppDbContext dbContext, BookingDurationCalcula
         if (request.TableNumber is null)
         {
             return await dbContext.Database.GetDbConnection().QueryFirstOrDefaultAsync<TableDto>(
-                """
+                $"""
                 SELECT t.capacity as Capacity, 
                        t.restaurant_id as RestaurantId, 
                        t.table_number as TableNumber
@@ -73,7 +73,8 @@ public class CreateBookingHandler(AppDbContext dbContext, BookingDurationCalcula
                       WHERE b.restaurant_id = t.restaurant_id
                         AND b.table_number = t.table_number
                         AND b.start_time < @EndTime
-                        AND b.end_time > @ScheduledAt
+                        AND b.end_time > @ScheduledAt 
+                        AND b.status != {(int)BookingStatus.Canceled}
                   )
                 ORDER BY t.capacity
                 LIMIT 1

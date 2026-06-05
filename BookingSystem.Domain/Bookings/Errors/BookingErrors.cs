@@ -6,10 +6,10 @@ public static class BookingErrors
 {
     public static readonly DomainError GuestCountOutOfRange =
         new ValidationError("Booking.NumberOfGuests.OutOfRange", "Number of guests must be greater than or equal to 1");
-    public static readonly DomainError ScheduledAtInThePast =
-        new ValidationError("Booking.ScheduledAt.InThePast", "Scheduled time must be in the future");
     public static readonly DomainError CapacityExceeded = new UnprocessableEntityError("Booking.NumberOfGuests.CapacityExceeded",
         "The number of guests exceeds the table capacity");
+    public static readonly DomainError NotFound = new NotFoundError("Booking.NotFound", "Booking not found");
+    public static readonly DomainError AccessDenied = new ForbiddenError("Booking.AccessDenied", "You do not have permission to access this booking");
     
     public static class TimeSlot
     {
