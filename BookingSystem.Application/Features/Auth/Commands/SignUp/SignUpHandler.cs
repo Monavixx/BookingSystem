@@ -1,7 +1,7 @@
 ﻿using BookingSystem.Application.Common.Abstractions;
 using BookingSystem.Application.Common.DTOs;
 using BookingSystem.Application.Persistence;
-using BookingSystem.Domain.User;
+using BookingSystem.Domain.Users;
 using FluentResults;
 using MediatR;
 using Microsoft.Extensions.Logging;

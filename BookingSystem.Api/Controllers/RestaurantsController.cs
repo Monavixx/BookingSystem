@@ -8,7 +8,7 @@ using BookingSystem.Application.Features.Restaurants.DTOs;
 using BookingSystem.Application.Features.Restaurants.Queries.GetPublicRestaurantInfo;
 using BookingSystem.Application.Features.Restaurants.Queries.GetRestaurantList;
 using BookingSystem.Application.Features.Restaurants.Queries.GetRestaurantWorkingSchedule;
-using BookingSystem.Domain.User;
+using BookingSystem.Domain.Users;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

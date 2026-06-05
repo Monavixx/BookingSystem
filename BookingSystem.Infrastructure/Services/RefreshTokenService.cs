@@ -1,6 +1,6 @@
 ﻿using System.Security.Cryptography;
 using BookingSystem.Application.Common.Abstractions;
-using BookingSystem.Domain.User.ValueObjects;
+using BookingSystem.Domain.Users.ValueObjects;
 using BookingSystem.Infrastructure.Options;
 using Microsoft.Extensions.Options;
 

@@ -2,9 +2,9 @@
 using BookingSystem.Application.Persistence.Configurations.Converters;
 using BookingSystem.Domain.Common.Errors;
 using BookingSystem.Domain.Common.ValueObjects;
-using BookingSystem.Domain.User;
-using BookingSystem.Domain.User.Errors;
-using BookingSystem.Domain.User.ValueObjects;
+using BookingSystem.Domain.Users;
+using BookingSystem.Domain.Users.Errors;
+using BookingSystem.Domain.Users.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

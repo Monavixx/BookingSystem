@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using BookingSystem.Domain.User;
+using BookingSystem.Domain.Users;
 
 namespace BookingSystem.Application.Common.Abstractions;
 

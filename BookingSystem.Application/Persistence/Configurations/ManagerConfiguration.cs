@@ -1,11 +1,13 @@
-using BookingSystem.Domain.User;
-using BookingSystem.Domain.User.ValueObjects;
+using BookingSystem.Application.Persistence.Abstractions;
+using BookingSystem.Domain.Users;
+using BookingSystem.Domain.Users.Errors;
+using BookingSystem.Domain.Users.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace BookingSystem.Application.Persistence.Configurations;
 
-public class ManagerConfiguration : IEntityTypeConfiguration<Manager>
+public class ManagerConfiguration : IEntityTypeConfiguration<Manager>, IConstraintErrorConfiguration
 {
     public void Configure(EntityTypeBuilder<Manager> builder)
     {
@@ -19,5 +21,10 @@ public class ManagerConfiguration : IEntityTypeConfiguration<Manager>
 
         builder.Navigation(m => m.Restaurants)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
+    }
+
+    public void Configure(ConstraintErrorRegistryBase registry)
+    {
+        registry.RegisterForeignKey<Manager>(m => m.UserId, UserErrors.NotFound);
     }
 }

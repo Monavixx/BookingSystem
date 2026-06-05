@@ -1,7 +1,7 @@
 ﻿using BookingSystem.Application.Persistence.Abstractions;
-using BookingSystem.Domain.Restaurant;
-using BookingSystem.Domain.Restaurant.Errors;
-using BookingSystem.Domain.Restaurant.ValueObjects;
+using BookingSystem.Domain.Restaurants;
+using BookingSystem.Domain.Restaurants.Errors;
+using BookingSystem.Domain.Restaurants.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

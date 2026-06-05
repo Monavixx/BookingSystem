@@ -1,7 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using BookingSystem.Application.Common.Abstractions;
-using BookingSystem.Domain.User;
+using BookingSystem.Domain.Users;
 using BookingSystem.Infrastructure.Options;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;

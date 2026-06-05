@@ -1,11 +1,11 @@
 ﻿using BookingSystem.Application.Persistence.Abstractions;
-using BookingSystem.Domain.FavoriteRestaurant;
-using BookingSystem.Domain.Restaurant;
-using BookingSystem.Domain.Restaurant.Errors;
-using BookingSystem.Domain.Restaurant.ValueObjects;
-using BookingSystem.Domain.User;
-using BookingSystem.Domain.User.Errors;
-using BookingSystem.Domain.User.ValueObjects;
+using BookingSystem.Domain.FavoriteRestaurants;
+using BookingSystem.Domain.Restaurants;
+using BookingSystem.Domain.Restaurants.Errors;
+using BookingSystem.Domain.Restaurants.ValueObjects;
+using BookingSystem.Domain.Users;
+using BookingSystem.Domain.Users.Errors;
+using BookingSystem.Domain.Users.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

@@ -1,4 +1,4 @@
-﻿using BookingSystem.Domain.User.ValueObjects;
+﻿using BookingSystem.Domain.Users.ValueObjects;
 
 namespace BookingSystem.Application.Common.DTOs;
 

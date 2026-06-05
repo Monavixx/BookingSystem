@@ -1,8 +1,8 @@
 using BookingSystem.Application.Common.Abstractions;
 using BookingSystem.Application.Persistence;
 using BookingSystem.Domain.Common.Errors;
-using BookingSystem.Domain.Restaurant.Errors;
-using BookingSystem.Domain.Restaurant.ValueObjects;
+using BookingSystem.Domain.Restaurants.Errors;
+using BookingSystem.Domain.Restaurants.ValueObjects;
 using Dapper;
 using FluentResults;
 using MediatR;

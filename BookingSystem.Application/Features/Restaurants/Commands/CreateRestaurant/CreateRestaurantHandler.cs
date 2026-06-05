@@ -1,6 +1,6 @@
 using BookingSystem.Application.Common.Abstractions;
 using BookingSystem.Application.Persistence;
-using BookingSystem.Domain.User.ValueObjects;
+using BookingSystem.Domain.Restaurants;
 using FluentResults;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -14,7 +14,7 @@ public class CreateRestaurantHandler(AppDbContext dbContext, ILogger<CreateResta
     public async Task<Result<CreateRestaurantResult>> Handle(CreateRestaurantCommand request,
         CancellationToken cancellationToken)
     {
-        var restaurantResult = Domain.Restaurant.Restaurant.Create(
+        var restaurantResult = Restaurant.Create(
             request.Address.Country,
             request.Address.State,
             request.Address.City,

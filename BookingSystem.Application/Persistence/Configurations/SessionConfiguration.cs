@@ -1,7 +1,7 @@
 ﻿using BookingSystem.Application.Persistence.Abstractions;
-using BookingSystem.Domain.User;
-using BookingSystem.Domain.User.Errors;
-using BookingSystem.Domain.User.ValueObjects;
+using BookingSystem.Domain.Users;
+using BookingSystem.Domain.Users.Errors;
+using BookingSystem.Domain.Users.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

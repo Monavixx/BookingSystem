@@ -1,7 +1,7 @@
 ﻿using BookingSystem.Api.Common;
 using BookingSystem.Application.Features.Users.Commands.MakeManager;
 using BookingSystem.Application.Features.Users.Queries.GetCurrentUser;
-using BookingSystem.Domain.User;
+using BookingSystem.Domain.Users;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

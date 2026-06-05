@@ -1,6 +1,6 @@
 ﻿using BookingSystem.Domain.Common.ValueObjects;
-using BookingSystem.Domain.User;
-using BookingSystem.Domain.User.ValueObjects;
+using BookingSystem.Domain.Users;
+using BookingSystem.Domain.Users.ValueObjects;
 using FluentValidation;
 
 namespace BookingSystem.Application.Features.Auth.Commands.LogIn;

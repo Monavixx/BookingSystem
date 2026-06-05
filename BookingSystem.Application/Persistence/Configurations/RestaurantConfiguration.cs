@@ -1,14 +1,16 @@
-﻿using BookingSystem.Application.Persistence.Configurations.Converters;
+﻿using BookingSystem.Application.Persistence.Abstractions;
+using BookingSystem.Application.Persistence.Configurations.Converters;
 using BookingSystem.Domain.Common.ValueObjects;
-using BookingSystem.Domain.Restaurant;
-using BookingSystem.Domain.Restaurant.ValueObjects;
-using BookingSystem.Domain.User.ValueObjects;
+using BookingSystem.Domain.Restaurants;
+using BookingSystem.Domain.Restaurants.ValueObjects;
+using BookingSystem.Domain.Users.Errors;
+using BookingSystem.Domain.Users.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace BookingSystem.Application.Persistence.Configurations;
 
-public class RestaurantConfiguration : IEntityTypeConfiguration<Restaurant>
+public class RestaurantConfiguration : IEntityTypeConfiguration<Restaurant>, IConstraintErrorConfiguration
 {
     public void Configure(EntityTypeBuilder<Restaurant> builder)
     {
@@ -60,5 +62,10 @@ public class RestaurantConfiguration : IEntityTypeConfiguration<Restaurant>
                 p.HasKey("restaurant_id", nameof(DayOfWeekSchedule.DayOfWeek));
             });
         });
+    }
+
+    public void Configure(ConstraintErrorRegistryBase registry)
+    {
+        registry.RegisterForeignKey<Restaurant>(r=>r.OwnerId, ManagerErrors.NotFound);
     }
 }

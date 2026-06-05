@@ -1,6 +1,6 @@
 using System.Security.Claims;
-using BookingSystem.Domain.User;
-using BookingSystem.Domain.User.ValueObjects;
+using BookingSystem.Domain.Users;
+using BookingSystem.Domain.Users.ValueObjects;
 
 namespace BookingSystem.Application.Common.Abstractions;
 

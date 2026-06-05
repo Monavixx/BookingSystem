@@ -2,8 +2,8 @@ using System.Security.Claims;
 using BookingSystem.Api.Extensions;
 using BookingSystem.Application.Common.Abstractions;
 using BookingSystem.Application.Persistence;
-using BookingSystem.Domain.User;
-using BookingSystem.Domain.User.ValueObjects;
+using BookingSystem.Domain.Users;
+using BookingSystem.Domain.Users.ValueObjects;
 
 namespace BookingSystem.Api.Services;
 

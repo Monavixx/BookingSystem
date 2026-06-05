@@ -2,8 +2,8 @@
 using BookingSystem.Application.Common.DTOs;
 using BookingSystem.Application.Persistence;
 using BookingSystem.Domain.Common.ValueObjects;
-using BookingSystem.Domain.User;
-using BookingSystem.Domain.User.ValueObjects;
+using BookingSystem.Domain.Users;
+using BookingSystem.Domain.Users.ValueObjects;
 using FluentResults;
 using MediatR;
 using Microsoft.EntityFrameworkCore;

@@ -1,4 +1,4 @@
-﻿using BookingSystem.Domain.Restaurant.ValueObjects;
+﻿using BookingSystem.Domain.Restaurants.ValueObjects;
 
 namespace Tests;
 

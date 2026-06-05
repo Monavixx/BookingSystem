@@ -1,6 +1,6 @@
 using BookingSystem.Application.Persistence;
-using BookingSystem.Domain.Restaurant.Errors;
-using BookingSystem.Domain.Restaurant.ValueObjects;
+using BookingSystem.Domain.Restaurants.Errors;
+using BookingSystem.Domain.Restaurants.ValueObjects;
 using FluentResults;
 using MediatR;
 using Microsoft.Extensions.Logging;
