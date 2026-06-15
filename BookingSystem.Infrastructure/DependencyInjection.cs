@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using BookingSystem.Application.Common.Abstractions;
+using BookingSystem.Application.Features.Bookings.Abstractions;
 using BookingSystem.Application.Persistence;
 using BookingSystem.Application.Persistence.Abstractions;
 using BookingSystem.Application.Persistence.Extensions;
@@ -30,7 +31,7 @@ public static class DependencyInjection
         services.AddSingleton<ConstraintErrorRegistryBase, Services.ConstraintErrorRegistry>(sp =>
         {
             using var scope = sp.CreateScope();
-            var cer = new Services.ConstraintErrorRegistry(scope.ServiceProvider.GetService<AppDbContext>()!.Model);
+            var cer = new ConstraintErrorRegistry(scope.ServiceProvider.GetService<AppDbContext>()!.Model);
             cer.AddConstraintErrorsFromAssembly(typeof(AppDbContext).Assembly);
             return cer;
         });
@@ -47,6 +48,8 @@ public static class DependencyInjection
             c.WorkerCount = 2;
         });
         services.AddScoped<IBackgroundJobService, BackgroundJobService>();
+        services.AddScoped<ITableAvailabilityChecker, TableAvailabilityChecker>();
+        services.AddScoped<IBookingCancellationService, BookingCancellationService>();
 
         return services;
     }

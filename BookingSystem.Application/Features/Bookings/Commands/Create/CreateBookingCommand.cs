@@ -1,7 +1,7 @@
 using FluentResults;
 using MediatR;
 
-namespace BookingSystem.Application.Features.Bookings.Commands.CreateBooking;
+namespace BookingSystem.Application.Features.Bookings.Commands.Create;
 
 public sealed record CreateBookingCommand(
     Guid GuestId,

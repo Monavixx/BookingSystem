@@ -8,7 +8,7 @@ using FluentResults;
 
 namespace BookingSystem.Domain.Restaurants;
 
-public sealed class Restaurant : Entity<RestaurantId>
+public sealed class Restaurant : AggregateRoot<RestaurantId>
 {
     public const int DescriptionMaxLength = 350;
     private Restaurant() {}

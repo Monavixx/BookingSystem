@@ -1,8 +1,6 @@
-﻿using BookingSystem.Application.Common.Abstractions;
-using BookingSystem.Application.Common.Options;
+﻿using BookingSystem.Application.Common.Options;
 using BookingSystem.Application.Common.PipelineBehaviors;
 using BookingSystem.Application.Persistence;
-using BookingSystem.Application.Services;
 using BookingSystem.Domain.Bookings.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -26,7 +24,6 @@ public static class DependencyInjection
                 c.AddOpenBehavior(typeof(LoggingBehavior<,>));
                 c.AddOpenBehavior(typeof(DbExceptionHandlingBehavior<,>));
             });
-            services.AddScoped<IBookingCancellationService, BookingCancellationService>();
             services.AddSingleton<BookingDurationCalculator>();
             services.AddOptions<BookingOptions>()
                 .BindConfiguration(BookingOptions.SectionName)

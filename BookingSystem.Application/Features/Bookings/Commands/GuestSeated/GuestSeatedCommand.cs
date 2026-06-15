@@ -1,0 +1,6 @@
+using FluentResults;
+using MediatR;
+
+namespace BookingSystem.Application.Features.Bookings.Commands.GuestSeated;
+
+public sealed record GuestSeatedCommand(Guid BookingId) : IRequest<Result>;

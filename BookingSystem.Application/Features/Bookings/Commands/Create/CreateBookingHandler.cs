@@ -13,7 +13,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace BookingSystem.Application.Features.Bookings.Commands.CreateBooking;
+namespace BookingSystem.Application.Features.Bookings.Commands.Create;
 
 public class CreateBookingHandler(AppDbContext dbContext, BookingDurationCalculator durationCalculator)
     : IRequestHandler<CreateBookingCommand, Result<CreateBookingResponse>>

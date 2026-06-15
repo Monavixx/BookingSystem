@@ -28,7 +28,7 @@ public class BookingConfiguration : IEntityTypeConfiguration<Booking>, IConstrai
         builder.Property(b=>b.GuestId)
             .HasConversion(id => id.Value, s => new UserId(s))
             .ValueGeneratedNever();
-        builder.HasOne<Table>()
+        builder.HasOne(b=>b.Table)
             .WithMany()
             .HasForeignKey(b => new { b.RestaurantId, b.TableNumber })
             .IsRequired()
@@ -42,6 +42,7 @@ public class BookingConfiguration : IEntityTypeConfiguration<Booking>, IConstrai
             c.Property(t=>t.Start).HasColumnName("start_time");
             c.Property(t=>t.End).HasColumnName("end_time");
         });
+        builder.Ignore(b => b.TableId);
     }
 
     public void Configure(ConstraintErrorRegistryBase registry)

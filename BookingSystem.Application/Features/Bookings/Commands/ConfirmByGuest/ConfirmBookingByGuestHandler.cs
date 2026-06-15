@@ -6,7 +6,7 @@ using FluentResults;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace BookingSystem.Application.Features.Bookings.Commands.ConfirmBookingByGuest;
+namespace BookingSystem.Application.Features.Bookings.Commands.ConfirmByGuest;
 
 public class ConfirmBookingByGuestHandler(
     AppDbContext dbContext,

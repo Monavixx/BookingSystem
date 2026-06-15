@@ -16,11 +16,12 @@ public class TableConfiguration : IEntityTypeConfiguration<Table>, IConstraintEr
         builder.Property(r => r.RestaurantId)
             .HasConversion(id => id.Value, s => new RestaurantId(s));
 
-        builder.HasOne<Restaurant>()
+        builder.HasOne(t=>t.Restaurant)
             .WithMany(r => r.Tables)
             .HasForeignKey(t => t.RestaurantId)
             .OnDelete(DeleteBehavior.Cascade)
             .IsRequired();
+        builder.Ignore(t => t.Id);
     }
 
     public void Configure(ConstraintErrorRegistryBase registry)

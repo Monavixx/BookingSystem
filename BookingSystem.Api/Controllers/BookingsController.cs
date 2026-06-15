@@ -1,7 +1,10 @@
 using BookingSystem.Api.Common;
 using BookingSystem.Api.Extensions;
-using BookingSystem.Application.Features.Bookings.Commands.ConfirmBookingByGuest;
-using BookingSystem.Application.Features.Bookings.Commands.CreateBooking;
+using BookingSystem.Application.Features.Bookings.Commands.Confirm;
+using BookingSystem.Application.Features.Bookings.Commands.ConfirmByGuest;
+using BookingSystem.Application.Features.Bookings.Commands.Create;
+using BookingSystem.Application.Features.Bookings.Commands.GuestSeated;
+using BookingSystem.Domain.Users;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -36,6 +39,24 @@ public class BookingsController(IMediator mediator) : ApiController(mediator)
     public async Task<IActionResult> ConfirmBookingByGuest([FromRoute] Guid id)
     {
         var result = await Mediator.Send(new ConfirmBookingByGuestCommand(BookingId: id));
+        if (result.IsFailed) return HandleErrors(result);
+        return Ok();
+    }
+    
+    [HttpPost("{id:guid}/confirm")]
+    [Authorize(Roles=$"{nameof(UserRole.Manager)},{nameof(UserRole.Admin)}")]
+    public async Task<IActionResult> ConfirmBooking([FromRoute] Guid id)
+    {
+        var result = await Mediator.Send(new ConfirmBookingCommand(BookingId: id));
+        if (result.IsFailed) return HandleErrors(result);
+        return Ok();
+    }
+    
+    [HttpPost("{id:guid}/guest-seated")]
+    [Authorize(Roles=$"{nameof(UserRole.Manager)},{nameof(UserRole.Admin)}")]
+    public async Task<IActionResult> MarkGuestAsSeated([FromRoute] Guid id)
+    {
+        var result = await Mediator.Send(new GuestSeatedCommand(BookingId: id));
         if (result.IsFailed) return HandleErrors(result);
         return Ok();
     }

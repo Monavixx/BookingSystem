@@ -10,7 +10,9 @@ public class Table : IEntity
     private Table() { }
 
     public RestaurantId RestaurantId { get; private set; }
+    public Restaurant Restaurant { get; private set; } = null!;
     public int TableNumber { get; private set; }
+    public TableId Id => new (RestaurantId, TableNumber);
     public int Capacity { get; private set; }
 
     public static Result<Table> Create(RestaurantId restaurantId, int tableNumber, int capacity)

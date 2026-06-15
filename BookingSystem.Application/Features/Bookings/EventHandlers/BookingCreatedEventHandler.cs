@@ -1,13 +1,14 @@
 using BookingSystem.Application.Common;
 using BookingSystem.Application.Common.Abstractions;
 using BookingSystem.Application.Common.Options;
+using BookingSystem.Application.Features.Bookings.Abstractions;
 using BookingSystem.Domain.Bookings.Events;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace BookingSystem.Application.Features.Bookings.EventHandlers;
 
-public class BookingCreatedHandler(IBackgroundJobService backgroundJobService, ILogger<BookingCreatedHandler> logger, IOptions<BookingOptions> options)
+public class BookingCreatedEventHandler(IBackgroundJobService backgroundJobService, ILogger<BookingCreatedEventHandler> logger, IOptions<BookingOptions> options)
     : IDomainEventHandler<BookingCreatedEvent>
 {
     public Task Handle(BookingCreatedEvent notification, CancellationToken cancellationToken)
