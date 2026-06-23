@@ -24,16 +24,37 @@ public class DbExceptionHandlingBehavior<TRequest, TResponse>(
         }
         catch (DbUpdateException ex) when (ex.InnerException is PostgresException pgEx)
         {
-            var error =
+            return HandlePostgresException(pgEx);
+        }
+        catch (PostgresException pgEx)
+        {
+            return HandlePostgresException(pgEx);
+        }
+    }
+
+    private TResponse HandlePostgresException(PostgresException pgEx)
+    {
+        IError error;
+        if (pgEx.ConstraintName is null)
+        {
+            error = new InternalServerError("Database.UnknownError", "Something went wrong");
+            logger.LogError(pgEx, "Unknown database error, DomainError: {@DomainError}",
+                error);
+        }
+        else
+        {
+            error =
                 constraintErrorRegistryBase.TryResolve(pgEx.TableName!, pgEx.ConstraintName!) ??
                 new InternalServerError(
                     "Database.ConstraintViolation",
                     "A database constraint was violated"
                 );
-            logger.LogWarning(ex, "Database constraint violation: {Message}, DomainError: {@DomainError}", pgEx.Message,
+            logger.LogWarning(pgEx, "Database constraint violation: {Message}, DomainError: {@DomainError}",
+                pgEx.Message,
                 error);
-            var res = ResultFactory.CreateFailure<TResponse>([error]);
-            return res;
         }
+
+        var res = ResultFactory.CreateFailure<TResponse>([error]);
+        return res;
     }
 }

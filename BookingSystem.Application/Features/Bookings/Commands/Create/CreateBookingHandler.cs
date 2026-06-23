@@ -4,6 +4,7 @@ using BookingSystem.Domain.Bookings;
 using BookingSystem.Domain.Bookings.Errors;
 using BookingSystem.Domain.Bookings.Services;
 using BookingSystem.Domain.Bookings.ValueObjects;
+using BookingSystem.Domain.Bookings.ValueObjects.Helpers;
 using BookingSystem.Domain.Restaurants.Errors;
 using BookingSystem.Domain.Restaurants.ValueObjects;
 using BookingSystem.Domain.Users.ValueObjects;
@@ -81,15 +82,15 @@ public class CreateBookingHandler(AppDbContext dbContext, BookingDurationCalcula
                          AND b.table_number = t.table_number
                          AND b.start_time < @EndTime
                          AND b.end_time > @ScheduledAt 
-                         AND b.status != {(int)BookingStatus.Canceled}
+                         AND b.status != ALL(@FinalStatuses)
                    )
                  ORDER BY t.capacity
                  LIMIT 1
-                 FOR UPDATE
                  """,
                 new
                 {
-                    RestaurantId = restaurantId, GuestCount = guestCount, ScheduledAt = scheduledAt, EndTime = endTime
+                    RestaurantId = restaurantId, GuestCount = guestCount, ScheduledAt = scheduledAt, EndTime = endTime,
+                    BookingStatusHelper.FinalStatuses
                 }, transaction: transaction);
         }
 
@@ -101,7 +102,6 @@ public class CreateBookingHandler(AppDbContext dbContext, BookingDurationCalcula
             FROM tables
             WHERE restaurant_id = @RestaurantId AND table_number = @TableNumber
             LIMIT 1
-            FOR UPDATE
             """,
             new { RestaurantId = restaurantId, TableNumber = tableNumber }, transaction: transaction);
     }

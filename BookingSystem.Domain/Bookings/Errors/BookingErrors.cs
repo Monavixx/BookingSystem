@@ -13,6 +13,8 @@ public static class BookingErrors
     public static readonly DomainError TableNotAvailable = new ConflictError(
         "Booking.TableNotAvailable",
         "The selected table is not available for the specified time slot");
+    public static readonly DomainError HasBeenChanged = new ConflictError("Booking.HasBeenChanged",
+        "The booking has been changed by another process. Please reload the booking and try again.");
     public static class TimeSlot
     {
         public static readonly DomainError InvalidTimeRange =

@@ -8,7 +8,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookingSystem.Application.Features.Bookings.Commands.Confirm;
 
-public class ConfirmBookingHandler(AppDbContext dbContext, ICurrentUserService currentUserService) : IRequestHandler<ConfirmBookingCommand, Result>
+public class ConfirmBookingHandler(AppDbContext dbContext, ICurrentUserService currentUserService)
+    : IRequestHandler<ConfirmBookingCommand, Result>
 {
     public async Task<Result> Handle(ConfirmBookingCommand request, CancellationToken cancellationToken)
     {
@@ -18,9 +19,9 @@ public class ConfirmBookingHandler(AppDbContext dbContext, ICurrentUserService c
                 Booking = b,
                 RestaurantOwnerId = b.Table.Restaurant.OwnerId
             }).FirstOrDefaultAsync(cancellationToken);
-        if(res is null or {Booking:null}) return Result.Fail(BookingErrors.NotFound);
-        
-        if(res.RestaurantOwnerId != currentUserService.UserId) return Result.Fail(BookingErrors.AccessDenied);
+        if (res is null or { Booking: null }) return Result.Fail(BookingErrors.NotFound);
+
+        if (res.RestaurantOwnerId != currentUserService.UserId) return Result.Fail(BookingErrors.AccessDenied);
         var booking = res.Booking;
 
         if (booking.Confirm() is { IsFailed: true } failed) return failed;

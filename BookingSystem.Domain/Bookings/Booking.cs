@@ -1,6 +1,7 @@
 using BookingSystem.Domain.Bookings.Errors;
 using BookingSystem.Domain.Bookings.Events;
 using BookingSystem.Domain.Bookings.ValueObjects;
+using BookingSystem.Domain.Bookings.ValueObjects.Helpers;
 using BookingSystem.Domain.Common;
 using BookingSystem.Domain.Common.Errors;
 using BookingSystem.Domain.Restaurants;
@@ -60,6 +61,7 @@ public class Booking : AggregateRoot<BookingId>
         return Result.Ok();
     }
 
+    /// <remarks>Can affect only Status</remarks>
     public Result GuestSeated()
     {
         if (CanGuestSit() is { IsFailed: true } failed)
@@ -85,7 +87,7 @@ public class Booking : AggregateRoot<BookingId>
 
     public Result CancelBySystem()
     {
-        if (Status is BookingStatus.Completed)
+        if (!IsFinished())
             return Result.Fail(BookingErrors.Status.InvalidStatusTransition);
         Status = BookingStatus.Canceled;
         return Result.Ok();
@@ -98,4 +100,6 @@ public class Booking : AggregateRoot<BookingId>
             { } when now > TimeSlot.End => BookingAvailabilityState.Expired,
             _ => BookingAvailabilityState.Valid
         };
+
+    public bool IsFinished() => Status.IsFinal();
 }

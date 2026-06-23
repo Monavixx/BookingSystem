@@ -1,5 +1,6 @@
 using BookingSystem.Application.Persistence;
 using BookingSystem.Domain.Bookings.Errors;
+using BookingSystem.Domain.Bookings.ValueObjects;
 using FluentResults;
 using MediatR;
 
@@ -9,7 +10,7 @@ public class CompleteBookingBySystemHandler(AppDbContext dbContext) : IRequestHa
 {
     public async Task<Result> Handle(CompleteBookingBySystemCommand request, CancellationToken cancellationToken)
     {
-        var booking = await dbContext.Bookings.FindAsync([request.BookingId], cancellationToken);
+        var booking = await dbContext.Bookings.FindAsync([new BookingId(request.BookingId)], cancellationToken);
         if (booking is null) return Result.Fail(BookingErrors.NotFound);
 
         if (booking.Complete() is { IsFailed: true } failed) return failed;
