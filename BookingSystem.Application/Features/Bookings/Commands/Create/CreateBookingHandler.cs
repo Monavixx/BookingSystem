@@ -1,10 +1,14 @@
 using System.Data;
+using BookingSystem.Application.Common.Abstractions;
+using BookingSystem.Application.Common.Options;
+using BookingSystem.Application.Features.Bookings.Abstractions;
 using BookingSystem.Application.Persistence;
 using BookingSystem.Domain.Bookings;
 using BookingSystem.Domain.Bookings.Errors;
 using BookingSystem.Domain.Bookings.Services;
 using BookingSystem.Domain.Bookings.ValueObjects;
 using BookingSystem.Domain.Bookings.ValueObjects.Helpers;
+using BookingSystem.Domain.Restaurants;
 using BookingSystem.Domain.Restaurants.Errors;
 using BookingSystem.Domain.Restaurants.ValueObjects;
 using BookingSystem.Domain.Users.ValueObjects;
@@ -13,10 +17,12 @@ using FluentResults;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.Options;
 
 namespace BookingSystem.Application.Features.Bookings.Commands.Create;
 
-public class CreateBookingHandler(AppDbContext dbContext, BookingDurationCalculator durationCalculator)
+public class CreateBookingHandler(AppDbContext dbContext, BookingDurationCalculator durationCalculator,
+    IBackgroundJobService backgroundJobService, IOptions<BookingOptions> bookingOptions)
     : IRequestHandler<CreateBookingCommand, Result<CreateBookingResponse>>
 {
     private sealed record TableDto(int Capacity, Guid RestaurantId, int TableNumber);
@@ -32,11 +38,14 @@ public class CreateBookingHandler(AppDbContext dbContext, BookingDurationCalcula
 
         await using var transaction =
             await dbContext.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
+
+        Booking? booking;
+        TableDto? table;
         try
         {
             var dbTransaction = transaction.GetDbTransaction();
 
-            var table = await GetTableAsync(dbTransaction, request.RestaurantId, request.GuestCount, scheduledAt,
+            table = await GetTableAsync(dbTransaction, request.RestaurantId, request.GuestCount, scheduledAt,
                 request.TableNumber, endTime);
             if (table is null) return Result.Fail<CreateBookingResponse>(TableErrors.NotFound);
             if (table.Capacity < request.GuestCount)
@@ -45,22 +54,31 @@ public class CreateBookingHandler(AppDbContext dbContext, BookingDurationCalcula
             var slot = BookingTimeSlot.Create(scheduledAt, endTime);
             if (slot.IsFailed) return slot.ToResult<CreateBookingResponse>();
 
-            var booking = Booking.Create(new UserId(request.GuestId), request.GuestCount,
+            var bookingRes = Booking.Create(new UserId(request.GuestId), request.GuestCount,
                 new RestaurantId(request.RestaurantId), table.TableNumber, slot.Value);
-            if (booking.IsFailed) return booking.ToResult<CreateBookingResponse>();
-
-            dbContext.Bookings.Add(booking.Value);
+            if (bookingRes.IsFailed) return bookingRes.ToResult<CreateBookingResponse>();
+            booking = bookingRes.Value;
+            
+            dbContext.Bookings.Add(booking);
             await dbContext.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
 
-            return new CreateBookingResponse(booking.Value.Id.Value, booking.Value.TimeSlot.Start,
-                booking.Value.TimeSlot.End, table.TableNumber);
+            
         }
         catch
         {
             await transaction.RollbackAsync(cancellationToken);
             throw;
         }
+        backgroundJobService.Schedule<IBookingCancellationService>(
+            s => s.CancelIfPendingAsync(booking.Id),
+            TimeSpan.FromMinutes(bookingOptions.Value.GuestConfirmationTimeoutMinutes));
+        backgroundJobService.Schedule<IBookingCancellationService>(
+            s => s.CancelIfNotConfirmedAsync(booking.Id),
+            booking.TimeSlot.Start);
+        
+        return new CreateBookingResponse(booking.Id.Value, booking.TimeSlot.Start,
+            booking.TimeSlot.End, table.TableNumber);
     }
 
     private async Task<TableDto?> GetTableAsync(IDbTransaction transaction, Guid restaurantId, int guestCount,

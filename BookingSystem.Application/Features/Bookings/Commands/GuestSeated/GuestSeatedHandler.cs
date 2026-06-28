@@ -65,7 +65,7 @@ public class GuestSeatedHandler(
             var rows = await dbContext.Database.ExecuteSqlRawAsync(
                 """
                 UPDATE Bookings b
-                SET status = {0}
+                SET status = {0}, start_time = {5}, end_time={6}
                 WHERE b.id = {1} AND b.xmin = {2}::text::xid
                   AND NOT EXISTS (
                       SELECT 1 FROM Bookings b2
@@ -79,7 +79,7 @@ public class GuestSeatedHandler(
                 """,
                     booking.Status, booking.Id.Value, booking.RowVersion,
                     booking.RestaurantId.Value, booking.TableNumber,
-                    booking.TimeSlot.Start, booking.TimeSlot.End,
+                    now, now + (booking.TimeSlot.End-booking.TimeSlot.Start),
                     BookingStatusHelper.FinalStatuses
                 );
             if (rows == 0)

@@ -4,6 +4,7 @@ using BookingSystem.Application.Features.Bookings.Commands.Confirm;
 using BookingSystem.Application.Features.Bookings.Commands.ConfirmByGuest;
 using BookingSystem.Application.Features.Bookings.Commands.Create;
 using BookingSystem.Application.Features.Bookings.Commands.GuestSeated;
+using BookingSystem.Application.Features.Bookings.Queries.Get;
 using BookingSystem.Domain.Users;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -59,5 +60,14 @@ public class BookingsController(IMediator mediator) : ApiController(mediator)
         var result = await Mediator.Send(new GuestSeatedCommand(BookingId: id));
         if (result.IsFailed) return HandleErrors(result);
         return Ok();
+    }
+
+    [HttpGet("{id:guid}")]
+    [Authorize]
+    public async Task<IActionResult> GetBooking([FromRoute] Guid id)
+    {
+        var result = await Mediator.Send(new GetBookingQuery(id));
+        if (result.IsFailed) return HandleErrors(result);
+        return Ok(result.Value);
     }
 }
