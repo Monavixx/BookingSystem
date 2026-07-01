@@ -87,7 +87,7 @@ public class Booking : AggregateRoot<BookingId>
 
     public Result CancelBySystem()
     {
-        if (!IsFinished())
+        if (IsFinished())
             return Result.Fail(BookingErrors.Status.InvalidStatusTransition);
         Status = BookingStatus.Canceled;
         return Result.Ok();

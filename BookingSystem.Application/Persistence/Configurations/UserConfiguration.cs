@@ -59,7 +59,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>, IConstraintErro
             .HasConversion(registrationDateTime => registrationDateTime.Value, value => new RegistrationDateTime(value))
             .IsRequired();
         builder.Property(x=>x.PasswordHash)
-            .HasMaxLength(128+16)
+            .HasMaxLength(User.PasswordHashLength)
             .IsRequired();
     }
 

@@ -1,6 +1,6 @@
 ﻿using BookingSystem.Domain.Restaurants.ValueObjects;
 
-namespace Tests;
+namespace Tests.Domain.Restaurants;
 
 public class DayOfWeekScheduleTests
 {

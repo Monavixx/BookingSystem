@@ -18,12 +18,10 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services,  IConfiguration configuration)
     {
         services.AddOptions<RefreshTokenOptions>()
-            .BindConfiguration(RefreshTokenOptions.SectionName)
-            .ValidateDataAnnotations()
+            .Bind(configuration.GetSection(RefreshTokenOptions.SectionName))
             .ValidateOnStart();
         services.AddOptions<JwtOptions>()
-            .BindConfiguration(JwtOptions.SectionName)
-            .ValidateDataAnnotations()
+            .Bind(configuration.GetSection(JwtOptions.SectionName))
             .ValidateOnStart();
         services.AddSingleton<IRefreshTokenService, RefreshTokenService>();
         services.AddSingleton<IJwtTokenService, JwtTokenService>();

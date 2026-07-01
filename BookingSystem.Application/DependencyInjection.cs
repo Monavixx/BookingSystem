@@ -26,8 +26,7 @@ public static class DependencyInjection
             });
             services.AddSingleton<BookingDurationCalculator>();
             services.AddOptions<BookingOptions>()
-                .BindConfiguration(BookingOptions.SectionName)
-                .ValidateDataAnnotations()
+                .Bind(configuration.GetSection(BookingOptions.SectionName))
                 .ValidateOnStart();
             Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
             return services;

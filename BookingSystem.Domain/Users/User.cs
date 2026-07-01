@@ -14,7 +14,7 @@ public sealed class User : Entity<UserId>
 {
     public const int FirstNameMaxLength = 100;
     public const int LastNameMaxLength = 150;
-    public const int PasswordHashMaxLength = 150;
+    public const int PasswordHashLength = 128+16;
     public const int PasswordMinLength = 8;
     public const int PasswordMaxLength = 150;
     private User()
