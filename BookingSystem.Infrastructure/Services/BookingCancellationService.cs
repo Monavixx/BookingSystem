@@ -11,7 +11,7 @@ public class BookingCancellationService(AppDbContext dbContext) : IBookingCancel
         var booking = await dbContext.Bookings.FindAsync(bookingId);
         if (booking is null or { Status: not BookingStatus.Pending }) return;
 
-        booking.CancelBySystem();
+        if (booking.CancelBySystem() is { IsFailed: true }) return;
         await dbContext.SaveChangesAsync();
     }
 
@@ -22,7 +22,7 @@ public class BookingCancellationService(AppDbContext dbContext) : IBookingCancel
             { Status: BookingStatus.Canceled or not (BookingStatus.Pending or BookingStatus.ConfirmedByGuest) })
             return;
 
-        booking.CancelBySystem();
+        if (booking.CancelBySystem() is { IsFailed: true }) return;
         await dbContext.SaveChangesAsync();
     }
 }

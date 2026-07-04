@@ -6,7 +6,7 @@ using Npgsql;
 using Respawn;
 using Testcontainers.PostgreSql;
 
-namespace Tests;
+namespace BookingSystem.Tests;
 
 public class PostgresTestFixture : IAsyncLifetime
 {

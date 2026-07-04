@@ -87,7 +87,15 @@ public class Booking : AggregateRoot<BookingId>
 
     public Result CancelBySystem()
     {
-        if (IsFinished())
+        if (IsFinished() || Status is BookingStatus.Seated)
+            return Result.Fail(BookingErrors.Status.InvalidStatusTransition);
+        Status = BookingStatus.Canceled;
+        return Result.Ok();
+    }
+
+    public Result Cancel()
+    {
+        if (IsFinished() || Status is BookingStatus.Seated)
             return Result.Fail(BookingErrors.Status.InvalidStatusTransition);
         Status = BookingStatus.Canceled;
         return Result.Ok();
@@ -102,4 +110,9 @@ public class Booking : AggregateRoot<BookingId>
         };
 
     public bool IsFinished() => Status.IsFinal();
+    
+    
+    // Methods that can only be used in tests
+    
+    internal void __SetStatus(BookingStatus status) => Status = status;
 }

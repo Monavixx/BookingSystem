@@ -1,6 +1,6 @@
 using BookingSystem.Domain.Users;
 
-namespace Tests.Builders;
+namespace BookingSystem.Tests.Builders;
 
 public class UserBuilder
 {

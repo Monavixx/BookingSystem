@@ -3,7 +3,7 @@ using BookingSystem.Domain.Restaurants;
 using BookingSystem.Domain.Restaurants.ValueObjects;
 using BookingSystem.Domain.Users.ValueObjects;
 
-namespace Tests.Builders;
+namespace BookingSystem.Tests.Builders;
 
 public class RestaurantBuilder
 {
@@ -32,6 +32,7 @@ public class RestaurantBuilder
     public RestaurantBuilder WithWorkingSchedule(WorkingSchedule workingSchedule) {_workingSchedule = workingSchedule; return this; }
     public RestaurantBuilder WithOwner(Guid ownerId) {_ownerId = ownerId; return this; }
     public RestaurantBuilder AddTable(int tableNumber, int capacity) {_tables.Add((tableNumber, capacity)); return this; }
+    public RestaurantBuilder WithTables(params IEnumerable<(int tableNumber, int capacity)> tables) {_tables.Clear(); _tables.AddRange(tables); return this; }
 
     public Restaurant Build()
     {

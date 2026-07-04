@@ -11,10 +11,10 @@ public static class BookingStatusHelper
         BookingStatus.NoShow
     ];
 
-    public static int[] FinalStatuses { get; } = _finalStatuses.Cast<int>().ToArray();
+    public static int[] FinalIntStatuses { get; } = _finalStatuses.Cast<int>().ToArray();
 
-    private static readonly FrozenSet<BookingStatus> FinalStatusesSet = _finalStatuses.ToFrozenSet();
+    public static readonly FrozenSet<BookingStatus> FinalStatuses = _finalStatuses.ToFrozenSet();
     
     public static bool IsFinal(this BookingStatus bookingStatus) =>
-        FinalStatusesSet.Contains(bookingStatus);
+        FinalStatuses.Contains(bookingStatus);
 }

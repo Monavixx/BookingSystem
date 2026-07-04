@@ -4,7 +4,7 @@ using BookingSystem.Application.Persistence;
 using BookingSystem.Domain.Users;
 using BookingSystem.Domain.Users.ValueObjects;
 
-namespace Tests.Fakes;
+namespace BookingSystem.Tests.Fakes;
 
 public class FakeCurrentUserService (AppDbContext dbContext) : ICurrentUserService
 {

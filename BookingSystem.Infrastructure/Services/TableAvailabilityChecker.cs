@@ -31,7 +31,7 @@ public class TableAvailabilityChecker(AppDbContext dbContext) : ITableAvailabili
             {
                 RestaurantId = tableId.RestaurantId.Value, tableId.TableNumber, From = from.UtcDateTime,
                 To = to.UtcDateTime,
-                BookingStatusHelper.FinalStatuses
+                FinalStatuses = BookingStatusHelper.FinalIntStatuses
             }, dbTransaction)) is null;
     }
 }

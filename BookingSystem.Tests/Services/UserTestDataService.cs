@@ -1,8 +1,8 @@
 using BookingSystem.Application.Persistence;
 using BookingSystem.Domain.Users;
-using Tests.Builders;
+using BookingSystem.Tests.Builders;
 
-namespace Tests.Services;
+namespace BookingSystem.Tests.Services;
 
 public class UserTestDataService(AppDbContext dbContext)
 {
@@ -89,15 +89,46 @@ public class UserTestDataService(AppDbContext dbContext)
         .WithPhoneNumber("+78506504555")
         .WithRole(UserRole.Guest)
         .Build();
+    
+    private static readonly User BaseAnotherGuest = new UserBuilder()
+        .WithUsername("anotherGuest54")
+        .WithEmail("anotherguest54@gmail.com")
+        .WithPhoneNumber("+78106574556")
+        .WithRole(UserRole.Guest)
+        .Build();
+    
+    private static readonly User BaseAnotherManager = new UserBuilder()
+        .WithUsername("moneger_wow228")
+        .WithEmail("monegEr_wow228@gmail.com")
+        .WithPhoneNumber("+79996666744")
+        .WithRole(UserRole.Manager)
+        .Build();
 
-    private static readonly User[] BaseUsers = [BaseAdmin, BaseManager, BaseGuest];
+    private static readonly User[] Base3Users = [BaseAdmin, BaseManager, BaseGuest];
+    private static readonly User[] Base4Users = [BaseAdmin, BaseManager, BaseGuest, BaseAnotherGuest];
+    private static readonly User[] Base5Users = [BaseAdmin, BaseManager, BaseGuest, BaseAnotherGuest, BaseAnotherManager];
 
     /// <returns>[0] admin, [1] manager, [2] guest</returns>
     public async Task<User[]> CreateBase3Async()
     {
-        dbContext.Users.AddRange(BaseUsers);
+        dbContext.Users.AddRange(Base3Users);
         dbContext.Managers.Add(Manager.Create(BaseManager.Id));
         await dbContext.SaveChangesAsync();
-        return BaseUsers;
+        return Base3Users;
+    }
+
+    public async Task<(User Admin, User Manager, User Guest, User AnotherGuest)> CreateBase4Async()
+    {
+        dbContext.Users.AddRange(Base4Users);
+        dbContext.Managers.Add(Manager.Create(BaseManager.Id));
+        await dbContext.SaveChangesAsync();
+        return (BaseAdmin, BaseManager, BaseGuest, BaseAnotherGuest);
+    }
+    public async Task<(User Admin, User Manager, User AnotherManager, User Guest, User AnotherGuest)> CreateBase5Async()
+    {
+        dbContext.Users.AddRange(Base5Users);
+        dbContext.Managers.Add(Manager.Create(BaseManager.Id));
+        await dbContext.SaveChangesAsync();
+        return (BaseAdmin, BaseManager, BaseAnotherManager, BaseGuest, BaseAnotherGuest);
     }
 }

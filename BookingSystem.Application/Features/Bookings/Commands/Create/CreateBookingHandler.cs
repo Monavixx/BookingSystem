@@ -108,7 +108,7 @@ public class CreateBookingHandler(AppDbContext dbContext, BookingDurationCalcula
                 new
                 {
                     RestaurantId = restaurantId, GuestCount = guestCount, ScheduledAt = scheduledAt, EndTime = endTime,
-                    BookingStatusHelper.FinalStatuses
+                    FinalStatuses = BookingStatusHelper.FinalIntStatuses
                 }, transaction: transaction);
         }
 

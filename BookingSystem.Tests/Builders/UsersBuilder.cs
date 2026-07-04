@@ -1,4 +1,4 @@
-namespace Tests.Builders;
+namespace BookingSystem.Tests.Builders;
 
 public class UsersBuilder : List<UserBuilder>
 {

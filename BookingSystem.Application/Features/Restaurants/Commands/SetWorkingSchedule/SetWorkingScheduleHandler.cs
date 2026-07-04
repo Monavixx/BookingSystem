@@ -23,8 +23,9 @@ public class SetWorkingScheduleHandler (AppDbContext dbContext, ICurrentUserServ
         var currentDayOfWeek = DayOfWeek.Sunday;
         foreach (var dto in request.Schedules)
         {
-            var resDoWC = DayOfWeekSchedule.Create(dto.DayOfWeek ?? currentDayOfWeek++,
+            var resDoWC = DayOfWeekSchedule.Create(dto.DayOfWeek ?? currentDayOfWeek,
                     dto.OpeningTime, dto.ClosingTime, dto.IsClosed ?? false);
+            currentDayOfWeek++;
             if (resDoWC.IsFailed) return resDoWC.ToResult();
             schedules.Add(resDoWC.Value);
         }
