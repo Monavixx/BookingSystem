@@ -15,7 +15,7 @@ public class BookingsBuilder : List<BookingBuilder>
 
     public BookingsBuilder AddBooking(User guest, Restaurant restaurant, int tableNumber,
         int guestCount = 2, BookingStatus status = BookingStatus.Pending, DateTimeOffset? startTime = null,
-        TimeSpan? duration = null)
+        TimeSpan? duration = null, TimeProvider? timeProvider = null)
     {
         var builder = new BookingBuilder()
             .WithGuest(guest)
@@ -23,7 +23,9 @@ public class BookingsBuilder : List<BookingBuilder>
             .WithRestaurant(restaurant)
             .WithTableNumber(tableNumber)
             .WithStatus(status)
-            .WithTimeSlotNoChecking(startTime ?? DateTimeOffset.UtcNow.AddHours(1),
+            .WithTimeSlotNoChecking(
+                startTime ?? timeProvider?.GetUtcNow().AddHours(1) ??
+                throw new ArgumentException("Either startTime or timeProvider must be provided"),
                 duration ?? TimeSpan.FromMinutes(90));
         Add(builder);
         return this;

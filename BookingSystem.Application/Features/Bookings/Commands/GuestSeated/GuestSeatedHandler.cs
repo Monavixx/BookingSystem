@@ -19,7 +19,8 @@ public class GuestSeatedHandler(
     AppDbContext dbContext,
     ICurrentUserService currentUserService,
     ILogger<GuestSeatedHandler> logger,
-    IBackgroundJobService backgroundJobService) : IRequestHandler<GuestSeatedCommand, Result>
+    IBackgroundJobService backgroundJobService,
+    TimeProvider timeProvider) : IRequestHandler<GuestSeatedCommand, Result>
 {
     public async Task<Result> Handle(GuestSeatedCommand request, CancellationToken cancellationToken)
     {
@@ -38,7 +39,7 @@ public class GuestSeatedHandler(
         if (booking.CanGuestSit() is { IsFailed: true } failed) return failed;
         logger.LogDebug("Domain logic checks passed");
 
-        var now = DateTimeOffset.UtcNow;
+        var now = timeProvider.GetUtcNow();
         var availabilityState = booking.GetAvailabilityState(now);
         if (availabilityState is BookingAvailabilityState.Expired)
         {

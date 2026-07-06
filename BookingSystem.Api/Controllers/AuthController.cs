@@ -11,7 +11,7 @@ using Microsoft.Extensions.Options;
 namespace BookingSystem.Api.Controllers;
 
 [Route("api/auth")]
-public class AuthController(IMediator mediator, IOptions<JwtOptions> jwtOptions) : ApiController(mediator)
+public class AuthController(IMediator mediator, IOptions<JwtOptions> jwtOptions, TimeProvider timeProvider) : ApiController(mediator)
 {
     private readonly JwtOptions _jwtOptions = jwtOptions.Value;
 
@@ -54,7 +54,7 @@ public class AuthController(IMediator mediator, IOptions<JwtOptions> jwtOptions)
             HttpOnly = true,
             Secure = true,
             SameSite = SameSiteMode.Strict,
-            Expires = DateTime.UtcNow.AddMinutes(_jwtOptions.ExpirationMinutes)
+            Expires = timeProvider.GetUtcNow().AddMinutes(_jwtOptions.ExpirationMinutes)
         });
 
         HttpContext.Response.Cookies.Append("refresh_token", authTokens.RefreshToken.ToString(),

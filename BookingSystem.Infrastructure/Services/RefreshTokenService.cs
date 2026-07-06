@@ -6,11 +6,11 @@ using Microsoft.Extensions.Options;
 
 namespace BookingSystem.Infrastructure.Services;
 
-internal class RefreshTokenService (IOptions<RefreshTokenOptions> options) : IRefreshTokenService
+internal class RefreshTokenService (IOptions<RefreshTokenOptions> options, TimeProvider timeProvider) : IRefreshTokenService
 {
     public RefreshToken GenerateRefreshToken()
     {
         return RefreshToken.Create(RandomNumberGenerator.GetBytes(RefreshToken.TokenLength),
-            DateTime.UtcNow.AddDays(options.Value.ExpirationDays));
+            timeProvider.GetUtcNow().UtcDateTime.AddDays(options.Value.ExpirationDays));
     }
 }

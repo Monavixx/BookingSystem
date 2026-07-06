@@ -40,7 +40,7 @@ public class CreateBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
         CurrentUserService.UserIdGuid = guest.Id.Value;
 
-        var scheduledAt = DateTimeOffset.UtcNow.AddHours(1);
+        var scheduledAt = FakeTime.GetUtcNow().AddHours(1);
         var res = await Mediator.Send(
             new CreateBookingCommand(
                 GuestId: guest.Id.Value,
@@ -54,7 +54,7 @@ public class CreateBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         booking.Should().NotBeNull();
         booking.TableNumber.Should().Be(1);
         booking.Status.Should().Be(BookingStatus.Pending);
-        booking.TimeSlot.Start.Should().BeCloseTo(scheduledAt, TimeSpan.FromMinutes(1));
+        booking.TimeSlot.Start.Should().BeCloseTo(scheduledAt, TimeSpan.FromSeconds(1));
         booking.TimeSlot.End.Should()
             .BeCloseTo(scheduledAt + Scope.ServiceProvider.GetRequiredService<BookingDurationCalculator>()
                 .CalculateDuration(2).Value, TimeSpan.FromSeconds(1));
@@ -73,7 +73,7 @@ public class CreateBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
         CurrentUserService.UserIdGuid = guest.Id.Value;
 
-        var scheduledAt = DateTimeOffset.UtcNow.AddHours(1);
+        var scheduledAt = FakeTime.GetUtcNow().AddHours(1);
         var res = await Mediator.Send(
             new CreateBookingCommand(
                 GuestId: guest.Id.Value,
@@ -97,7 +97,7 @@ public class CreateBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
         CurrentUserService.UserIdGuid = guest.Id.Value;
 
-        var scheduledAt = DateTimeOffset.UtcNow.AddHours(-1);
+        var scheduledAt = FakeTime.GetUtcNow().AddHours(-1);
 
         NewScope();
         var res = await Mediator.Send(
@@ -123,7 +123,7 @@ public class CreateBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
         CurrentUserService.UserIdGuid = guest.Id.Value;
 
-        var scheduledAt = DateTimeOffset.UtcNow.AddHours(1);
+        var scheduledAt = FakeTime.GetUtcNow().AddHours(1);
 
         NewScope();
         // Create a booking for the only table with capacity 2
@@ -172,7 +172,7 @@ public class CreateBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
         CurrentUserService.UserIdGuid = guest.Id.Value;
 
-        var scheduledAt1 = DateTimeOffset.UtcNow.AddHours(1);
+        var scheduledAt1 = FakeTime.GetUtcNow().AddHours(1);
         var scheduledAt2 = scheduledAt1.AddHours(3); // Non-overlapping time slot
 
         NewScope();
@@ -224,7 +224,7 @@ public class CreateBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
             (3, 5), (4, 5), (5, 10));
         CurrentUserService.UserIdGuid = guest.Id.Value;
 
-        var scheduledAt = DateTimeOffset.UtcNow.AddHours(1);
+        var scheduledAt = FakeTime.GetUtcNow().AddHours(1);
         
         NewScope();
         var res = await Mediator.Send(

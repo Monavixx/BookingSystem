@@ -11,12 +11,14 @@ namespace BookingSystem.Infrastructure.Services;
 
 internal class JwtTokenService : IJwtTokenService
 {
+    private readonly TimeProvider _timeProvider;
     private readonly JwtOptions _options;
     private readonly SymmetricSecurityKey _key;
     private static readonly JwtSecurityTokenHandler TokenHandler = new ();
     
-    public JwtTokenService(IOptions<JwtOptions> options)
+    public JwtTokenService(IOptions<JwtOptions> options, TimeProvider timeProvider)
     {
+        _timeProvider = timeProvider;
         _options = options.Value;
         _key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_options.Secret));
     }
@@ -28,7 +30,7 @@ internal class JwtTokenService : IJwtTokenService
         var tokenDescriptor = new SecurityTokenDescriptor()
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddMinutes(_options.ExpirationMinutes),
+            Expires = _timeProvider.GetUtcNow().UtcDateTime.AddMinutes(_options.ExpirationMinutes),
             SigningCredentials = credentials,
             Issuer = _options.Issuer,
             Audience = _options.Audience

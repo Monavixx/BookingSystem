@@ -87,6 +87,7 @@ try
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
     builder.Services.AddScoped<IClaimsTransformation, RoleClaimsTransformation>();
+    builder.Services.AddSingleton<TimeProvider>(TimeProvider.System);
 
     var app = builder.Build();
 

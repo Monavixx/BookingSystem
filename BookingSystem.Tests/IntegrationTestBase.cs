@@ -8,6 +8,7 @@ using BookingSystem.Tests.Services;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Time.Testing;
 using Moq;
 
 namespace BookingSystem.Tests;
@@ -20,6 +21,7 @@ public abstract class IntegrationTestBase : IAsyncLifetime
     protected IServiceScope Scope = null!;
     protected IMediator Mediator => Scope.ServiceProvider.GetRequiredService<IMediator>();
     protected AppDbContext DbContext => Scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    protected FakeTimeProvider FakeTime => Factory.FakeTime;
     private IDbContextFactory<AppDbContext> DbContextFactory => Scope.ServiceProvider.GetRequiredService<IDbContextFactory<AppDbContext>>();
     private readonly ConcurrentBag<AppDbContext> _dbContextsToDispose = [];
     protected AppDbContext NewDbContext()

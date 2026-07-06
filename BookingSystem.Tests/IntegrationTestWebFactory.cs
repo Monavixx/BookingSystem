@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Time.Testing;
 using Moq;
 
 namespace BookingSystem.Tests;
@@ -21,14 +22,15 @@ public class IntegrationTestWebFactory : WebApplicationFactory<Program>
     public string ConnectionString { get; init; } = null!;
     private Mock<IBackgroundJobService> _backgroundJobServiceMock = new ();
 
+    public FakeTimeProvider FakeTime { get; init; } =
+        new FakeTimeProvider(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
+
     public Mock<IBackgroundJobService> GetBackgroundJobServiceMock()
     {
-        if (_backgroundJobServiceMock == null)
-            throw new InvalidOperationException("BackgroundJobServiceMock has not been initialized.");
         return _backgroundJobServiceMock;
     }
 
-    private IBackgroundJobService GetBackgroundJobService() => _backgroundJobServiceMock!.Object;
+    private IBackgroundJobService GetBackgroundJobService() => _backgroundJobServiceMock.Object;
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -44,9 +46,7 @@ public class IntegrationTestWebFactory : WebApplicationFactory<Program>
                     && d.ImplementationType == typeof(BackgroundJobServerHostedService));
             if (hangfireServer is not null) services.Remove(hangfireServer);
             
-            var backgroundJobServiceDescriptor = services.SingleOrDefault(
-                d => d.ServiceType == typeof(IBackgroundJobService));
-            if (backgroundJobServiceDescriptor is not null) services.Remove(backgroundJobServiceDescriptor);
+            services.Replace(ServiceDescriptor.Scoped<IBackgroundJobService>(_ => GetBackgroundJobService()));
             
             var descriptors = services.Where(d =>
                     d.ServiceType == typeof(DbContextOptions<AppDbContext>) ||
@@ -58,6 +58,8 @@ public class IntegrationTestWebFactory : WebApplicationFactory<Program>
 
             foreach (var d in descriptors)
                 services.Remove(d);
+            
+            services.Replace(ServiceDescriptor.Singleton<TimeProvider>(FakeTime));
 
             services.AddDbContextFactory<AppDbContext>(options => { 
                 options.UseNpgsql(ConnectionString)
@@ -68,9 +70,6 @@ public class IntegrationTestWebFactory : WebApplicationFactory<Program>
             services.AddScoped<UserTestDataService>();
             services.AddScoped<RestaurantTestDataService>();
             services.AddScoped<BookingTestDataService>();
-            
-            // Register mock IBackgroundJobService
-            services.AddScoped<IBackgroundJobService>(_ => GetBackgroundJobService());
         });
     }
 }

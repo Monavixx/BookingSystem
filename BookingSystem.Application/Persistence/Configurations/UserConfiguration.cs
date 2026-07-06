@@ -53,10 +53,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>, IConstraintErro
             .IsUnique();
         
         builder.Property(x => x.BirthDate)
-            .HasConversion(birthDate => birthDate.Value, value => Birthdate.Create(value).Value)
-            .IsRequired();
-        builder.Property(x => x.RegistrationDateTime)
-            .HasConversion(registrationDateTime => registrationDateTime.Value, value => new RegistrationDateTime(value))
+            .HasConversion(birthDate => birthDate.Value, value => Birthdate.__CreateUnchecked(value))
             .IsRequired();
         builder.Property(x=>x.PasswordHash)
             .HasMaxLength(User.PasswordHashLength)

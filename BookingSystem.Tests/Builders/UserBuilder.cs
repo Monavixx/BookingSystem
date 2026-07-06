@@ -22,6 +22,6 @@ public class UserBuilder
     public UserBuilder WithLastName(string lastName) { _lastName = lastName; return this; }
     public UserBuilder WithRole(UserRole role) { _role = role; return this; }
     
-    public User Build() => User.Create(_username, _email, _phoneNumber, _passwordHash,
+    public User Build(TimeProvider timeProvider) => User.Create(timeProvider, _username, _email, _phoneNumber, _passwordHash,
         _dateOfBirth, _firstName, _lastName, _role).Value;
 }

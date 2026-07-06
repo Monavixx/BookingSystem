@@ -1,5 +1,4 @@
 using System.Linq.Expressions;
-using BookingSystem.Application.Features.Bookings.Abstractions;
 using BookingSystem.Application.Features.Bookings.Commands.Complete.CompleteBySystem;
 using BookingSystem.Application.Features.Bookings.Commands.GuestSeated;
 using BookingSystem.Domain.Bookings;
@@ -7,7 +6,6 @@ using BookingSystem.Domain.Bookings.Errors;
 using BookingSystem.Domain.Bookings.ValueObjects;
 using BookingSystem.Domain.Users;
 using FluentAssertions;
-using FluentResults;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Moq;
@@ -94,7 +92,7 @@ public class GuestSeatedHandlerTests(PostgresTestFixture dbFixture) : Integratio
                 .WithGuestCount(2)
                 .WithStatus(BookingStatus.Confirmed)
                 .WithTableNumber(restaurant.Tables.First().TableNumber)
-                .WithTimeSlotNoChecking(DateTimeOffset.UtcNow.AddDays(-1), TimeSpan.FromMinutes(90));
+                .WithTimeSlotNoChecking(FakeTime.GetUtcNow().AddDays(-1), TimeSpan.FromMinutes(90));
         });
         NewScope();
         var res = await Mediator.Send(new GuestSeatedCommand(booking.Id.Value));
@@ -112,7 +110,7 @@ public class GuestSeatedHandlerTests(PostgresTestFixture dbFixture) : Integratio
         SetCurrentUser(manager);
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
 
-        var scheduledAt = DateTimeOffset.UtcNow.AddSeconds(-5);
+        var scheduledAt = FakeTime.GetUtcNow().AddSeconds(-5);
         var duration = TimeSpan.FromMinutes(90);
         var booking = await Bookings.Create(builder =>
         {
@@ -140,7 +138,7 @@ public class GuestSeatedHandlerTests(PostgresTestFixture dbFixture) : Integratio
 
     private void VerifyCompleteBookingBySystemCommand(Booking booking)
     {
-        BackgroundJobServiceMock.Verify(b => b.Schedule<IMediator>(
+        BackgroundJobServiceMock.Verify(b => b.Schedule(
                 It.Is<Expression<Action<IMediator>>>(e =>
                     MatchesCompleteBookingBySystemCommand(e, booking.Id.Value)),
                 It.Is<DateTimeOffset>(dt =>
@@ -169,7 +167,7 @@ public class GuestSeatedHandlerTests(PostgresTestFixture dbFixture) : Integratio
         SetCurrentUser(manager);
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
 
-        var scheduledAt = DateTimeOffset.UtcNow.AddMinutes(10);
+        var scheduledAt = FakeTime.GetUtcNow().AddMinutes(10);
         var duration = TimeSpan.FromMinutes(90);
         var booking = await Bookings.Create(builder =>
         {
@@ -189,8 +187,8 @@ public class GuestSeatedHandlerTests(PostgresTestFixture dbFixture) : Integratio
         var updatedBooking = await NewDbContext().Bookings.AsNoTracking().SingleOrDefaultAsync();
         updatedBooking.Should().NotBeNull();
         updatedBooking.Status.Should().Be(BookingStatus.Seated);
-        updatedBooking.TimeSlot.Start.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(5));
-        updatedBooking.TimeSlot.End.Should().BeCloseTo(DateTimeOffset.UtcNow + duration, TimeSpan.FromSeconds(5));
+        updatedBooking.TimeSlot.Start.Should().BeCloseTo(FakeTime.GetUtcNow(), TimeSpan.FromSeconds(5));
+        updatedBooking.TimeSlot.End.Should().BeCloseTo(FakeTime.GetUtcNow() + duration, TimeSpan.FromSeconds(5));
         
         VerifyCompleteBookingBySystemCommand(booking);
     }
@@ -203,14 +201,14 @@ public class GuestSeatedHandlerTests(PostgresTestFixture dbFixture) : Integratio
         var guest2 = await Users.CreateGuestAsync("guest2", "guest2@example.com", "+76365257845");
         SetCurrentUser(manager);
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
-        var firstBooking = await Bookings.Create(c => c.WithGuest(guest2)
+        _ = await Bookings.Create(c => c.WithGuest(guest2)
             .WithRestaurant(restaurant)
             .WithGuestCount(2)
             .WithStatus(BookingStatus.Confirmed)
             .WithTableNumber(restaurant.Tables.First().TableNumber)
-            .WithTimeSlotNoChecking(DateTimeOffset.UtcNow.AddMinutes(15), TimeSpan.FromMinutes(90)));
+            .WithTimeSlotNoChecking(FakeTime.GetUtcNow().AddMinutes(15), TimeSpan.FromMinutes(90)));
 
-        var scheduledAt = DateTimeOffset.UtcNow.AddMinutes(120);
+        var scheduledAt = FakeTime.GetUtcNow().AddMinutes(120);
         var duration = TimeSpan.FromMinutes(90);
         var booking = await Bookings.Create(builder =>
         {

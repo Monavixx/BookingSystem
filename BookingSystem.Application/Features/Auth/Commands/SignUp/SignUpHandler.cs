@@ -13,7 +13,8 @@ public class SignUpHandler(
     AppDbContext appDbContext,
     IRefreshTokenService refreshTokenService,
     IJwtTokenService jwtTokenService,
-    ILogger<SignUpHandler> logger)
+    ILogger<SignUpHandler> logger,
+    TimeProvider timeProvider)
     : IRequestHandler<SignUpCommand, Result<SuccessfulSignUpResult>>
 {
     public async Task<Result<SuccessfulSignUpResult>> Handle(SignUpCommand request,
@@ -21,6 +22,7 @@ public class SignUpHandler(
     {
         logger.LogInformation("Trying to sign up user {UserName}", request.Username);
         var result = User.Create(
+            timeProvider: timeProvider,
             username: request.Username,
             email: request.Email,
             phoneNumber: request.PhoneNumber,
@@ -49,9 +51,7 @@ public class SignUpHandler(
         return Result.Ok(new SuccessfulSignUpResult()
         {
             Id = user.Id.Value,
-            AuthTokens = new AuthTokens(AccessToken: jwtToken,
-                RefreshToken: rt
-            )
+            AuthTokens = new AuthTokens(AccessToken: jwtToken, RefreshToken: rt)
         });
     }
 }

@@ -24,12 +24,14 @@ public sealed class User : Entity<UserId>
     public EmailAddress Email { get; private set; } = null!;
     public PhoneNumber PhoneNumber { get; private set; } = null!;
     public byte[] PasswordHash { get; private set; } = null!;
-    public RegistrationDateTime RegistrationDateTime { get; private set; }
+    public DateTimeOffset RegistrationDateTime { get; private set; }
     public Birthdate BirthDate { get; private set; } = null!;
     public string FirstName { get; private set; } = null!;
     public string LastName { get; private set; } = null!;
     public UserRole Role { get; private set; } = UserRole.Guest;
-
+    public bool IsBlocked { get; private set; } = false;
+    public DateTimeOffset? BlockedUntil { get; private set; } = null;
+    
     private readonly List<Session> _sessions = [];
     public IReadOnlyCollection<Session> Sessions => _sessions;
 
@@ -38,6 +40,7 @@ public sealed class User : Entity<UserId>
 
 
     public static Result<User> Create(
+        TimeProvider timeProvider,
         string username,
         string email,
         string phoneNumber,
@@ -50,7 +53,7 @@ public sealed class User : Entity<UserId>
         var usernameResult = Username.Create(username);
         var emailResult = EmailAddress.Create(email);
         var phoneNumberResult = PhoneNumber.Create(phoneNumber);
-        var birthdateResult = Birthdate.Create(birthdate);
+        var birthdateResult = Birthdate.Create(timeProvider, birthdate);
         if (!Enum.IsDefined(role))
             throw new ArgumentException("Invalid user role", nameof(role));
         List<IError> errors =
@@ -86,7 +89,7 @@ public sealed class User : Entity<UserId>
             Email = emailResult.Value,
             PhoneNumber = phoneNumberResult.Value,
             PasswordHash = passwordHash!,
-            RegistrationDateTime = RegistrationDateTime.New(),
+            RegistrationDateTime = timeProvider.GetUtcNow(),
             BirthDate = birthdateResult.Value,
             FirstName = firstName,
             LastName = lastName,
@@ -100,4 +103,10 @@ public sealed class User : Entity<UserId>
     }
 
     public void MakeManager() => Role = UserRole.Manager;
+
+    public void Block(TimeProvider timeProvider, TimeSpan duration)
+    {
+        IsBlocked = true;
+        BlockedUntil = timeProvider.GetUtcNow() + duration;
+    }
 }

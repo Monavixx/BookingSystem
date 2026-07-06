@@ -26,8 +26,7 @@ public class CancelBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
             .WithRestaurant(restaurant)
             .WithGuestCount(2)
             .WithStatus(BookingStatus.Confirmed)
-            .WithTableNumber(restaurant.Tables.First().TableNumber)
-            .WithTimeSlotNoChecking(DateTimeOffset.UtcNow.AddHours(1), TimeSpan.FromMinutes(90)));
+            .WithTableNumber(restaurant.Tables.First().TableNumber));
         NewScope();
         
         var res = await Mediator.Send(new CancelBookingCommand(booking.Id.Value));
@@ -49,7 +48,7 @@ public class CancelBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
             .WithGuestCount(2)
             .WithStatus(BookingStatus.Confirmed)
             .WithTableNumber(restaurant.Tables.First().TableNumber)
-            .WithTimeSlotNoChecking(DateTimeOffset.UtcNow.AddHours(1), TimeSpan.FromMinutes(90)));
+            .WithTimeSlotNoChecking(FakeTime.GetUtcNow().AddHours(1), TimeSpan.FromMinutes(90)));
         NewScope();
         
         SetCurrentUser(anotherGuest);
@@ -70,8 +69,7 @@ public class CancelBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
             .WithRestaurant(restaurant)
             .WithGuestCount(2)
             .WithStatus(BookingStatus.Confirmed)
-            .WithTableNumber(restaurant.Tables.First().TableNumber)
-            .WithTimeSlotNoChecking(DateTimeOffset.UtcNow.AddHours(1), TimeSpan.FromMinutes(90)));
+            .WithTableNumber(restaurant.Tables.First().TableNumber));
         NewScope();
         
         SetCurrentUser(anotherManager);
@@ -96,8 +94,7 @@ public class CancelBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
             .WithRestaurant(restaurant)
             .WithGuestCount(2)
             .WithStatus(finalStatus)
-            .WithTableNumber(restaurant.Tables.First().TableNumber)
-            .WithTimeSlotNoChecking(DateTimeOffset.UtcNow.AddHours(1), TimeSpan.FromMinutes(90)));
+            .WithTableNumber(restaurant.Tables.First().TableNumber));
         NewScope();
         
         SetCurrentUser(guest);
@@ -128,8 +125,7 @@ public class CancelBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
             .WithRestaurant(restaurant)
             .WithGuestCount(2)
             .WithStatus(BookingStatus.Seated)
-            .WithTableNumber(restaurant.Tables.First().TableNumber)
-            .WithTimeSlotNoChecking(DateTimeOffset.UtcNow.AddHours(1), TimeSpan.FromMinutes(90)));
+            .WithTableNumber(restaurant.Tables.First().TableNumber));
         NewScope();
         
         SetCurrentUser(guest);
