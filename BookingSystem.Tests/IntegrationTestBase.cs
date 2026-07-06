@@ -55,13 +55,17 @@ public abstract class IntegrationTestBase : IAsyncLifetime
         return Scope;
     }
 
+    protected virtual Task InitAsync()
+    {
+        return Task.CompletedTask;
+    }
     public Task InitializeAsync()
     {
         _dbContextsToDispose.Clear();
         Scope = Factory.Services.CreateScope();
         // Reset the mock before each test
         BackgroundJobServiceMock.Reset();
-        return Task.CompletedTask;
+        return InitAsync();
     }
 
     public async Task DisposeAsync()

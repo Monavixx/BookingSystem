@@ -15,4 +15,14 @@ public class BookingTestDataService (AppDbContext dbContext)
         await dbContext.SaveChangesAsync();
         return booking;
     }
+    
+    public async Task<Booking[]> CreateBookings(Action<BookingsBuilder> config)
+    {
+        var builder = new BookingsBuilder();
+        config(builder);
+        var bookings = builder.Select(x=>x.Build()).ToArray();
+        dbContext.Bookings.AddRange(bookings);
+        await dbContext.SaveChangesAsync();
+        return bookings;
+    }
 }

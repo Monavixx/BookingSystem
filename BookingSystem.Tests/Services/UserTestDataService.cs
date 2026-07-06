@@ -127,7 +127,7 @@ public class UserTestDataService(AppDbContext dbContext)
     public async Task<(User Admin, User Manager, User AnotherManager, User Guest, User AnotherGuest)> CreateBase5Async()
     {
         dbContext.Users.AddRange(Base5Users);
-        dbContext.Managers.Add(Manager.Create(BaseManager.Id));
+        dbContext.Managers.AddRange(Manager.Create(BaseManager.Id), Manager.Create(BaseAnotherManager.Id));
         await dbContext.SaveChangesAsync();
         return (BaseAdmin, BaseManager, BaseAnotherManager, BaseGuest, BaseAnotherGuest);
     }

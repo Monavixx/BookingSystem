@@ -21,6 +21,6 @@ public class FakeCurrentUserService (AppDbContext dbContext) : ICurrentUserServi
 
     public ValueTask<User?> GetUserAsync(ClaimsPrincipal principal)
     {
-        throw new NotImplementedException();
+        throw new NotSupportedException();
     }
 }

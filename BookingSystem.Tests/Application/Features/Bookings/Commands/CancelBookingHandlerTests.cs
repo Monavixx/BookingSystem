@@ -118,7 +118,7 @@ public class CancelBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
     }
     
     [Fact]
-    public async Task Then_GuestSeated_ShouldReturnInvalidStatusTransition()
+    public async Task When_GuestSeated_ShouldReturnInvalidStatusTransition()
     {
         var users = await Users.CreateBase3Async();
         User manager = users[1], guest = users[2];

@@ -1,4 +1,5 @@
 using BookingSystem.Application.Common.Abstractions;
+using BookingSystem.Application.Features.Bookings.DTOs;
 using BookingSystem.Application.Persistence;
 using BookingSystem.Domain.Bookings.Errors;
 using BookingSystem.Domain.Bookings.ValueObjects;
@@ -11,9 +12,9 @@ using Microsoft.EntityFrameworkCore;
 namespace BookingSystem.Application.Features.Bookings.Queries.Get;
 
 public class GetBookingHandler(AppDbContext dbContext, ICurrentUserService currentUserService)
-    : IRequestHandler<GetBookingQuery, Result<GetBookingResponse>>
+    : IRequestHandler<GetBookingQuery, Result<BookingDto>>
 {
-    public async Task<Result<GetBookingResponse>> Handle(GetBookingQuery request, CancellationToken cancellationToken)
+    public async Task<Result<DTOs.BookingDto>> Handle(GetBookingQuery request, CancellationToken cancellationToken)
     {
         var res = await dbContext.Database.GetDbConnection().QueryFirstOrDefaultAsync<BookingDto>(
             """
@@ -31,13 +32,14 @@ public class GetBookingHandler(AppDbContext dbContext, ICurrentUserService curre
             LIMIT 1
             """, new { request.BookingId });
         if (res is null)
-            return Result.Fail<GetBookingResponse>(BookingErrors.NotFound);
+            return Result.Fail<DTOs.BookingDto>(BookingErrors.NotFound);
         
         var user = await currentUserService.GetUserAsync();
         if (user is null || !CanAccess(user, res))
-            return Result.Fail<GetBookingResponse>(BookingErrors.AccessDenied);
+            return Result.Fail<DTOs.BookingDto>(BookingErrors.AccessDenied);
         
-        return new GetBookingResponse(
+        return new DTOs.BookingDto(
+            Id: request.BookingId,
             GuestId: res.GuestId,
             GuestCount: res.GuestCount,
             RestaurantId: res.RestaurantId,

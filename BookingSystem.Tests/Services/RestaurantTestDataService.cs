@@ -22,4 +22,14 @@ public class RestaurantTestDataService (AppDbContext dbContext)
         await dbContext.SaveChangesAsync();
         return restaurant;
     }
+
+    public async Task<Restaurant[]> CreateRestaurants(Action<RestaurantsBuilder> config)
+    {
+        var builder = new RestaurantsBuilder();
+        config(builder);
+        var restaurants = builder.Select(x => x.Build()).ToArray();
+        dbContext.Restaurants.AddRange(restaurants);
+        await dbContext.SaveChangesAsync();
+        return restaurants;
+    }
 }
