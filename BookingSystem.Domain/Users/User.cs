@@ -104,9 +104,11 @@ public sealed class User : Entity<UserId>
 
     public void MakeManager() => Role = UserRole.Manager;
 
-    public void Block(TimeProvider timeProvider, TimeSpan duration)
+    public Result Block(TimeProvider timeProvider, TimeSpan? duration)
     {
+        if(Role is UserRole.Admin) return Result.Fail(UserErrors.AdminCannotBeBlocked);
         IsBlocked = true;
-        BlockedUntil = timeProvider.GetUtcNow() + duration;
+        BlockedUntil = duration is null ? null : timeProvider.GetUtcNow() + duration;
+        return Result.Ok();
     }
 }

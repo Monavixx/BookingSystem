@@ -6,6 +6,7 @@ using BookingSystem.Domain.Common;
 using BookingSystem.Domain.Common.Errors;
 using BookingSystem.Domain.Restaurants;
 using BookingSystem.Domain.Restaurants.ValueObjects;
+using BookingSystem.Domain.Users;
 using BookingSystem.Domain.Users.ValueObjects;
 using FluentResults;
 
@@ -14,6 +15,7 @@ namespace BookingSystem.Domain.Bookings;
 public class Booking : AggregateRoot<BookingId>
 {
     public UserId GuestId { get; private set; }
+    public User Guest { get; private set; } = null!;
     public int GuestCount { get; private set; }
     public RestaurantId RestaurantId { get; private set; }
     public int TableNumber { get; private set; }

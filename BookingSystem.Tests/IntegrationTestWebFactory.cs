@@ -1,5 +1,6 @@
 using BookingSystem.Application.Common.Abstractions;
 using BookingSystem.Application.Persistence;
+using BookingSystem.Infrastructure.Services;
 using BookingSystem.Tests.Fakes;
 using BookingSystem.Tests.Services;
 using Hangfire;
@@ -70,6 +71,7 @@ public class IntegrationTestWebFactory : WebApplicationFactory<Program>
             services.AddScoped<UserTestDataService>();
             services.AddScoped<RestaurantTestDataService>();
             services.AddScoped<BookingTestDataService>();
+            services.AddScoped<UserBlocker>();
         });
     }
 }

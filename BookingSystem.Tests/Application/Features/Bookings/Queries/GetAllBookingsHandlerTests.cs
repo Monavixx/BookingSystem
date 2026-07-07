@@ -1,17 +1,15 @@
-using BookingSystem.Application.Features.Bookings.DTOs;
 using BookingSystem.Application.Features.Bookings.Queries.GetAll;
 using BookingSystem.Domain.Bookings;
 using BookingSystem.Domain.Bookings.ValueObjects;
 using BookingSystem.Domain.Restaurants;
-using BookingSystem.Domain.Users;
+using BookingSystem.Tests.Services;
 using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
 
 namespace BookingSystem.Tests.Application.Features.Bookings.Queries;
 
 public class GetAllBookingsHandlerTests(PostgresTestFixture dbFixture) : IntegrationTestBase(dbFixture)
 {
-    private (User Admin, User Manager, User AnotherManager, User Guest, User AnotherGuest) _users;
+    private Base5Users _users = null!;
     private Restaurant _restaurant1 = null!, _restaurant2 = null!;
     private Booking[] _bookings = null!;
 

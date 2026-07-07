@@ -125,12 +125,14 @@ public class UserTestDataService(AppDbContext dbContext, TimeProvider timeProvid
         await dbContext.SaveChangesAsync();
         return (users[0], users[1], users[2], users[3]);
     }
-    public async Task<(User Admin, User Manager, User AnotherManager, User Guest, User AnotherGuest)> CreateBase5Async()
+    public async Task<Base5Users> CreateBase5Async()
     {
         var users = BuildUsers(Base5Users);
         dbContext.Users.AddRange(users);
         dbContext.Managers.AddRange(Manager.Create(users[1].Id), Manager.Create(users[2].Id));
         await dbContext.SaveChangesAsync();
-        return (users[0], users[1], users[2], users[3], users[4]);
+        return new Base5Users(users[0], users[1], users[2], users[3], users[4]);
     }
 }
+
+public sealed record Base5Users(User Admin, User Manager, User AnotherManager, User Guest, User AnotherGuest);

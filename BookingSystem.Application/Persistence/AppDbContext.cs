@@ -44,6 +44,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IPublisher  pu
     public DbSet<FavoriteRestaurant> FavoriteRestaurants => Set<FavoriteRestaurant>();
     public DbSet<Manager> Managers => Set<Manager>();
     public DbSet<Booking> Bookings => Set<Booking>();
+    public DbSet<CancellationRecord> CancellationRecords => Set<CancellationRecord>();
     
     
     private static bool IsEntity(Type type)

@@ -48,7 +48,8 @@ public static class DependencyInjection
         services.AddScoped<IBackgroundJobService, BackgroundJobService>();
         services.AddScoped<ITableAvailabilityChecker, TableAvailabilityChecker>();
         services.AddScoped<IBookingCancellationService, BookingCancellationService>();
-
+        services.AddScoped<IUserBlocker, UserBlocker>();
+        
         return services;
     }
 }

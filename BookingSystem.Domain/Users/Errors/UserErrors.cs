@@ -6,6 +6,7 @@ namespace BookingSystem.Domain.Users.Errors;
 public static class UserErrors
 {
     public static readonly NotFoundError NotFound = new("User.NotFound", "User not found");
+    public static readonly DomainError AdminCannotBeBlocked = new ForbiddenError("User.AdminCannotBeBlocked", "You can't block an admin");
     public static class Birthdate
     {
         public static readonly ValidationError TooYoung = new ("User.Birthdate.TooYoung",

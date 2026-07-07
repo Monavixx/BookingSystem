@@ -20,7 +20,7 @@ public class BookingConfiguration : IEntityTypeConfiguration<Booking>, IConstrai
         builder.Property(b => b.Id)
             .HasConversion(id => id.Value, s => new BookingId(s))
             .ValueGeneratedNever();
-        builder.HasOne<User>()
+        builder.HasOne<User>(b=>b.Guest)
             .WithMany()
             .HasForeignKey(b => b.GuestId)
             .IsRequired()

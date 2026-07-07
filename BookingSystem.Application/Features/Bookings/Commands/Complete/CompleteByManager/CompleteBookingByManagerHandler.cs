@@ -19,7 +19,7 @@ public sealed class CompleteBookingByManagerHandler(AppDbContext dbContext, ICur
                 Booking = b,
                 RestaurantOwnerId = b.Table.Restaurant.OwnerId
             }).FirstOrDefaultAsync(cancellationToken);
-        if(res is null or {Booking:null}) return Result.Fail(BookingErrors.NotFound);
+        if(res is null) return Result.Fail(BookingErrors.NotFound);
         
         if(res.RestaurantOwnerId != currentUserService.UserId) return Result.Fail(BookingErrors.AccessDenied);
         var booking = res.Booking;

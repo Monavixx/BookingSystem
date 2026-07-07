@@ -135,4 +135,54 @@ public class CancelBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         (await NewDbContext().Bookings.AsNoTracking().FirstAsync(b => b.Id == booking.Id))
             .Status.Should().Be(BookingStatus.Seated);
     }
+
+    [Fact]
+    public async Task When_Guest_SuccessfullyCancels_ShouldCreateCancellationRecord()
+    {
+        var users = await Users.CreateBase3Async();
+        User manager = users[1], guest = users[2];
+        SetCurrentUser(guest);
+        var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
+        var booking = await Bookings.Create(builder => builder
+            .WithGuest(guest)
+            .WithRestaurant(restaurant)
+            .WithGuestCount(2)
+            .WithStatus(BookingStatus.Confirmed)
+            .WithTableNumber(restaurant.Tables.First().TableNumber));
+        NewScope();
+        
+        var res = await Mediator.Send(new CancelBookingCommand(booking.Id.Value));
+        res.IsSuccess.Should().BeTrue();
+
+        NewScope();
+        var cr = await DbContext.CancellationRecords.AsNoTracking().SingleAsync();
+        cr.WhoCancelledId.Should().Be(guest.Id);
+        cr.CanceledAt.Should().BeCloseTo(FakeTime.GetUtcNow(), TimeSpan.FromMilliseconds(1));
+        cr.BookingId.Should().Be(booking.Id);
+    }
+    
+    [Fact]
+    public async Task When_Manager_SuccessfullyCancelsBookingOfAnotherUser_ShouldCreateValidCancellationRecord()
+    {
+        var users = await Users.CreateBase3Async();
+        User manager = users[1], guest = users[2];
+        SetCurrentUser(manager);
+        var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
+        var booking = await Bookings.Create(builder => builder
+            .WithGuest(guest)
+            .WithRestaurant(restaurant)
+            .WithGuestCount(2)
+            .WithStatus(BookingStatus.Confirmed)
+            .WithTableNumber(restaurant.Tables.First().TableNumber));
+        NewScope();
+        
+        var res = await Mediator.Send(new CancelBookingCommand(booking.Id.Value));
+        res.IsSuccess.Should().BeTrue();
+
+        NewScope();
+        var cr = await DbContext.CancellationRecords.AsNoTracking().SingleAsync();
+        cr.WhoCancelledId.Should().Be(manager.Id);
+        cr.CanceledAt.Should().BeCloseTo(FakeTime.GetUtcNow(), TimeSpan.FromMilliseconds(1));
+        cr.BookingId.Should().Be(booking.Id);
+    }
 }
