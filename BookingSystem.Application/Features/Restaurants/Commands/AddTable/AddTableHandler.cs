@@ -5,11 +5,11 @@ using FluentResults;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace BookingSystem.Application.Features.Restaurants.Commands.AddTableToRestaurant;
+namespace BookingSystem.Application.Features.Restaurants.Commands.AddTable;
 
-public class AddTableToRestaurantHandler (AppDbContext dbContext, ILogger<AddTableToRestaurantHandler> logger): IRequestHandler<AddTableToRestaurantCommand, Result>
+public class AddTableHandler (AppDbContext dbContext, ILogger<AddTableHandler> logger): IRequestHandler<AddTableCommand, Result>
 {
-    public async Task<Result> Handle(AddTableToRestaurantCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(AddTableCommand request, CancellationToken cancellationToken)
     {
         var restaurant = await dbContext.Restaurants.FindAsync([new RestaurantId(request.RestaurantId)], cancellationToken);
         if (restaurant is null) return Result.Fail(RestaurantErrors.NotFound);

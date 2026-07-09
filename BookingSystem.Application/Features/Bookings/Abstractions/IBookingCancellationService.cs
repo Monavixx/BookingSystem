@@ -1,9 +1,11 @@
+using BookingSystem.Domain.Bookings;
 using BookingSystem.Domain.Bookings.ValueObjects;
+using FluentResults;
 
 namespace BookingSystem.Application.Features.Bookings.Abstractions;
 
 public interface IBookingCancellationService
 {
-    public Task CancelIfPendingAsync(BookingId bookingId);
-    public Task CancelIfNotConfirmedAsync(BookingId bookingId);
+    Task<Result<bool>> CancelAsync(BookingId bookingId, CancellationReason reason);
+    Task<Result<bool>> CancelAsync(Booking booking, CancellationReason reason);
 }

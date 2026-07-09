@@ -13,7 +13,9 @@ public sealed record GetAllBookingsQuery(
     DateTimeOffset? End = null,
     TimeFilterMethod TimeFilterMethod = TimeFilterMethod.In,
     Guid? GuestId = null,
-    FilterMode FilterMode = FilterMode.All
+    FilterMode FilterMode = FilterMode.All,
+    int Page = 1,
+    int PageSize = 50
 ) : IRequest<Result<ICollection<BookingDto>>>;
 
 public enum TimeFilterMethod

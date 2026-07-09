@@ -12,19 +12,19 @@ public class CancellationRecordConfiguration : IEntityTypeConfiguration<Cancella
     public void Configure(EntityTypeBuilder<CancellationRecord> builder)
     {
         builder.HasKey(x => x.Id);
-        
+
         builder.Property(x => x.WhoCancelledId)
             .HasConversion(x => x == null ? null : (Guid?)x.Value.Value,
-            x => x == null ? null : new UserId(x.Value));
+                x => x == null ? null : new UserId(x.Value));
         builder.Property(x => x.BookingId)
             .HasConversion(x => x == null ? null : (Guid?)x.Value.Value,
-            x => x == null ? null : new BookingId(x.Value));
-        
+                x => x == null ? null : new BookingId(x.Value));
+
         builder.HasOne<User>()
             .WithMany()
             .HasForeignKey(x => x.WhoCancelledId);
         builder.HasOne<Booking>()
-            .WithOne()
+            .WithOne(b => b.CancellationRecord)
             .HasForeignKey<CancellationRecord>(x => x.BookingId);
     }
 }

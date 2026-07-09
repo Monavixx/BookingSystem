@@ -4,7 +4,6 @@ using BookingSystem.Application.Features.Bookings.Commands.Create;
 using BookingSystem.Domain.Bookings;
 using BookingSystem.Domain.Bookings.Services;
 using BookingSystem.Domain.Bookings.ValueObjects;
-using BookingSystem.Domain.Common.Errors;
 using BookingSystem.Domain.Restaurants.Errors;
 using BookingSystem.Domain.Users;
 using FluentAssertions;
@@ -19,16 +18,16 @@ public class CreateBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
     private void ShouldScheduleBookingStatusChangeJobWithTimeout(Booking booking)
     {
         BackgroundJobServiceMock.Verify(service => service.Schedule<IBookingCancellationService>(
-            s=>s.CancelIfPendingAsync(booking.Id),
+            s=>s.CancelAsync(booking.Id, CancellationReason.PendingTimeout),
             It.Is<TimeSpan>(t => t > TimeSpan.Zero)), Times.Once);
     }
     
-    private void ShouldScheduleBookingStatusChangeJobAtStartTime(Booking booking)
-    {
-        BackgroundJobServiceMock.Verify(service => service.Schedule<IBookingCancellationService>(
-            s=>s.CancelIfNotConfirmedAsync(booking.Id),
-            It.Is<DateTimeOffset>(t => Math.Abs((t - booking.TimeSlot.Start).Ticks) < TimeSpan.TicksPerMillisecond)), Times.Once);
-    }
+    // private void ShouldScheduleBookingStatusChangeJobAtStartTime(Booking booking)
+    // {
+    //     BackgroundJobServiceMock.Verify(service => service.Schedule<IBookingCancellationService>(
+    //         s=>s.CancelIfNotConfirmedAsync(booking.Id),
+    //         It.Is<DateTimeOffset>(t => Math.Abs((t - booking.TimeSlot.Start).Ticks) < TimeSpan.TicksPerMillisecond)), Times.Once);
+    // }
     
     [Theory]
     [InlineData(1)]
@@ -38,12 +37,11 @@ public class CreateBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         var users = await Users.CreateBase3Async();
         User guest = users[2], manager = users[1];
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
-        CurrentUserService.UserIdGuid = guest.Id.Value;
+        SetCurrentUser(guest);
 
         var scheduledAt = FakeTime.GetUtcNow().AddHours(1);
         var res = await Mediator.Send(
             new CreateBookingCommand(
-                GuestId: guest.Id.Value,
                 GuestCount: 2,
                 RestaurantId: restaurant.Id.Value,
                 TableNumber: tableNumber,
@@ -60,7 +58,6 @@ public class CreateBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
                 .CalculateDuration(2).Value, TimeSpan.FromSeconds(1));
         
         ShouldScheduleBookingStatusChangeJobWithTimeout(booking);
-        ShouldScheduleBookingStatusChangeJobAtStartTime(booking);
     }
 
     [Theory]
@@ -71,12 +68,11 @@ public class CreateBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         var users = await Users.CreateBase3Async();
         User guest = users[2], manager = users[1];
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
-        CurrentUserService.UserIdGuid = guest.Id.Value;
+        SetCurrentUser(guest);
 
         var scheduledAt = FakeTime.GetUtcNow().AddHours(1);
         var res = await Mediator.Send(
             new CreateBookingCommand(
-                GuestId: guest.Id.Value,
                 GuestCount: 5,
                 RestaurantId: restaurant.Id.Value,
                 TableNumber: tableNumber,
@@ -95,14 +91,13 @@ public class CreateBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         var users = await Users.CreateBase3Async();
         User guest = users[2], manager = users[1];
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
-        CurrentUserService.UserIdGuid = guest.Id.Value;
+        SetCurrentUser(guest);
 
         var scheduledAt = FakeTime.GetUtcNow().AddHours(-1);
 
         NewScope();
         var res = await Mediator.Send(
             new CreateBookingCommand(
-                GuestId: guest.Id.Value,
                 GuestCount: 2,
                 RestaurantId: restaurant.Id.Value,
                 TableNumber: tableNumber,
@@ -121,7 +116,7 @@ public class CreateBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         User guest = users[2], manager = users[1];
         var guest2 = await Users.CreateGuestAsync("bimba", "bimba@gmail.com", "+77777778899");
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
-        CurrentUserService.UserIdGuid = guest.Id.Value;
+        SetCurrentUser(guest);
 
         var scheduledAt = FakeTime.GetUtcNow().AddHours(1);
 
@@ -129,7 +124,6 @@ public class CreateBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         // Create a booking for the only table with capacity 2
         var res1 = await Mediator.Send(
             new CreateBookingCommand(
-                GuestId: guest.Id.Value,
                 GuestCount: 2,
                 RestaurantId: restaurant.Id.Value,
                 TableNumber: null,
@@ -139,21 +133,20 @@ public class CreateBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         var firstBooking = await NewDbContext().Bookings.AsNoTracking().SingleOrDefaultAsync();
         firstBooking.Should().NotBeNull();
         ShouldScheduleBookingStatusChangeJobWithTimeout(firstBooking);
-        ShouldScheduleBookingStatusChangeJobAtStartTime(firstBooking);
 
         BackgroundJobServiceMock.Reset();
         NewScope();
 
-        // Try to create another booking for the same time and table
+        SetCurrentUser(guest2);
+        
         var res = await Mediator.Send(
             new CreateBookingCommand(
-                GuestId: guest2.Id.Value,
                 GuestCount: 2,
                 RestaurantId: restaurant.Id.Value,
                 TableNumber: null,
                 ScheduledAt: scheduledAt));
         res.IsFailed.Should().BeTrue();
-        res.Errors.Should().Contain(e => ((DomainError)e).Code == TableErrors.NotFound.Code);
+        res.ShouldContain(TableErrors.NotFound);
 
         var bookingsCount = await NewDbContext().Bookings.CountAsync();
         bookingsCount.Should().Be(1);
@@ -170,7 +163,7 @@ public class CreateBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         User guest = users[2], manager = users[1];
         var guest2 = await Users.CreateGuestAsync("bimba", "bimba@gmail.com", "+77777778899");
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
-        CurrentUserService.UserIdGuid = guest.Id.Value;
+        SetCurrentUser(guest);
 
         var scheduledAt1 = FakeTime.GetUtcNow().AddHours(1);
         var scheduledAt2 = scheduledAt1.AddHours(3); // Non-overlapping time slot
@@ -179,7 +172,6 @@ public class CreateBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         // Create a booking for the specified table
         var res1 = await Mediator.Send(
             new CreateBookingCommand(
-                GuestId: guest.Id.Value,
                 GuestCount: 4,
                 RestaurantId: restaurant.Id.Value,
                 TableNumber: 1,
@@ -189,16 +181,14 @@ public class CreateBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         var firstBooking = await NewDbContext().Bookings.AsNoTracking().FirstOrDefaultAsync();
         firstBooking.Should().NotBeNull();
         ShouldScheduleBookingStatusChangeJobWithTimeout(firstBooking);
-        ShouldScheduleBookingStatusChangeJobAtStartTime(firstBooking);
         BackgroundJobServiceMock.Reset();
         
         var firstBookingId = firstBooking.Id;
 
         NewScope();
-        // Try to create another booking for the same table but non-overlapping time slot
+        SetCurrentUser(guest2);
         var res = await Mediator.Send(
             new CreateBookingCommand(
-                GuestId: guest2.Id.Value,
                 GuestCount: 4,
                 RestaurantId: restaurant.Id.Value,
                 TableNumber: 1,
@@ -208,7 +198,6 @@ public class CreateBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         var secondBooking = await NewDbContext().Bookings.SingleOrDefaultAsync(b => b.Id != firstBookingId);
         secondBooking.Should().NotBeNull();
         ShouldScheduleBookingStatusChangeJobWithTimeout(secondBooking);
-        ShouldScheduleBookingStatusChangeJobAtStartTime(secondBooking);
         
         var bookingsCount = await NewDbContext().Bookings.CountAsync();
         bookingsCount.Should().Be(2);
@@ -222,14 +211,13 @@ public class CreateBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         var restaurant = await Restaurants.CreateDefaultWithTables(manager.Id.Value,
             (1, 2), (2, 3), 
             (3, 5), (4, 5), (5, 10));
-        CurrentUserService.UserIdGuid = guest.Id.Value;
+        SetCurrentUser(guest);
 
         var scheduledAt = FakeTime.GetUtcNow().AddHours(1);
         
         NewScope();
         var res = await Mediator.Send(
             new CreateBookingCommand(
-                GuestId: guest.Id.Value,
                 GuestCount: 5,
                 RestaurantId: restaurant.Id.Value,
                 TableNumber: null,
@@ -241,7 +229,5 @@ public class CreateBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         booking.TableNumber.Should().BeOneOf(3, 4); // The table with the smallest capacity that fits 5 guests
         
         ShouldScheduleBookingStatusChangeJobWithTimeout(booking);
-        ShouldScheduleBookingStatusChangeJobAtStartTime(booking);
     }
-    
 }

@@ -1,5 +1,5 @@
 using BookingSystem.Api.Common;
-using BookingSystem.Application.Features.Restaurants.Commands.AddTableToRestaurant;
+using BookingSystem.Application.Features.Restaurants.Commands.AddTable;
 using BookingSystem.Application.Features.Restaurants.Commands.CreateRestaurant;
 using BookingSystem.Application.Features.Restaurants.Commands.DeleteRestaurant;
 using BookingSystem.Application.Features.Restaurants.Commands.SetWorkingSchedule;
@@ -38,10 +38,12 @@ public class RestaurantsController(IMediator mediator) : ApiController(mediator)
         [FromBody] AddTableToRestaurantRequestBody request)
     {
         var result =
-            await Mediator.Send(new AddTableToRestaurantCommand(restaurantId, request.TableNumber, request.Capacity));
+            await Mediator.Send(new AddTableCommand(restaurantId, request.TableNumber, request.Capacity));
         if (result.IsFailed) return HandleErrors(result);
         return NoContent();
     }
+    // TODO: DELETE TABLE
+    
     
     [HttpGet("{restaurantId:guid}")]
     public async Task<IActionResult> GetPublicRestaurantInfo(Guid restaurantId)

@@ -33,7 +33,7 @@ public class SetWorkingScheduleHandler (AppDbContext dbContext, ICurrentUserServ
         var workingSchedule = WorkingSchedule.Create(schedules);
         if (workingSchedule.IsFailed) return workingSchedule.ToResult();
         
-        restaurant.SetWorkingSchedule(workingSchedule.Value);
+        restaurant.SetWorkingSchedule(workingSchedule.Value); // TODO: TEST IF IT DELETES THE PREVIOUS SCHEDULE
         await dbContext.SaveChangesAsync(cancellationToken);
         
         return Result.Ok();

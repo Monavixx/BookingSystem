@@ -1,3 +1,4 @@
+using BookingSystem.Application.Common.Abstractions;
 using BookingSystem.Application.Features.Bookings.Commands.Cancel;
 using BookingSystem.Domain.Bookings;
 using BookingSystem.Domain.Bookings.Errors;
@@ -99,7 +100,7 @@ public class CancelBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         
         SetCurrentUser(guest);
         var res = await Mediator.Send(new CancelBookingCommand(booking.Id.Value));
-        res.ShouldContain(BookingErrors.Status.InvalidStatusTransition);
+        res.ShouldContain(BookingErrors.Status.InvalidStatusOrReasonToCancelCode);
         
         (await NewDbContext().Bookings.AsNoTracking().FirstAsync(b => b.Id == booking.Id))
             .Status.Should().Be(finalStatus);
@@ -130,7 +131,7 @@ public class CancelBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         
         SetCurrentUser(guest);
         var res = await Mediator.Send(new CancelBookingCommand(booking.Id.Value));
-        res.ShouldContain(BookingErrors.Status.InvalidStatusTransition);
+        res.ShouldContain(BookingErrors.Status.InvalidStatusOrReasonToCancelCode);
         
         (await NewDbContext().Bookings.AsNoTracking().FirstAsync(b => b.Id == booking.Id))
             .Status.Should().Be(BookingStatus.Seated);
@@ -159,10 +160,13 @@ public class CancelBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         cr.WhoCancelledId.Should().Be(guest.Id);
         cr.CanceledAt.Should().BeCloseTo(FakeTime.GetUtcNow(), TimeSpan.FromMilliseconds(1));
         cr.BookingId.Should().Be(booking.Id);
+        
+        BackgroundJobServiceMock.Verify(b => b.Enqueue<IUserBlocker>(
+            u=>u.BlockUserIfCancellationPolicyViolated(booking.GuestId)));
     }
     
     [Fact]
-    public async Task When_Manager_SuccessfullyCancelsBookingOfAnotherUser_ShouldCreateValidCancellationRecord()
+    public async Task When_Manager_SuccessfullyCancelsBookingOfAnotherGuestByTheirRequest_ShouldCreateValidCancellationRecord()
     {
         var users = await Users.CreateBase3Async();
         User manager = users[1], guest = users[2];
@@ -176,7 +180,7 @@ public class CancelBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
             .WithTableNumber(restaurant.Tables.First().TableNumber));
         NewScope();
         
-        var res = await Mediator.Send(new CancelBookingCommand(booking.Id.Value));
+        var res = await Mediator.Send(new CancelBookingCommand(booking.Id.Value, true));
         res.IsSuccess.Should().BeTrue();
 
         NewScope();
@@ -184,5 +188,8 @@ public class CancelBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         cr.WhoCancelledId.Should().Be(manager.Id);
         cr.CanceledAt.Should().BeCloseTo(FakeTime.GetUtcNow(), TimeSpan.FromMilliseconds(1));
         cr.BookingId.Should().Be(booking.Id);
+        
+        BackgroundJobServiceMock.Verify(b => b.Enqueue<IUserBlocker>(
+            u=>u.BlockUserIfCancellationPolicyViolated(booking.GuestId)));
     }
 }

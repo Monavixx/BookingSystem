@@ -42,7 +42,7 @@ public class UserBlockerTests(PostgresTestFixture dbFixture) : IntegrationTestBa
                     startTime: FakeTime.GetUtcNow().AddHours(i + 2));
         });
         DbContext.CancellationRecords.AddRange(bookings.Select(b =>
-            CancellationRecord.Create(FakeTime, _users.Guest.Id, b.Id)));
+            CancellationRecord.Create(FakeTime, _users.Guest.Id, b.Id, CancellationReason.GuestRequest)));
         await DbContext.SaveChangesAsync();
         NewScope();
 
@@ -69,7 +69,7 @@ public class UserBlockerTests(PostgresTestFixture dbFixture) : IntegrationTestBa
                     startTime: FakeTime.GetUtcNow().AddHours(i + 2));
         });
         DbContext.CancellationRecords.AddRange(bookings.Select(b =>
-            CancellationRecord.Create(FakeTime, _users.Guest.Id, b.Id)));
+            CancellationRecord.Create(FakeTime, _users.Guest.Id, b.Id, CancellationReason.GuestRequest)));
         await DbContext.SaveChangesAsync();
         NewScope();
 
@@ -95,7 +95,7 @@ public class UserBlockerTests(PostgresTestFixture dbFixture) : IntegrationTestBa
                     startTime: FakeTime.GetUtcNow().AddHours(i + 2));
         });
         DbContext.CancellationRecords.AddRange(bookings.Select(b =>
-            CancellationRecord.Create(FakeTime, _users.Admin.Id, b.Id)));
+            CancellationRecord.Create(FakeTime, _users.Admin.Id, b.Id, CancellationReason.NoShow)));
         await DbContext.SaveChangesAsync();
         NewScope();
 
@@ -125,9 +125,10 @@ public class UserBlockerTests(PostgresTestFixture dbFixture) : IntegrationTestBa
                 startTime: FakeTime.GetUtcNow().AddDays((-_bookingOptions.BookingCancellationPeriod.Days) - 2));
         });
         DbContext.CancellationRecords.AddRange(bookings[..^1].Select(b =>
-            CancellationRecord.Create(FakeTime, _users.Guest.Id, b.Id)));
+            CancellationRecord.Create(FakeTime, _users.Guest.Id, b.Id, CancellationReason.GuestRequest)));
         FakeTime.AdjustTime(FakeTime.GetUtcNow() - _bookingOptions.BookingCancellationPeriod.Add(TimeSpan.FromDays(1)));
-        DbContext.CancellationRecords.Add(CancellationRecord.Create(FakeTime, _users.Guest.Id, bookings[^1].Id));
+        DbContext.CancellationRecords.Add(CancellationRecord.Create(FakeTime, _users.Guest.Id, bookings[^1].Id,
+            CancellationReason.GuestRequest));
         await DbContext.SaveChangesAsync();
         NewScope();
 

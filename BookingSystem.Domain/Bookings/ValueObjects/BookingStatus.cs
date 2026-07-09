@@ -25,6 +25,5 @@ public enum BookingStatus
     /// <summary>
     /// Either the guests finished and left the restaurant or their time ran out.
     /// </summary>
-    Completed,
-    NoShow
+    Completed
 }

@@ -1,3 +1,4 @@
+using BookingSystem.Domain.Bookings.ValueObjects;
 using BookingSystem.Domain.Common.Errors;
 
 namespace BookingSystem.Domain.Bookings.Errors;
@@ -28,5 +29,9 @@ public static class BookingErrors
         public static readonly DomainError InvalidStatusTransition = new ConflictError(
             "Booking.InvalidStatusTransition",
             "Booking cannot be cancelled since it is already completed");
+        public static DomainError InvalidStatusOrReasonToCancel(BookingStatus status, CancellationReason reason) =>
+            new ConflictError(InvalidStatusOrReasonToCancelCode,
+                $"Booking cannot be cancelled since it is {status} and the reason is {reason}");
+        public const string InvalidStatusOrReasonToCancelCode = "Booking.InvalidStatusOrReasonToCancel";
     }
 }

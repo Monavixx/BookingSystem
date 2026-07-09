@@ -23,6 +23,7 @@ public class Booking : AggregateRoot<BookingId>
     public BookingTimeSlot TimeSlot { get; private set; } = null!;
     public BookingStatus Status { get; private set; } = BookingStatus.Pending;
     public TableId TableId => new(RestaurantId, TableNumber);
+    public CancellationRecord? CancellationRecord { get; private set; }
 
     private Booking() { }
 
@@ -87,21 +88,32 @@ public class Booking : AggregateRoot<BookingId>
         return Result.Ok();
     }
 
-    public Result CancelBySystem()
+    /// <returns>true if it's attributable to the guest; otherwise, false</returns>
+    public Result<bool> Cancel(CancellationReason reason)
     {
-        if (IsFinished() || Status is BookingStatus.Seated)
-            return Result.Fail(BookingErrors.Status.InvalidStatusTransition);
+        if (!CanBeCanceled(reason))
+            return BookingErrors.Status.InvalidStatusOrReasonToCancel(Status, reason);
+        var isAttributableToGuest = IsAttributableToGuest(reason);
         Status = BookingStatus.Canceled;
-        return Result.Ok();
+        return Result.Ok(isAttributableToGuest);
     }
 
-    public Result Cancel()
-    {
-        if (IsFinished() || Status is BookingStatus.Seated)
-            return Result.Fail(BookingErrors.Status.InvalidStatusTransition);
-        Status = BookingStatus.Canceled;
-        return Result.Ok();
-    }
+    public bool CanBeCanceled(CancellationReason reason) =>
+        !IsFinished() && Status is not BookingStatus.Seated &&
+        (reason switch
+        {
+            // CancellationReason.GuestRequest => true,
+            // CancellationReason.ManagerOrAdminRequest => true,
+            // CancellationReason.ManagerOrAdminBeenAskedByGuest => true,
+            CancellationReason.NoShow => Status is BookingStatus.Confirmed,
+            CancellationReason.PendingTimeout => Status is BookingStatus.Pending,
+            CancellationReason.ManagerHasNotConfirmed => Status is BookingStatus.ConfirmedByGuest,
+            _ => true
+        });
+
+    public bool IsAttributableToGuest(CancellationReason reason)
+        => reason is (CancellationReason.GuestRequest or CancellationReason.ManagerOrAdminBeenAskedByGuest
+            or CancellationReason.NoShow);
 
     public BookingAvailabilityState GetAvailabilityState(DateTimeOffset now) =>
         now switch

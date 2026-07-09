@@ -6,7 +6,6 @@ using BookingSystem.Tests.Services;
 using FluentAssertions;
 
 namespace BookingSystem.Tests.Application.Features.Bookings.Queries;
-
 public class GetAllBookingsHandlerTests(PostgresTestFixture dbFixture) : IntegrationTestBase(dbFixture)
 {
     private Base5Users _users = null!;
@@ -95,5 +94,35 @@ public class GetAllBookingsHandlerTests(PostgresTestFixture dbFixture) : Integra
         res.IsSuccess.Should().BeTrue();
         res.Value.Count.Should().Be(2);
         res.Value.Should().OnlyContain(b => b.Start >= start);
+    }
+
+    [Fact]
+    public async Task When_StartOrEndAreNotUtc_StillShouldReturnFilteredBookings()
+    {
+        SetCurrentUser(_users.Admin);
+        FakeTime.SetLocalTimeZone(TimeZoneInfo.FindSystemTimeZoneById("Europe/Moscow"));
+        var start = FakeTime.GetLocalNow().AddHours(2);
+        var end = FakeTime.GetLocalNow().AddHours(5.51);
+
+        var res = await Mediator.Send(
+            new GetAllBookingsQuery(Start: start, End: end, TimeFilterMethod: TimeFilterMethod.In));
+        res.IsSuccess.Should().BeTrue();
+        res.Value.Should().HaveCount(3);
+        res.Value.Should().OnlyContain(b => b.Start >= start && b.End <= end);
+    }
+
+    [Fact]
+    public async Task When_StartOrEndAreNotUtc_And_TimeFilterModeIsOverlapping_ShouldReturnFilteredBookings()
+    {
+        SetCurrentUser(_users.Admin);
+        FakeTime.SetLocalTimeZone(TimeZoneInfo.FindSystemTimeZoneById("Europe/Moscow"));
+        var start = FakeTime.GetLocalNow().AddHours(2);
+        var end = FakeTime.GetLocalNow().AddHours(5.51);
+
+        var res = await Mediator.Send(
+            new GetAllBookingsQuery(Start: start, End: end, TimeFilterMethod: TimeFilterMethod.Overlapping));
+        res.IsSuccess.Should().BeTrue();
+        res.Value.Should().HaveCount(5);
+        res.Value.Should().OnlyContain(b => b.Start <= end || b.End >= start);
     }
 }

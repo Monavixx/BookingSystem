@@ -1,4 +1,5 @@
 using BookingSystem.Application.Common.Abstractions;
+using BookingSystem.Application.Features.Bookings.Abstractions;
 using BookingSystem.Application.Persistence;
 using BookingSystem.Domain.Bookings;
 using BookingSystem.Domain.Bookings.Errors;
@@ -14,14 +15,13 @@ namespace BookingSystem.Application.Features.Bookings.Commands.Cancel;
 public class CancelBookingHandler(
     AppDbContext dbContext,
     ICurrentUserService currentUserService,
-    TimeProvider timeProvider,
-    IBackgroundJobService backgroundJobService) : IRequestHandler<CancelBookingCommand, Result>
+    IBookingCancellationService bookingCancellationService) : IRequestHandler<CancelBookingCommand, Result>
 {
     public async Task<Result> Handle(CancelBookingCommand request, CancellationToken cancellationToken)
     {
         var bookingInfo = await dbContext.Bookings
             .Where(b => b.Id == new BookingId(request.BookingId))
-            .Select(b => new { Booking = b, RestaurantOwnerId = b.Table.Restaurant.OwnerId, BookingGuestRole = b.Guest.Role })
+            .Select(b => new { Booking = b, RestaurantOwnerId = b.Table.Restaurant.OwnerId })
             .FirstOrDefaultAsync(cancellationToken);
         if (bookingInfo is null)
         {
@@ -29,33 +29,19 @@ public class CancelBookingHandler(
         }
 
         var booking = bookingInfo.Booking;
-        var guestRole = bookingInfo.BookingGuestRole;
 
         var curUser = (await currentUserService.GetUserAsync())!;
         if (!CanAccess(booking, bookingInfo.RestaurantOwnerId, curUser))
             return Result.Fail(BookingErrors.AccessDenied);
 
-        if (booking.Cancel() is { IsFailed: true } cancelError)
-            return cancelError;
-
-        bool shouldCreateCancellationRecord = guestRole is UserRole.Guest &&
-                                              (curUser.Role is not (UserRole.Manager or UserRole.Admin) ||
-                                               request.IsGuestRequest);
-        if (shouldCreateCancellationRecord)
-        {
-            var cr = CancellationRecord.Create(timeProvider, currentUserService.UserId, booking.Id);
-            dbContext.CancellationRecords.Add(cr);
-        }
-
-        await dbContext.SaveChangesAsync(cancellationToken);
+        var cr = curUser.Role is UserRole.Guest
+            ? CancellationReason.GuestRequest
+            : (request.IsGuestRequest
+                ? CancellationReason.ManagerOrAdminBeenAskedByGuest
+                : CancellationReason.ManagerOrAdminRequest);
         
-        if (shouldCreateCancellationRecord)
-        {
-            backgroundJobService.Enqueue<IUserBlocker>
-                (u => u.BlockUserIfCancellationPolicyViolated(booking.GuestId));
-        }
-
-        return Result.Ok();
+        return (await bookingCancellationService.CancelAsync(booking, cr))
+            .ToResult();
     }
 
     private static bool CanAccess(Booking booking, UserId restaurantOwnerId, User? curUser)

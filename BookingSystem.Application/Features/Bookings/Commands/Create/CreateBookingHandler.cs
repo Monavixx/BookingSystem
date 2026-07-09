@@ -22,7 +22,8 @@ using Microsoft.Extensions.Options;
 namespace BookingSystem.Application.Features.Bookings.Commands.Create;
 
 public class CreateBookingHandler(AppDbContext dbContext, BookingDurationCalculator durationCalculator,
-    IBackgroundJobService backgroundJobService, IOptions<BookingOptions> bookingOptions)
+    IBackgroundJobService backgroundJobService, IOptions<BookingOptions> bookingOptions,
+    ICurrentUserService currentUserService)
     : IRequestHandler<CreateBookingCommand, Result<CreateBookingResponse>>
 {
     private sealed record TableDto(int Capacity, Guid RestaurantId, int TableNumber);
@@ -54,7 +55,7 @@ public class CreateBookingHandler(AppDbContext dbContext, BookingDurationCalcula
             var slot = BookingTimeSlot.Create(scheduledAt, endTime);
             if (slot.IsFailed) return slot.ToResult<CreateBookingResponse>();
 
-            var bookingRes = Booking.Create(new UserId(request.GuestId), request.GuestCount,
+            var bookingRes = Booking.Create(currentUserService.GetRequiredUserId(), request.GuestCount,
                 new RestaurantId(request.RestaurantId), table.TableNumber, slot.Value);
             if (bookingRes.IsFailed) return bookingRes.ToResult<CreateBookingResponse>();
             booking = bookingRes.Value;
@@ -62,8 +63,6 @@ public class CreateBookingHandler(AppDbContext dbContext, BookingDurationCalcula
             dbContext.Bookings.Add(booking);
             await dbContext.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
-
-            
         }
         catch
         {
@@ -71,11 +70,8 @@ public class CreateBookingHandler(AppDbContext dbContext, BookingDurationCalcula
             throw;
         }
         backgroundJobService.Schedule<IBookingCancellationService>(
-            s => s.CancelIfPendingAsync(booking.Id),
+            s => s.CancelAsync(booking.Id, CancellationReason.PendingTimeout),
             TimeSpan.FromMinutes(bookingOptions.Value.GuestConfirmationTimeoutMinutes));
-        backgroundJobService.Schedule<IBookingCancellationService>(
-            s => s.CancelIfNotConfirmedAsync(booking.Id),
-            booking.TimeSlot.Start);
         
         return new CreateBookingResponse(booking.Id.Value, booking.TimeSlot.Start,
             booking.TimeSlot.End, table.TableNumber);
