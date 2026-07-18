@@ -17,7 +17,7 @@ public sealed record DayOfWeekSchedule
         bool isClosed)
     {
         if (isClosed && (openingTime is not null || closingTime is not null)
-            || !isClosed && (openingTime is null || closingTime is null))
+            || (!isClosed && (openingTime is null || closingTime is null)))
             return Result.Fail<DayOfWeekSchedule>(DayOfWeekScheduleErrors.AmbiguousSchedule);
         return new DayOfWeekSchedule()
         {

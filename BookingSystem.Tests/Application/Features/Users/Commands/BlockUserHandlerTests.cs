@@ -6,6 +6,13 @@ namespace BookingSystem.Tests.Application.Features.Users.Commands;
 
 public class BlockUserHandlerTests(PostgresTestFixture dbFixture) : IntegrationTestBase(dbFixture)
 {
+    protected override async Task InitAsync()
+    {
+        var admin = 
+            await Users.CreateAdminAsync("eprerereee", "fwrfnrwfnrihion@mmm.rre", "+79264875151");
+        SetCurrentUser(admin);
+    }
+
     [Fact]
     public async Task When_UserDoesNotExist_ReturnsNotExist()
     {

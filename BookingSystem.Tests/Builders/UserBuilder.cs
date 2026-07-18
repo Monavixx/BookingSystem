@@ -12,6 +12,8 @@ public class UserBuilder
     private string _firstName = "Danil";
     private string _lastName = "Perelygin";
     private UserRole _role = UserRole.Guest;
+    private bool _isBlocked = false;
+    private DateTimeOffset? _blockedUntil = null;
 
     public UserBuilder WithUsername(string username) { _username = username; return this; }
     public UserBuilder WithEmail(string email) { _email = email; return this; }
@@ -21,7 +23,10 @@ public class UserBuilder
     public UserBuilder WithFirstName(string firstName) { _firstName = firstName; return this; }
     public UserBuilder WithLastName(string lastName) { _lastName = lastName; return this; }
     public UserBuilder WithRole(UserRole role) { _role = role; return this; }
-    
-    public User Build(TimeProvider timeProvider) => User.Create(timeProvider, _username, _email, _phoneNumber, _passwordHash,
-        _dateOfBirth, _firstName, _lastName, _role).Value;
+    public UserBuilder WithIsBlocked(bool isBlocked) { _isBlocked = isBlocked; return this; }
+    public UserBuilder WithBlockedUntil(DateTimeOffset? blockedUntil) { _blockedUntil = blockedUntil; return this; }
+
+    public User Build(TimeProvider timeProvider) => 
+        new User(_username, _email, _phoneNumber, _passwordHash, timeProvider.GetUtcNow(),
+        _dateOfBirth, _firstName, _lastName, _role, _isBlocked, _blockedUntil);
 }

@@ -1,7 +1,6 @@
 using BookingSystem.Application.Persistence;
 using BookingSystem.Domain.Users;
 using BookingSystem.Tests.Builders;
-using Org.BouncyCastle.Asn1.X509;
 
 namespace BookingSystem.Tests.Services;
 

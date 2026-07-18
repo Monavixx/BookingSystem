@@ -15,7 +15,6 @@ namespace BookingSystem.Application.Features.Bookings.Queries.GetAll;
 public class GetAllBookingsHandler(AppDbContext dbContext, ICurrentUserService currentUserService)
     : IRequestHandler<GetAllBookingsQuery, Result<ICollection<BookingDto>>>
 {
-    //todo: blocked user can't use anything
     public async Task<Result<ICollection<BookingDto>>> Handle(GetAllBookingsQuery request, CancellationToken cancellationToken)
     {
         var user = await currentUserService.GetUserAsync();

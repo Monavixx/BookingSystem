@@ -2,7 +2,6 @@ using BookingSystem.Application.Common.Abstractions;
 using BookingSystem.Application.Persistence;
 using BookingSystem.Domain.Restaurants.Errors;
 using BookingSystem.Domain.Restaurants.ValueObjects;
-using Dapper;
 using FluentResults;
 using MediatR;
 
@@ -23,11 +22,12 @@ public class SetWorkingScheduleHandler (AppDbContext dbContext, ICurrentUserServ
         var currentDayOfWeek = DayOfWeek.Sunday;
         foreach (var dto in request.Schedules)
         {
-            var resDoWC = DayOfWeekSchedule.Create(dto.DayOfWeek ?? currentDayOfWeek,
+            var dayOfWeek = dto.DayOfWeek ?? currentDayOfWeek;
+            var resDoWc = DayOfWeekSchedule.Create(dayOfWeek,
                     dto.OpeningTime, dto.ClosingTime, dto.IsClosed ?? false);
-            currentDayOfWeek++;
-            if (resDoWC.IsFailed) return resDoWC.ToResult();
-            schedules.Add(resDoWC.Value);
+            currentDayOfWeek = (DayOfWeek)(((int)dayOfWeek + 1) % 7);
+            if (resDoWc.IsFailed) return resDoWc.ToResult();
+            schedules.Add(resDoWc.Value);
         }
         
         var workingSchedule = WorkingSchedule.Create(schedules);

@@ -10,15 +10,15 @@ namespace BookingSystem.Domain.Users;
 
 using FavoriteRestaurant = FavoriteRestaurant;
 
-public sealed class User : Entity<UserId>
+public sealed partial class User : Entity<UserId>
 {
     public const int FirstNameMaxLength = 100;
     public const int LastNameMaxLength = 150;
     public const int PasswordHashLength = 128+16;
     public const int PasswordMinLength = 8;
     public const int PasswordMaxLength = 150;
-    private User()
-    { }
+    
+    private User(){}
 
     public Username Username { get; private set; } = null!;
     public EmailAddress Email { get; private set; } = null!;
