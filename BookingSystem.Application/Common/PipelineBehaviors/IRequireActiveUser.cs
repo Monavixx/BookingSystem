@@ -1,0 +1,3 @@
+namespace BookingSystem.Application.Common.PipelineBehaviors;
+
+public interface IRequireActiveUser;

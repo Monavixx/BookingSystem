@@ -35,7 +35,7 @@ public class BookingsController(IMediator mediator) : ApiController(mediator)
             TableNumber: request.TableNumber,
             ScheduledAt: request.ScheduledAt));
         if (result.IsFailed) return HandleErrors(result);
-        return CreatedAtAction(nameof(GetBooking), new { id = result.Value.BookingId }, result.Value);
+        return CreatedAtAction(nameof(GetBooking), new { id = result.Value.Id }, result.Value);
     }
 
     [HttpPost("{id:guid}/confirm-by-guest")]

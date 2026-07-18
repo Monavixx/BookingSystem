@@ -1,3 +1,5 @@
+using BookingSystem.Application.Common.PipelineBehaviors;
+using BookingSystem.Application.Features.Bookings.DTOs;
 using FluentResults;
 using MediatR;
 
@@ -8,4 +10,4 @@ public sealed record CreateBookingCommand(
     Guid RestaurantId,
     int? TableNumber,
     DateTimeOffset ScheduledAt)
-    : IRequest<Result<CreateBookingResponse>>;
+    : IRequest<Result<BookingDto>>, IRequireActiveUser;

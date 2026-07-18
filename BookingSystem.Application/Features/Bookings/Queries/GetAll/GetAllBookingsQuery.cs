@@ -1,3 +1,4 @@
+using BookingSystem.Application.Common.PipelineBehaviors;
 using BookingSystem.Application.Features.Bookings.DTOs;
 using BookingSystem.Domain.Bookings.ValueObjects;
 using FluentResults;
@@ -16,7 +17,7 @@ public sealed record GetAllBookingsQuery(
     FilterMode FilterMode = FilterMode.All,
     int Page = 1,
     int PageSize = 50
-) : IRequest<Result<ICollection<BookingDto>>>;
+) : IRequest<Result<ICollection<BookingDto>>>, IRequireActiveUser;
 
 public enum TimeFilterMethod
 {

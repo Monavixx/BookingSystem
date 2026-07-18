@@ -1,3 +1,4 @@
+using BookingSystem.Application.Common.PipelineBehaviors;
 using FluentResults;
 using MediatR;
 
@@ -8,7 +9,7 @@ public sealed record CreateRestaurantCommand(
     CreateRestaurantCommand.ContactDto Contact,
     string? Description,
     string? ImageUrl)
-    : IRequest<Result<CreateRestaurantResult>>
+    : IRequest<Result<CreateRestaurantResult>>, IRequireActiveUser
 {
     public sealed record AddressDto(
         string Country,

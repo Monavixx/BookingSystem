@@ -1,13 +1,16 @@
+using BookingSystem.Application.Persistence.Abstractions;
 using BookingSystem.Domain.Bookings;
+using BookingSystem.Domain.Bookings.Errors;
 using BookingSystem.Domain.Bookings.ValueObjects;
 using BookingSystem.Domain.Users;
+using BookingSystem.Domain.Users.Errors;
 using BookingSystem.Domain.Users.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace BookingSystem.Application.Persistence.Configurations;
 
-public class CancellationRecordConfiguration : IEntityTypeConfiguration<CancellationRecord>
+public class CancellationRecordConfiguration : IEntityTypeConfiguration<CancellationRecord>, IConstraintErrorConfiguration
 {
     public void Configure(EntityTypeBuilder<CancellationRecord> builder)
     {
@@ -26,5 +29,13 @@ public class CancellationRecordConfiguration : IEntityTypeConfiguration<Cancella
         builder.HasOne<Booking>()
             .WithOne(b => b.CancellationRecord)
             .HasForeignKey<CancellationRecord>(x => x.BookingId);
+    }
+
+    public void Configure(ConstraintErrorRegistryBase registry)
+    {
+        registry.RegisterForeignKey<CancellationRecord>(cr => cr.BookingId, BookingErrors.NotFound);
+        registry.RegisterForeignKey<CancellationRecord>(cr => cr.WhoCancelledId, UserErrors.NotFound);
+        registry.RegisterUnique<CancellationRecord>(cr => cr.BookingId,
+            CancellationRecordErrors.RecordOfThisBookingAlreadyExists);
     }
 }

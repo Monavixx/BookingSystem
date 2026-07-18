@@ -65,12 +65,12 @@ public abstract class ApiController(IMediator mediator) : ControllerBase
     private int ErrorToHttpCode(IError error)
         => error switch
         {
-            ValidationError => StatusCodes.Status400BadRequest,
+            ValidationError or ReferenceError => StatusCodes.Status400BadRequest,
             NotFoundError => StatusCodes.Status404NotFound,
             ConflictError => StatusCodes.Status409Conflict,
             UnauthorizedError => StatusCodes.Status401Unauthorized,
-            ReferenceError => StatusCodes.Status400BadRequest,
             ForbiddenError => StatusCodes.Status403Forbidden,
+            UnprocessableEntityError => StatusCodes.Status422UnprocessableEntity,
             _ => StatusCodes.Status500InternalServerError
         };
 

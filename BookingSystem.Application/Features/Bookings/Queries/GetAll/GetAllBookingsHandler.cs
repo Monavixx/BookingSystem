@@ -43,18 +43,14 @@ public class GetAllBookingsHandler(AppDbContext dbContext, ICurrentUserService c
         return bookings;
     }
 
-    private IQueryable<Booking> ApplyAuthorization(IQueryable<Booking> query, User user)
-    {
-        query = user.Role switch
+    private static IQueryable<Booking> ApplyAuthorization(IQueryable<Booking> query, User user)
+        => user.Role switch
         {
             UserRole.Admin => query,
             UserRole.Manager => query.Where(b => b.Table.Restaurant.OwnerId == user.Id || b.GuestId == user.Id),
             UserRole.Guest => query.Where(b => b.GuestId == user.Id),
             _ => throw new InvalidOperationException($"Unknown user role: {user.Role}")
         };
-        
-        return query;
-    }
     
     private static IQueryable<Booking> ApplyAllFilters(IQueryable<Booking> query, GetAllBookingsQuery request,
         DateTimeOffset? start, DateTimeOffset? end)

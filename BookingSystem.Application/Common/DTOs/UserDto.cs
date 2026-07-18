@@ -11,7 +11,9 @@ public sealed record UserDto(
     DateOnly BirthDate,
     string FirstName,
     string LastName,
-    string Role
+    string Role,
+    bool IsBlocked,
+    DateTimeOffset? BlockedUntil = null
 )
 {
     public static UserDto FromUser(User user)
@@ -24,6 +26,8 @@ public sealed record UserDto(
             BirthDate: user.BirthDate.Value,
             FirstName: user.FirstName,
             LastName: user.LastName,
-            Role: user.Role.ToString()
+            Role: user.Role.ToString(),
+            IsBlocked: user.IsBlocked,
+            BlockedUntil: user.BlockedUntil
         );
 }

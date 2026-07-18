@@ -21,6 +21,7 @@ public static class DependencyInjection
             {
                 c.RegisterServicesFromAssembly(typeof(AppDbContext).Assembly);
                 c.AddOpenBehavior(typeof(ValidationBehavior<,>));
+                c.AddOpenBehavior(typeof(ActiveUserCheckBehavior<,>));
                 c.AddOpenBehavior(typeof(LoggingBehavior<,>));
                 c.AddOpenBehavior(typeof(DbExceptionHandlingBehavior<,>));
             });

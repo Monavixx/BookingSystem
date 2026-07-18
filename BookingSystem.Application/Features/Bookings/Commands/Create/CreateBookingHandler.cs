@@ -2,6 +2,7 @@ using System.Data;
 using BookingSystem.Application.Common.Abstractions;
 using BookingSystem.Application.Common.Options;
 using BookingSystem.Application.Features.Bookings.Abstractions;
+using BookingSystem.Application.Features.Bookings.DTOs;
 using BookingSystem.Application.Persistence;
 using BookingSystem.Domain.Bookings;
 using BookingSystem.Domain.Bookings.Errors;
@@ -24,15 +25,15 @@ namespace BookingSystem.Application.Features.Bookings.Commands.Create;
 public class CreateBookingHandler(AppDbContext dbContext, BookingDurationCalculator durationCalculator,
     IBackgroundJobService backgroundJobService, IOptions<BookingOptions> bookingOptions,
     ICurrentUserService currentUserService)
-    : IRequestHandler<CreateBookingCommand, Result<CreateBookingResponse>>
+    : IRequestHandler<CreateBookingCommand, Result<BookingDto>>
 {
     private sealed record TableDto(int Capacity, Guid RestaurantId, int TableNumber);
 
-    public async Task<Result<CreateBookingResponse>> Handle(CreateBookingCommand request,
+    public async Task<Result<BookingDto>> Handle(CreateBookingCommand request,
         CancellationToken cancellationToken)
     {
         var durationResult = durationCalculator.CalculateDuration(request.GuestCount);
-        if (durationResult.IsFailed) return durationResult.ToResult<CreateBookingResponse>();
+        if (durationResult.IsFailed) return durationResult.ToResult<BookingDto>();
 
         var scheduledAt = request.ScheduledAt.ToUniversalTime();
         var endTime = scheduledAt.Add(durationResult.Value);
@@ -41,23 +42,22 @@ public class CreateBookingHandler(AppDbContext dbContext, BookingDurationCalcula
             await dbContext.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
 
         Booking? booking;
-        TableDto? table;
         try
         {
             var dbTransaction = transaction.GetDbTransaction();
 
-            table = await GetTableAsync(dbTransaction, request.RestaurantId, request.GuestCount, scheduledAt,
+            var table = await GetTableAsync(dbTransaction, request.RestaurantId, request.GuestCount, scheduledAt,
                 request.TableNumber, endTime);
-            if (table is null) return Result.Fail<CreateBookingResponse>(TableErrors.NotFound);
+            if (table is null) return TableErrors.NotFound;
             if (table.Capacity < request.GuestCount)
-                return Result.Fail<CreateBookingResponse>(BookingErrors.CapacityExceeded);
+                return BookingErrors.CapacityExceeded;
 
             var slot = BookingTimeSlot.Create(scheduledAt, endTime);
-            if (slot.IsFailed) return slot.ToResult<CreateBookingResponse>();
+            if (slot.IsFailed) return slot.ToResult<BookingDto>();
 
             var bookingRes = Booking.Create(currentUserService.GetRequiredUserId(), request.GuestCount,
                 new RestaurantId(request.RestaurantId), table.TableNumber, slot.Value);
-            if (bookingRes.IsFailed) return bookingRes.ToResult<CreateBookingResponse>();
+            if (bookingRes.IsFailed) return bookingRes.ToResult<BookingDto>();
             booking = bookingRes.Value;
             
             dbContext.Bookings.Add(booking);
@@ -73,8 +73,7 @@ public class CreateBookingHandler(AppDbContext dbContext, BookingDurationCalcula
             s => s.CancelAsync(booking.Id, CancellationReason.PendingTimeout),
             TimeSpan.FromMinutes(bookingOptions.Value.GuestConfirmationTimeoutMinutes));
         
-        return new CreateBookingResponse(booking.Id.Value, booking.TimeSlot.Start,
-            booking.TimeSlot.End, table.TableNumber);
+        return new BookingDto(booking);
     }
 
     private async Task<TableDto?> GetTableAsync(IDbTransaction transaction, Guid restaurantId, int guestCount,
