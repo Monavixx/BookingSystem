@@ -54,6 +54,8 @@ public class UserTestDataService(AppDbContext dbContext, TimeProvider timeProvid
         await dbContext.SaveChangesAsync();
         return user;
     }
+    public Task<User> CreateAnotherManagerAsync()
+        => CreateManagerAsync("moneger_wow228", "monegEr_wow228@gmail.com", "+79996666744");
 
     public async Task<User> CreateGuestAsync(string username = "randomGuy12", string email = "popakaka42@gmail.com",
         string phoneNumber = "+78506504555")

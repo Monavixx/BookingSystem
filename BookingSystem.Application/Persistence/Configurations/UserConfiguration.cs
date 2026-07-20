@@ -52,9 +52,15 @@ public class UserConfiguration : IEntityTypeConfiguration<User>, IConstraintErro
         builder.HasIndex(x => x.Username)
             .IsUnique();
         
-        builder.Property(x => x.BirthDate)
-            .HasConversion(birthDate => birthDate.Value, value => Birthdate.__CreateUnchecked(value))
-            .IsRequired();
+        builder.OwnsOne(u => u.BirthDate, birthDateBuilder =>
+        {
+            birthDateBuilder.Property(b => b.Value)
+                .HasColumnName("birth_date")
+                .HasColumnType("date")
+                .IsRequired();
+        });
+        builder.Navigation(u => u.BirthDate).IsRequired();
+        
         builder.Property(x=>x.PasswordHash)
             .HasMaxLength(User.PasswordHashLength)
             .IsRequired();
