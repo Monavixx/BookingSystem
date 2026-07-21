@@ -1,4 +1,3 @@
-using BookingSystem.Application.Features.Restaurants.Commands.CreateRestaurant;
 using FluentValidation;
 
 namespace BookingSystem.Application.Features.Restaurants.Commands.UpdateRestaurant;

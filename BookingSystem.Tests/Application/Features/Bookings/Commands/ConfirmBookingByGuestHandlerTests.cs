@@ -22,14 +22,14 @@ public class ConfirmBookingByGuestHandlerTests(PostgresTestFixture dbFixture) : 
             .WithRestaurant(restaurant));
         NewScope();
 
-        var res = await Mediator.Send(new ConfirmBookingByGuestCommand(booking.Id.Value));
+        var res = await Mediator.Send(new ConfirmBookingByGuestCommand(booking.Id.Value), TestContext.Current.CancellationToken);
         res.IsSuccess.Should().BeTrue();
         BackgroundJobServiceMock.Verify(b => b.Schedule<IBookingCancellationService>(
             s => s.CancelAsync(booking.Id, CancellationReason.ManagerHasNotConfirmed),
             booking.TimeSlot.Start));
         NewScope();
 
-        var updatedBooking = await DbContext.Bookings.AsNoTracking().SingleAsync();
+        var updatedBooking = await DbContext.Bookings.AsNoTracking().SingleAsync(cancellationToken: TestContext.Current.CancellationToken);
         updatedBooking.Status.Should().Be(BookingStatus.ConfirmedByGuest);
     }
 
@@ -50,11 +50,11 @@ public class ConfirmBookingByGuestHandlerTests(PostgresTestFixture dbFixture) : 
             .WithRestaurant(restaurant));
         NewScope();
 
-        var res = await Mediator.Send(new ConfirmBookingByGuestCommand(booking.Id.Value));
+        var res = await Mediator.Send(new ConfirmBookingByGuestCommand(booking.Id.Value), TestContext.Current.CancellationToken);
         res.ShouldContain(BookingErrors.AccessDenied);
         NewScope();
 
-        var updatedBooking = await DbContext.Bookings.AsNoTracking().SingleAsync();
+        var updatedBooking = await DbContext.Bookings.AsNoTracking().SingleAsync(cancellationToken: TestContext.Current.CancellationToken);
         updatedBooking.Status.Should().Be(BookingStatus.Pending);
     }
 }

@@ -48,7 +48,7 @@ public class SignUpHandler(
         await appDbContext.SaveChangesAsync(cancellationToken);
         logger.LogInformation("User {UserName} signed up successfully with id {UserId}", request.Username, user.Id);
 
-        return Result.Ok(new SuccessfulSignUpResult()
+        return Result.Ok(new SuccessfulSignUpResult
         {
             Id = user.Id.Value,
             AuthTokens = new AuthTokens(AccessToken: jwtToken, RefreshToken: rt)

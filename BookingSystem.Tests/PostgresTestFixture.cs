@@ -16,7 +16,7 @@ public class PostgresTestFixture : IAsyncLifetime
     public string ConnectionString => $"{_container.GetConnectionString()};Include Error Detail=true;";
     private Respawner _respawner = null!;
     
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         await _container.StartAsync();
         
@@ -42,5 +42,5 @@ public class PostgresTestFixture : IAsyncLifetime
         await _respawner.ResetAsync(connection); 
     }
 
-    public Task DisposeAsync() => _container.DisposeAsync().AsTask();
+    public ValueTask DisposeAsync() => _container.DisposeAsync();
 }

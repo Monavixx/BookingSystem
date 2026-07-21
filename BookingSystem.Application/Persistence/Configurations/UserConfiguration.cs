@@ -1,6 +1,5 @@
 ﻿using BookingSystem.Application.Persistence.Abstractions;
 using BookingSystem.Application.Persistence.Configurations.Converters;
-using BookingSystem.Domain.Common.Errors;
 using BookingSystem.Domain.Common.ValueObjects;
 using BookingSystem.Domain.Users;
 using BookingSystem.Domain.Users.Errors;

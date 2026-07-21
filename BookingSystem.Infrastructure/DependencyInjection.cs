@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using BookingSystem.Application.Common.Abstractions;
+﻿using BookingSystem.Application.Common.Abstractions;
 using BookingSystem.Application.Features.Bookings.Abstractions;
 using BookingSystem.Application.Persistence;
 using BookingSystem.Application.Persistence.Abstractions;
@@ -26,7 +25,7 @@ public static class DependencyInjection
         services.AddSingleton<IRefreshTokenService, RefreshTokenService>();
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
-        services.AddSingleton<ConstraintErrorRegistryBase, Services.ConstraintErrorRegistry>(sp =>
+        services.AddSingleton<ConstraintErrorRegistryBase, ConstraintErrorRegistry>(sp =>
         {
             using var scope = sp.CreateScope();
             var cer = new ConstraintErrorRegistry(scope.ServiceProvider.GetService<AppDbContext>()!.Model);
@@ -46,7 +45,6 @@ public static class DependencyInjection
             c.WorkerCount = 2;
         });
         services.AddScoped<IBackgroundJobService, BackgroundJobService>();
-        services.AddScoped<ITableAvailabilityChecker, TableAvailabilityChecker>();
         services.AddScoped<IBookingCancellationService, BookingCancellationService>();
         services.AddScoped<IUserBlocker, UserBlocker>();
         

@@ -10,7 +10,7 @@ public sealed class Session : Entity<SessionId>
     public User? User { get; private set; }
 
     public static Session Create(UserId userId, RefreshToken refreshToken)
-        => new Session()
+        => new()
         {
             Id = SessionId.New(),
             UserId = userId,

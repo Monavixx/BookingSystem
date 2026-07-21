@@ -27,7 +27,7 @@ internal class JwtTokenService : IJwtTokenService
     {
         var claims = GenerateClaims(user);
         var credentials = new SigningCredentials(_key, SecurityAlgorithms.HmacSha256);
-        var tokenDescriptor = new SecurityTokenDescriptor()
+        var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
             Expires = _timeProvider.GetUtcNow().UtcDateTime.AddMinutes(_options.ExpirationMinutes),

@@ -28,7 +28,7 @@ public class DeleteRestaurantHandler(
         if(restaurantRow.OwnerId != currentUserService.UserIdGuid)
             return Result.Fail(RestaurantErrors.AccessDenied);
 
-        int rows = await dbContext.Restaurants
+        var rows = await dbContext.Restaurants
             .Where(r => r.Id == new RestaurantId(request.RestaurantId))
             .ExecuteDeleteAsync(cancellationToken);
         if (rows <= 0) return Result.Fail(RestaurantErrors.NotFound);

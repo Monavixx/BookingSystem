@@ -1,4 +1,3 @@
-using BookingSystem.Application.Common.DTOs;
 using BookingSystem.Application.Features.Restaurants.DTOs;
 using BookingSystem.Application.Persistence;
 using BookingSystem.Domain.Restaurants.Errors;
@@ -6,11 +5,10 @@ using Dapper;
 using FluentResults;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace BookingSystem.Application.Features.Restaurants.Queries.GetPublicRestaurantInfo;
 
-public class GetPublicRestaurantInfoHandler (AppDbContext dbContext, ILogger<GetPublicRestaurantInfoHandler> logger) : IRequestHandler<GetPublicRestaurantInfoQuery, Result<PublicRestaurantInfo>>
+public class GetPublicRestaurantInfoHandler (AppDbContext dbContext) : IRequestHandler<GetPublicRestaurantInfoQuery, Result<PublicRestaurantInfo>>
 {
     private const string SqlQuery =
         """
@@ -35,7 +33,7 @@ public class GetPublicRestaurantInfoHandler (AppDbContext dbContext, ILogger<Get
     public async Task<Result<PublicRestaurantInfo>> Handle(GetPublicRestaurantInfoQuery request, CancellationToken cancellationToken)
     {
         var connection = dbContext.Database.GetDbConnection();
-        var reader = await connection.QueryMultipleAsync(SqlQuery, new { RestaurantId = request.RestaurantId });
+        var reader = await connection.QueryMultipleAsync(SqlQuery, new { request.RestaurantId });
         var restaurantResult = await reader.ReadFirstOrDefaultAsync();
         if (restaurantResult is null) return Result.Fail<PublicRestaurantInfo>(RestaurantErrors.NotFound);
         

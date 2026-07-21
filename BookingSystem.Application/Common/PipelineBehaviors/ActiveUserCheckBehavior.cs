@@ -1,6 +1,5 @@
 using BookingSystem.Application.Common.Abstractions;
 using BookingSystem.Application.Common.Factories;
-using BookingSystem.Domain.Common.Errors;
 using BookingSystem.Domain.Users.Errors;
 using FluentResults;
 using MediatR;

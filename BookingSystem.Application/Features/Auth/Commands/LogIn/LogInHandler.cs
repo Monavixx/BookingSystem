@@ -69,7 +69,7 @@ public class LogInHandler(
         
         logger.LogInformation("User {UserId} logged in successfully", user.Id.Value);
         
-        return Result.Ok(new SuccessfulLogInResult()
+        return Result.Ok(new SuccessfulLogInResult
         {
             Id = user.Id.Value,
             AuthTokens = new AuthTokens(jwtTokenService.GenerateJwtToken(user), rt)

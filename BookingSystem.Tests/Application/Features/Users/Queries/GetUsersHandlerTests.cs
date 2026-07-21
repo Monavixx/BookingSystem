@@ -8,12 +8,13 @@ namespace BookingSystem.Tests.Application.Features.Users.Queries;
 public class GetUsersHandlerTests(PostgresTestFixture dbFixture) : IntegrationTestBase(dbFixture)
 {
     private User _admin = null!;
-    protected override async Task InitAsync()
+
+    protected override async ValueTask InitAsync()
     {
         _admin = await Users.CreateAdminAsync();
         SetCurrentUser(_admin);
     }
-    
+
     [Fact]
     public async Task When_NoFilterProvided_ShouldReturnAllUsersExceptSelf()
     {
@@ -47,7 +48,7 @@ public class GetUsersHandlerTests(PostgresTestFixture dbFixture) : IntegrationTe
         });
         NewScope();
 
-        var queryRes = await Mediator.Send(new GetUsersQuery());
+        var queryRes = await Mediator.Send(new GetUsersQuery(), TestContext.Current.CancellationToken);
         queryRes.Errors.Should().BeEmpty();
         queryRes.Value.Should().HaveCount(5);
     }
@@ -56,7 +57,8 @@ public class GetUsersHandlerTests(PostgresTestFixture dbFixture) : IntegrationTe
     [InlineData(22, 4)]
     [InlineData(14, 5)]
     [InlineData(40, 1)]
-    public async Task When_OlderThanFilterProvided_ShouldReturnAllUsersOverTheAgeExceptSelf(int olderThan, int expectedCount)
+    public async Task When_OlderThanFilterProvided_ShouldReturnAllUsersOverTheAgeExceptSelf(int olderThan,
+        int expectedCount)
     {
         await Users.CreateUsersAsync(b =>
         {
@@ -87,8 +89,9 @@ public class GetUsersHandlerTests(PostgresTestFixture dbFixture) : IntegrationTe
                 .WithDateOfBirth(DateOnly.FromDateTime(FakeTime.GetUtcNow().AddYears(-28).DateTime));
         });
         NewScope();
-        
-        var queryRes = await Mediator.Send(new GetUsersQuery(){OlderThan = olderThan});
+
+        var queryRes = await Mediator.Send(new GetUsersQuery() { OlderThan = olderThan },
+            TestContext.Current.CancellationToken);
         queryRes.Errors.Should().BeEmpty();
         queryRes.Value.Should().HaveCount(expectedCount);
     }
@@ -97,7 +100,8 @@ public class GetUsersHandlerTests(PostgresTestFixture dbFixture) : IntegrationTe
     [InlineData(22, 2)]
     [InlineData(14, 0)]
     [InlineData(40, 4)]
-    public async Task When_YoungerThanFilterProvided_ShouldReturnAllUsersUnderTheAgeExceptSelf(int youngerThan, int expectedCount)
+    public async Task When_YoungerThanFilterProvided_ShouldReturnAllUsersUnderTheAgeExceptSelf(int youngerThan,
+        int expectedCount)
     {
         await Users.CreateUsersAsync(b =>
         {
@@ -128,8 +132,9 @@ public class GetUsersHandlerTests(PostgresTestFixture dbFixture) : IntegrationTe
                 .WithDateOfBirth(DateOnly.FromDateTime(FakeTime.GetUtcNow().AddYears(-28).DateTime));
         });
         NewScope();
-        
-        var queryRes = await Mediator.Send(new GetUsersQuery(){YoungerThan = youngerThan});
+
+        var queryRes = await Mediator.Send(new GetUsersQuery() { YoungerThan = youngerThan },
+            TestContext.Current.CancellationToken);
         queryRes.Errors.Should().BeEmpty();
         queryRes.Value.Should().HaveCount(expectedCount);
     }
@@ -159,13 +164,18 @@ public class GetUsersHandlerTests(PostgresTestFixture dbFixture) : IntegrationTe
         var manager = await Users.CreateManagerAsync();
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
         await Bookings.CreateBookings(b => b
-            .AddBooking(users[0], restaurant, 1, startTime: FakeTime.GetUtcNow().AddDays(-1), status: BookingStatus.Completed)
-            .AddBooking(users[0], restaurant, 1, startTime: FakeTime.GetUtcNow().AddDays(1), status: BookingStatus.Confirmed)
-            .AddBooking(users[0], restaurant, 1, startTime: FakeTime.GetUtcNow().AddDays(-2), status: BookingStatus.Canceled)
-            .AddBooking(users[1], restaurant, 1, startTime: FakeTime.GetUtcNow().AddDays(2), status: BookingStatus.ConfirmedByGuest)
+            .AddBooking(users[0], restaurant, 1, startTime: FakeTime.GetUtcNow().AddDays(-1),
+                status: BookingStatus.Completed)
+            .AddBooking(users[0], restaurant, 1, startTime: FakeTime.GetUtcNow().AddDays(1),
+                status: BookingStatus.Confirmed)
+            .AddBooking(users[0], restaurant, 1, startTime: FakeTime.GetUtcNow().AddDays(-2),
+                status: BookingStatus.Canceled)
+            .AddBooking(users[1], restaurant, 1, startTime: FakeTime.GetUtcNow().AddDays(2),
+                status: BookingStatus.ConfirmedByGuest)
         );
         NewScope();
-        var queryRes = await Mediator.Send(new GetUsersQuery(){BookingCountGreaterThan = 2});
+        var queryRes = await Mediator.Send(new GetUsersQuery() { BookingCountGreaterThan = 2 },
+            TestContext.Current.CancellationToken);
         queryRes.Errors.Should().BeEmpty();
         queryRes.Value.Should().HaveCount(1);
     }
@@ -174,7 +184,8 @@ public class GetUsersHandlerTests(PostgresTestFixture dbFixture) : IntegrationTe
     [InlineData(0, 2)]
     [InlineData(1, 1)]
     public async Task
-        When_RestaurantUserBeenToFilterProvided_ShouldReturnAllUsersWhoHasCompletedOrSeatedBookings(int restaurantIndex, int expectedCount)
+        When_RestaurantUserBeenToFilterProvided_ShouldReturnAllUsersWhoHasCompletedOrSeatedBookings(int restaurantIndex,
+            int expectedCount)
     {
         var users = await Users.CreateUsersAsync(b =>
         {
@@ -201,20 +212,29 @@ public class GetUsersHandlerTests(PostgresTestFixture dbFixture) : IntegrationTe
             .AddRestaurant(anotherManager, (1, 4), (2, 2), (3, 4), (4, 8))
         );
         await Bookings.CreateBookings(b => b
-            .AddBooking(users[0], restaurants[0], 1, startTime: FakeTime.GetUtcNow().AddMinutes(-20), status: BookingStatus.Seated)
-            .AddBooking(users[0], restaurants[1], 2, startTime: FakeTime.GetUtcNow().AddDays(-1), status: BookingStatus.Canceled)
-            .AddBooking(users[0], restaurants[0], 4, startTime: FakeTime.GetUtcNow().AddDays(1), status: BookingStatus.Pending)
-            .AddBooking(users[1], restaurants[0], 3, startTime: FakeTime.GetUtcNow().AddDays(-81), status: BookingStatus.Completed)
-            .AddBooking(users[1], restaurants[1], 3, startTime: FakeTime.GetUtcNow().AddDays(-11), status: BookingStatus.Completed)
-            .AddBooking(users[1], restaurants[1], 2, startTime: FakeTime.GetUtcNow().AddDays(3), status: BookingStatus.Canceled)
-            .AddBooking(users[2], restaurants[0], 1, startTime: FakeTime.GetUtcNow().AddDays(1), status: BookingStatus.Canceled)
-            .AddBooking(users[2], restaurants[1], 1, startTime: FakeTime.GetUtcNow().AddDays(-5), status: BookingStatus.Canceled)
-            .AddBooking(users[2], restaurants[0], 1, startTime: FakeTime.GetUtcNow().AddDays(2), status: BookingStatus.Pending)
+            .AddBooking(users[0], restaurants[0], 1, startTime: FakeTime.GetUtcNow().AddMinutes(-20),
+                status: BookingStatus.Seated)
+            .AddBooking(users[0], restaurants[1], 2, startTime: FakeTime.GetUtcNow().AddDays(-1),
+                status: BookingStatus.Canceled)
+            .AddBooking(users[0], restaurants[0], 4, startTime: FakeTime.GetUtcNow().AddDays(1),
+                status: BookingStatus.Pending)
+            .AddBooking(users[1], restaurants[0], 3, startTime: FakeTime.GetUtcNow().AddDays(-81),
+                status: BookingStatus.Completed)
+            .AddBooking(users[1], restaurants[1], 3, startTime: FakeTime.GetUtcNow().AddDays(-11),
+                status: BookingStatus.Completed)
+            .AddBooking(users[1], restaurants[1], 2, startTime: FakeTime.GetUtcNow().AddDays(3),
+                status: BookingStatus.Canceled)
+            .AddBooking(users[2], restaurants[0], 1, startTime: FakeTime.GetUtcNow().AddDays(1),
+                status: BookingStatus.Canceled)
+            .AddBooking(users[2], restaurants[1], 1, startTime: FakeTime.GetUtcNow().AddDays(-5),
+                status: BookingStatus.Canceled)
+            .AddBooking(users[2], restaurants[0], 1, startTime: FakeTime.GetUtcNow().AddDays(2),
+                status: BookingStatus.Pending)
         );
         NewScope();
 
         var res = await Mediator.Send(new GetUsersQuery()
-            { RestaurantUserBeenTo = restaurants[restaurantIndex].Id.Value });
+            { RestaurantUserBeenTo = restaurants[restaurantIndex].Id.Value }, TestContext.Current.CancellationToken);
         res.Errors.Should().BeEmpty();
         res.Value.Should().HaveCount(expectedCount);
     }

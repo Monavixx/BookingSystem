@@ -21,7 +21,8 @@ public class UpdateRestaurantHandler (AppDbContext dbContext, ILogger<UpdateRest
     {
         var oldRestaurant = await dbContext.Database.GetDbConnection().QueryFirstOrDefaultAsync<RestaurantRow>(
             """
-            SELECT owner_id, xmin as RowVersion FROM Restaurants WHERE id = @Id
+            SELECT owner_id, xmin as RowVersion FROM Restaurants
+            WHERE id = @Id
             """, new { Id = request.RestaurantId });
         if (oldRestaurant is null) return Result.Fail(RestaurantErrors.NotFound);
         

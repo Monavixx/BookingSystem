@@ -48,6 +48,9 @@ public class GetUsersHandler (AppDbContext dbContext, TimeProvider timeProvider,
                 b.GuestId == u.Id && b.RestaurantId == new RestaurantId(request.RestaurantUserIsAt.Value)
                 && b.Status == BookingStatus.Seated));
 
-        return await query.Select(UserResponse.Projection).ToArrayAsync(cancellationToken);
+        return await query.Select(UserResponse.Projection)
+            .Skip((request.Page - 1) * request.PageSize)
+            .Take(request.PageSize)
+            .ToArrayAsync(cancellationToken);
     }
 }

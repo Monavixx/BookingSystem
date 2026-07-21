@@ -22,7 +22,7 @@ public class GuestSeatedHandlerTests(PostgresTestFixture dbFixture) : Integratio
         var randomBookingId = Guid.NewGuid();
 
         NewScope();
-        var res = await Mediator.Send(new GuestSeatedCommand(randomBookingId));
+        var res = await Mediator.Send(new GuestSeatedCommand(randomBookingId), TestContext.Current.CancellationToken);
         res.IsFailed.Should().BeTrue();
         res.ShouldContain(BookingErrors.NotFound);
     }
@@ -46,12 +46,12 @@ public class GuestSeatedHandlerTests(PostgresTestFixture dbFixture) : Integratio
         });
 
         NewScope();
-        var res = await Mediator.Send(new GuestSeatedCommand(booking.Id.Value));
+        var res = await Mediator.Send(new GuestSeatedCommand(booking.Id.Value), TestContext.Current.CancellationToken);
         res.IsFailed.Should().BeTrue();
         res.ShouldContain(BookingErrors.AccessDenied);
 
         var bookingGuestSeated = await NewDbContext().Bookings.AsNoTracking()
-            .Where(b => b.Status == BookingStatus.Seated).FirstOrDefaultAsync();
+            .Where(b => b.Status == BookingStatus.Seated).FirstOrDefaultAsync(cancellationToken: TestContext.Current.CancellationToken);
         bookingGuestSeated.Should().BeNull();
     }
 
@@ -74,7 +74,7 @@ public class GuestSeatedHandlerTests(PostgresTestFixture dbFixture) : Integratio
 
         NewScope();
 
-        var res = await Mediator.Send(new GuestSeatedCommand(booking.Id.Value));
+        var res = await Mediator.Send(new GuestSeatedCommand(booking.Id.Value), TestContext.Current.CancellationToken);
         res.ShouldNotContain(BookingErrors.AccessDenied);
     }
 
@@ -95,7 +95,7 @@ public class GuestSeatedHandlerTests(PostgresTestFixture dbFixture) : Integratio
                 .WithTimeSlotNoChecking(FakeTime.GetUtcNow().AddDays(-1), TimeSpan.FromMinutes(90));
         });
         NewScope();
-        var res = await Mediator.Send(new GuestSeatedCommand(booking.Id.Value));
+        var res = await Mediator.Send(new GuestSeatedCommand(booking.Id.Value), TestContext.Current.CancellationToken);
 
         res.ShouldContain(BookingErrors.Expired);
         
@@ -123,11 +123,11 @@ public class GuestSeatedHandlerTests(PostgresTestFixture dbFixture) : Integratio
         });
 
         NewScope();
-        var res = await Mediator.Send(new GuestSeatedCommand(booking.Id.Value));
+        var res = await Mediator.Send(new GuestSeatedCommand(booking.Id.Value), TestContext.Current.CancellationToken);
 
         res.IsSuccess.Should().BeTrue();
 
-        var updatedBooking = await NewDbContext().Bookings.AsNoTracking().SingleOrDefaultAsync();
+        var updatedBooking = await NewDbContext().Bookings.AsNoTracking().SingleOrDefaultAsync(cancellationToken: TestContext.Current.CancellationToken);
         updatedBooking.Should().NotBeNull();
         updatedBooking.Status.Should().Be(BookingStatus.Seated);
         updatedBooking.TimeSlot.Start.Should().BeCloseTo(scheduledAt, TimeSpan.FromMilliseconds(5));
@@ -181,10 +181,10 @@ public class GuestSeatedHandlerTests(PostgresTestFixture dbFixture) : Integratio
 
         NewScope();
 
-        var res = await Mediator.Send(new GuestSeatedCommand(booking.Id.Value));
+        var res = await Mediator.Send(new GuestSeatedCommand(booking.Id.Value), TestContext.Current.CancellationToken);
         res.IsSuccess.Should().BeTrue();
 
-        var updatedBooking = await NewDbContext().Bookings.AsNoTracking().SingleOrDefaultAsync();
+        var updatedBooking = await NewDbContext().Bookings.AsNoTracking().SingleOrDefaultAsync(cancellationToken: TestContext.Current.CancellationToken);
         updatedBooking.Should().NotBeNull();
         updatedBooking.Status.Should().Be(BookingStatus.Seated);
         updatedBooking.TimeSlot.Start.Should().BeCloseTo(FakeTime.GetUtcNow(), TimeSpan.FromSeconds(5));
@@ -221,11 +221,11 @@ public class GuestSeatedHandlerTests(PostgresTestFixture dbFixture) : Integratio
         });
 
         NewScope();
-        var res = await Mediator.Send(new GuestSeatedCommand(booking.Id.Value));
+        var res = await Mediator.Send(new GuestSeatedCommand(booking.Id.Value), TestContext.Current.CancellationToken);
         res.ShouldContain(BookingErrors.TableNotAvailable);
 
         var updatedBookingCount = await NewDbContext().Bookings.AsNoTracking()
-            .Where(b => b.Status == BookingStatus.Seated).CountAsync();
+            .Where(b => b.Status == BookingStatus.Seated).CountAsync(cancellationToken: TestContext.Current.CancellationToken);
         updatedBookingCount.Should().Be(0);
         
         BackgroundJobServiceMock.VerifyNoOtherCalls();

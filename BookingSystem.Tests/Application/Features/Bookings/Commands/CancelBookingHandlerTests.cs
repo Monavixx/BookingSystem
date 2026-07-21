@@ -30,11 +30,11 @@ public class CancelBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
             .WithTableNumber(restaurant.Tables.First().TableNumber));
         NewScope();
         
-        var res = await Mediator.Send(new CancelBookingCommand(booking.Id.Value));
+        var res = await Mediator.Send(new CancelBookingCommand(booking.Id.Value), TestContext.Current.CancellationToken);
         res.IsSuccess.Should().BeTrue();
 
         NewScope();
-        var updatedBooking = await DbContext.Bookings.AsNoTracking().FirstAsync(b => b.Id == booking.Id);
+        var updatedBooking = await DbContext.Bookings.AsNoTracking().FirstAsync(b => b.Id == booking.Id, cancellationToken: TestContext.Current.CancellationToken);
         updatedBooking.Status.Should().Be(BookingStatus.Canceled);
     }
 
@@ -53,10 +53,10 @@ public class CancelBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         NewScope();
         
         SetCurrentUser(anotherGuest);
-        var res = await Mediator.Send(new CancelBookingCommand(booking.Id.Value));
+        var res = await Mediator.Send(new CancelBookingCommand(booking.Id.Value), TestContext.Current.CancellationToken);
         res.ShouldContain(BookingErrors.AccessDenied);
         
-        (await NewDbContext().Bookings.AsNoTracking().FirstAsync(b => b.Id == booking.Id))
+        (await NewDbContext().Bookings.AsNoTracking().FirstAsync(b => b.Id == booking.Id, cancellationToken: TestContext.Current.CancellationToken))
             .Status.Should().Be(BookingStatus.Confirmed);
     }
 
@@ -74,10 +74,10 @@ public class CancelBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         NewScope();
         
         SetCurrentUser(anotherManager);
-        var res = await Mediator.Send(new CancelBookingCommand(booking.Id.Value));
+        var res = await Mediator.Send(new CancelBookingCommand(booking.Id.Value), TestContext.Current.CancellationToken);
         res.ShouldContain(BookingErrors.AccessDenied);
         
-        (await NewDbContext().Bookings.AsNoTracking().FirstAsync(b => b.Id == booking.Id))
+        (await NewDbContext().Bookings.AsNoTracking().FirstAsync(b => b.Id == booking.Id, cancellationToken: TestContext.Current.CancellationToken))
             .Status.Should().Be(BookingStatus.Confirmed);
     }
 
@@ -99,10 +99,10 @@ public class CancelBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         NewScope();
         
         SetCurrentUser(guest);
-        var res = await Mediator.Send(new CancelBookingCommand(booking.Id.Value));
+        var res = await Mediator.Send(new CancelBookingCommand(booking.Id.Value), TestContext.Current.CancellationToken);
         res.ShouldContain(BookingErrors.Status.InvalidStatusOrReasonToCancelCode);
         
-        (await NewDbContext().Bookings.AsNoTracking().FirstAsync(b => b.Id == booking.Id))
+        (await NewDbContext().Bookings.AsNoTracking().FirstAsync(b => b.Id == booking.Id, cancellationToken: TestContext.Current.CancellationToken))
             .Status.Should().Be(finalStatus);
     }
     
@@ -111,7 +111,7 @@ public class CancelBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
     {
         var users = await Users.CreateBase3Async();
         SetCurrentUser(users[2]);
-        var res = await Mediator.Send(new CancelBookingCommand(Guid.NewGuid()));
+        var res = await Mediator.Send(new CancelBookingCommand(Guid.NewGuid()), TestContext.Current.CancellationToken);
         res.ShouldContain(BookingErrors.NotFound);
     }
     
@@ -130,10 +130,10 @@ public class CancelBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         NewScope();
         
         SetCurrentUser(guest);
-        var res = await Mediator.Send(new CancelBookingCommand(booking.Id.Value));
+        var res = await Mediator.Send(new CancelBookingCommand(booking.Id.Value), TestContext.Current.CancellationToken);
         res.ShouldContain(BookingErrors.Status.InvalidStatusOrReasonToCancelCode);
         
-        (await NewDbContext().Bookings.AsNoTracking().FirstAsync(b => b.Id == booking.Id))
+        (await NewDbContext().Bookings.AsNoTracking().FirstAsync(b => b.Id == booking.Id, cancellationToken: TestContext.Current.CancellationToken))
             .Status.Should().Be(BookingStatus.Seated);
     }
 
@@ -152,11 +152,11 @@ public class CancelBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
             .WithTableNumber(restaurant.Tables.First().TableNumber));
         NewScope();
         
-        var res = await Mediator.Send(new CancelBookingCommand(booking.Id.Value));
+        var res = await Mediator.Send(new CancelBookingCommand(booking.Id.Value), TestContext.Current.CancellationToken);
         res.IsSuccess.Should().BeTrue();
 
         NewScope();
-        var cr = await DbContext.CancellationRecords.AsNoTracking().SingleAsync();
+        var cr = await DbContext.CancellationRecords.AsNoTracking().SingleAsync(cancellationToken: TestContext.Current.CancellationToken);
         cr.WhoCancelledId.Should().Be(guest.Id);
         cr.CanceledAt.Should().BeCloseTo(FakeTime.GetUtcNow(), TimeSpan.FromMilliseconds(1));
         cr.BookingId.Should().Be(booking.Id);
@@ -180,11 +180,11 @@ public class CancelBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
             .WithTableNumber(restaurant.Tables.First().TableNumber));
         NewScope();
         
-        var res = await Mediator.Send(new CancelBookingCommand(booking.Id.Value, true));
+        var res = await Mediator.Send(new CancelBookingCommand(booking.Id.Value, true), TestContext.Current.CancellationToken);
         res.IsSuccess.Should().BeTrue();
 
         NewScope();
-        var cr = await DbContext.CancellationRecords.AsNoTracking().SingleAsync();
+        var cr = await DbContext.CancellationRecords.AsNoTracking().SingleAsync(cancellationToken: TestContext.Current.CancellationToken);
         cr.WhoCancelledId.Should().Be(manager.Id);
         cr.CanceledAt.Should().BeCloseTo(FakeTime.GetUtcNow(), TimeSpan.FromMilliseconds(1));
         cr.BookingId.Should().Be(booking.Id);

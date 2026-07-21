@@ -1,5 +1,4 @@
 using BookingSystem.Api.Common;
-using BookingSystem.Api.Extensions;
 using BookingSystem.Application.Features.Bookings.Commands.Cancel;
 using BookingSystem.Application.Features.Bookings.Commands.Complete.CompleteByManager;
 using BookingSystem.Application.Features.Bookings.Commands.Confirm;

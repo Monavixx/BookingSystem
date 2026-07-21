@@ -1,6 +1,4 @@
-﻿using FluentResults;
-
-namespace BookingSystem.Domain.Common.Errors;
+﻿namespace BookingSystem.Domain.Common.Errors;
 
 public class NotFoundError(string code, string message) : DomainError (code, message)
 {

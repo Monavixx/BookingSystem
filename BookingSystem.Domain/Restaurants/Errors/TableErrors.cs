@@ -1,5 +1,4 @@
 using BookingSystem.Domain.Common.Errors;
-using FluentResults;
 
 namespace BookingSystem.Domain.Restaurants.Errors;
 

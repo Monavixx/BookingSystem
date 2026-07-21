@@ -18,7 +18,7 @@ public sealed class Restaurant : AggregateRoot<RestaurantId>
     public EmailAddress Email { get; private set; } = null!;
     public string? Description { get; private set; }
     public Url? ImageUrl { get; private set; }
-    public WorkingSchedule? WorkingSchedule { get; private set; } = null;
+    public WorkingSchedule? WorkingSchedule { get; private set; }
     
     private readonly List<Table> _tables = [];
     public IReadOnlyCollection<Table> Tables => _tables;
@@ -45,7 +45,7 @@ public sealed class Restaurant : AggregateRoot<RestaurantId>
         var emailResult = EmailAddress.Create(email);
         var imageUrlResult = imageUrl is not null ? Url.Create(imageUrl) : Result.Ok<Url?>(null)!;
         
-        var descriptionResult = (!string.IsNullOrWhiteSpace(description) && description.Length > DescriptionMaxLength)
+        var descriptionResult = !string.IsNullOrWhiteSpace(description) && description.Length > DescriptionMaxLength
             ? Result.Fail(RestaurantErrors.Description.TooLong)
             : Result.Ok();
 

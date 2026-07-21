@@ -57,11 +57,11 @@ public abstract class IntegrationTestBase : IAsyncLifetime
         return Scope;
     }
 
-    protected virtual Task InitAsync()
+    protected virtual ValueTask InitAsync()
     {
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
-    public Task InitializeAsync()
+    public ValueTask InitializeAsync()
     {
         _dbContextsToDispose.Clear();
         Scope = Factory.Services.CreateScope();
@@ -70,7 +70,7 @@ public abstract class IntegrationTestBase : IAsyncLifetime
         return InitAsync();
     }
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         Scope.Dispose();
         await Task.WhenAll(_dbContextsToDispose.Select(c => c.DisposeAsync().AsTask()));

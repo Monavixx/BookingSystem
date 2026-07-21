@@ -32,7 +32,7 @@ public class Booking : AggregateRoot<BookingId>
     {
         if (guestCount <= 0)
             return Result.Fail<Booking>(BookingErrors.GuestCountOutOfRange);
-        var booking = new Booking()
+        var booking = new Booking
         {
             Id = BookingId.New(),
             GuestId = guestId,
@@ -100,7 +100,7 @@ public class Booking : AggregateRoot<BookingId>
 
     public bool CanBeCanceled(CancellationReason reason) =>
         !IsFinished() && Status is not BookingStatus.Seated &&
-        (reason switch
+        reason switch
         {
             // CancellationReason.GuestRequest => true,
             // CancellationReason.ManagerOrAdminRequest => true,
@@ -109,11 +109,11 @@ public class Booking : AggregateRoot<BookingId>
             CancellationReason.PendingTimeout => Status is BookingStatus.Pending,
             CancellationReason.ManagerHasNotConfirmed => Status is BookingStatus.ConfirmedByGuest,
             _ => true
-        });
+        };
 
-    public bool IsAttributableToGuest(CancellationReason reason)
-        => reason is (CancellationReason.GuestRequest or CancellationReason.ManagerOrAdminBeenAskedByGuest
-            or CancellationReason.NoShow);
+    public static bool IsAttributableToGuest(CancellationReason reason)
+        => reason is CancellationReason.GuestRequest or CancellationReason.ManagerOrAdminBeenAskedByGuest
+            or CancellationReason.NoShow;
 
     public BookingAvailabilityState GetAvailabilityState(DateTimeOffset now) =>
         now switch

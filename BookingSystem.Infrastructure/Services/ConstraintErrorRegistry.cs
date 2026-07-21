@@ -69,9 +69,8 @@ public sealed class ConstraintErrorRegistry : ConstraintErrorRegistryBase
                     ?? throw new InvalidConstraintErrorDescriptorException(
                         $"No foreign key found on {descriptor.ClrEntityType.Name} " +
                         $"for properties: {string.Join(", ", descriptor.PropertyNames)}"),
-                _ => throw new ArgumentException(
-                    $"Unsupported constraint violation type: {descriptor.ConstraintViolationType}",
-                    nameof(descriptor.ConstraintViolationType))
+                _ => throw new InvalidOperationException(
+                    $"Unsupported constraint violation type: {descriptor.ConstraintViolationType}")
             };
 
             result[(entityType.GetTableName()!, constraintName)] = descriptor.Error;
@@ -85,7 +84,7 @@ public sealed class ConstraintErrorRegistry : ConstraintErrorRegistryBase
         return result.ToFrozenDictionary();
     }
 
-    private string[] ExtractProperties<TEntity>(Expression<Func<TEntity, object?>> expression)
+    private static string[] ExtractProperties<TEntity>(Expression<Func<TEntity, object?>> expression)
         => expression.Body switch
         {
             MemberExpression memberExpression => [memberExpression.Member.Name],
@@ -97,7 +96,7 @@ public sealed class ConstraintErrorRegistry : ConstraintErrorRegistryBase
                 nameof(expression))
         };
 
-    private void AddPrimaryKeys(Dictionary<(string, string), DomainError> dict, IModel model)
+    private static void AddPrimaryKeys(Dictionary<(string, string), DomainError> dict, IModel model)
     {
         foreach (var entityType in model.GetEntityTypes())
         {

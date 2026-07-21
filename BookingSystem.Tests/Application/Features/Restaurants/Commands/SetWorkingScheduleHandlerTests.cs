@@ -35,7 +35,7 @@ public class SetWorkingScheduleHandlerTests(PostgresTestFixture dbFixture) : Int
                 TimeOnly.FromTimeSpan(new TimeSpan(17, 0, 0)), false),
             new DayOfWeekScheduleRequest(null, null, null, true),
             new DayOfWeekScheduleRequest(null, null, null, true)
-        ]));
+        ]), TestContext.Current.CancellationToken);
         res.Errors.Should().BeEmpty();
         NewScope();
 
@@ -43,7 +43,7 @@ public class SetWorkingScheduleHandlerTests(PostgresTestFixture dbFixture) : Int
             $"""
              SELECT * FROM restaurant_daily_schedules
              WHERE restaurant_id = {restaurant.Id.Value}
-             """).ToListAsync();
+             """).ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         schedulesList.Should().HaveCount(7);
         schedulesList.DistinctBy(d => d.DayOfWeek).Should().HaveCount(7);
     }

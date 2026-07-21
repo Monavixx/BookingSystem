@@ -27,7 +27,7 @@ public sealed record Address
         if (string.IsNullOrWhiteSpace(country))
             return Result.Fail<Address>(AddressErrors.Country.Empty);
         
-        return new Address()
+        return new Address
         {
             Country = country,
             State = state,
@@ -50,12 +50,12 @@ public sealed record Address
     public void Deconstruct(out string country, out string? state, out string? city, out string? street,
         out string? houseNumber, out string? apartmentNumber, out string? zipCode)
     {
-        country = this.Country;
-        state = this.State;
-        city = this.City;
-        street = this.Street;
-        houseNumber = this.HouseNumber;
-        apartmentNumber = this.ApartmentNumber;
-        zipCode = this.ZipCode;
+        country = Country;
+        state = State;
+        city = City;
+        street = Street;
+        houseNumber = HouseNumber;
+        apartmentNumber = ApartmentNumber;
+        zipCode = ZipCode;
     }
 }

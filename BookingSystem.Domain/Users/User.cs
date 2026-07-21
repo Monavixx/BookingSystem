@@ -29,8 +29,8 @@ public sealed partial class User : Entity<UserId>
     public string FirstName { get; private set; } = null!;
     public string LastName { get; private set; } = null!;
     public UserRole Role { get; private set; } = UserRole.Guest;
-    public bool IsBlocked { get; private set; } = false;
-    public DateTimeOffset? BlockedUntil { get; private set; } = null;
+    public bool IsBlocked { get; private set; }
+    public DateTimeOffset? BlockedUntil { get; private set; }
     
     private readonly List<Session> _sessions = [];
     public IReadOnlyCollection<Session> Sessions => _sessions;

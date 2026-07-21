@@ -2,12 +2,10 @@ using BookingSystem.Application.Common.Abstractions;
 using BookingSystem.Application.Persistence;
 using BookingSystem.Domain.Common.Errors;
 using BookingSystem.Domain.Restaurants.Errors;
-using BookingSystem.Domain.Restaurants.ValueObjects;
 using BookingSystem.Domain.Users;
 using FluentResults;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace BookingSystem.Application.Features.Restaurants.Commands.DeleteTable;
 

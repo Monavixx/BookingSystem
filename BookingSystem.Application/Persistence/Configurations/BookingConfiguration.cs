@@ -1,7 +1,6 @@
 using BookingSystem.Application.Persistence.Abstractions;
 using BookingSystem.Domain.Bookings;
 using BookingSystem.Domain.Bookings.ValueObjects;
-using BookingSystem.Domain.Restaurants;
 using BookingSystem.Domain.Restaurants.Errors;
 using BookingSystem.Domain.Restaurants.ValueObjects;
 using BookingSystem.Domain.Users;

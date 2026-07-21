@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using BookingSystem.Application.Persistence.Abstractions;
 
 namespace BookingSystem.Application.Persistence.Extensions;

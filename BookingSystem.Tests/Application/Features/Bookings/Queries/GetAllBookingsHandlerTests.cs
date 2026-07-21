@@ -6,13 +6,14 @@ using BookingSystem.Tests.Services;
 using FluentAssertions;
 
 namespace BookingSystem.Tests.Application.Features.Bookings.Queries;
+
 public class GetAllBookingsHandlerTests(PostgresTestFixture dbFixture) : IntegrationTestBase(dbFixture)
 {
     private Base5Users _users = null!;
     private Restaurant _restaurant1 = null!, _restaurant2 = null!;
     private Booking[] _bookings = null!;
 
-    protected override async Task InitAsync()
+    protected override async ValueTask InitAsync()
     {
         _users = await Users.CreateBase5Async();
         var restaurants = await Restaurants.CreateRestaurants(builder => builder
@@ -41,7 +42,7 @@ public class GetAllBookingsHandlerTests(PostgresTestFixture dbFixture) : Integra
     public async Task When_Admin_NoFilterProvided_ShouldReturnAllBookings()
     {
         SetCurrentUser(_users.Admin);
-        var res = await Mediator.Send(new GetAllBookingsQuery());
+        var res = await Mediator.Send(new GetAllBookingsQuery(), TestContext.Current.CancellationToken);
 
         res.IsSuccess.Should().BeTrue();
         res.Value.Count.Should().Be(_bookings.Length);
@@ -52,7 +53,8 @@ public class GetAllBookingsHandlerTests(PostgresTestFixture dbFixture) : Integra
     public async Task When_Admin_RestaurantFilterProvided_ShouldReturnAllBookingsFromTheRestaurant()
     {
         SetCurrentUser(_users.Admin);
-        var res = await Mediator.Send(new GetAllBookingsQuery(RestaurantId: _restaurant1.Id.Value));
+        var res = await Mediator.Send(new GetAllBookingsQuery(RestaurantId: _restaurant1.Id.Value),
+            TestContext.Current.CancellationToken);
 
         res.IsSuccess.Should().BeTrue();
         res.Value.Count.Should().Be(4);
@@ -62,7 +64,7 @@ public class GetAllBookingsHandlerTests(PostgresTestFixture dbFixture) : Integra
     public async Task When_Manager_NoFilterProvided_ShouldReturnAllTheirBookingsAndBookingsFromRestaurantsOwnedByThem()
     {
         SetCurrentUser(_users.AnotherManager);
-        var res = await Mediator.Send(new GetAllBookingsQuery());
+        var res = await Mediator.Send(new GetAllBookingsQuery(), TestContext.Current.CancellationToken);
         res.IsSuccess.Should().BeTrue();
         res.Value.Count.Should().Be(2);
     }
@@ -71,7 +73,7 @@ public class GetAllBookingsHandlerTests(PostgresTestFixture dbFixture) : Integra
     public async Task When_Guest_NoFilterProvided_ShouldReturnAllTheirBookings()
     {
         SetCurrentUser(_users.Guest);
-        var res = await Mediator.Send(new GetAllBookingsQuery());
+        var res = await Mediator.Send(new GetAllBookingsQuery(), TestContext.Current.CancellationToken);
         res.IsSuccess.Should().BeTrue();
         res.Value.Count.Should().Be(2);
     }
@@ -80,7 +82,7 @@ public class GetAllBookingsHandlerTests(PostgresTestFixture dbFixture) : Integra
     public async Task When_Guest_FiltersProvided_SuchBookingsDoesNotExist_ShouldReturnEmptyCollection()
     {
         SetCurrentUser(_users.Guest);
-        var res = await Mediator.Send(new GetAllBookingsQuery(TableNumber: 10));
+        var res = await Mediator.Send(new GetAllBookingsQuery(TableNumber: 10), TestContext.Current.CancellationToken);
         res.IsSuccess.Should().BeTrue();
         res.Value.Should().BeEmpty();
     }
@@ -90,7 +92,8 @@ public class GetAllBookingsHandlerTests(PostgresTestFixture dbFixture) : Integra
     {
         var start = FakeTime.GetUtcNow().AddHours(3.5);
         SetCurrentUser(_users.Admin);
-        var res = await Mediator.Send(new GetAllBookingsQuery(Start: start, TimeFilterMethod: TimeFilterMethod.In));
+        var res = await Mediator.Send(new GetAllBookingsQuery(Start: start, TimeFilterMethod: TimeFilterMethod.In),
+            TestContext.Current.CancellationToken);
         res.IsSuccess.Should().BeTrue();
         res.Value.Count.Should().Be(2);
         res.Value.Should().OnlyContain(b => b.Start >= start);
@@ -105,7 +108,8 @@ public class GetAllBookingsHandlerTests(PostgresTestFixture dbFixture) : Integra
         var end = FakeTime.GetLocalNow().AddHours(5.51);
 
         var res = await Mediator.Send(
-            new GetAllBookingsQuery(Start: start, End: end, TimeFilterMethod: TimeFilterMethod.In));
+            new GetAllBookingsQuery(Start: start, End: end, TimeFilterMethod: TimeFilterMethod.In),
+            TestContext.Current.CancellationToken);
         res.IsSuccess.Should().BeTrue();
         res.Value.Should().HaveCount(3);
         res.Value.Should().OnlyContain(b => b.Start >= start && b.End <= end);
@@ -120,7 +124,8 @@ public class GetAllBookingsHandlerTests(PostgresTestFixture dbFixture) : Integra
         var end = FakeTime.GetLocalNow().AddHours(5.51);
 
         var res = await Mediator.Send(
-            new GetAllBookingsQuery(Start: start, End: end, TimeFilterMethod: TimeFilterMethod.Overlapping));
+            new GetAllBookingsQuery(Start: start, End: end, TimeFilterMethod: TimeFilterMethod.Overlapping),
+            TestContext.Current.CancellationToken);
         res.IsSuccess.Should().BeTrue();
         res.Value.Should().HaveCount(5);
         res.Value.Should().OnlyContain(b => b.Start <= end || b.End >= start);

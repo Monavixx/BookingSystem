@@ -57,8 +57,6 @@ public class GetBookingHandler(AppDbContext dbContext, ICurrentUserService curre
 
     private sealed record BookingDto
     {
-        public BookingDto() { }
-
         public Guid GuestId { get; init; }
         public int GuestCount { get; init; }
         public Guid RestaurantId { get; init; }

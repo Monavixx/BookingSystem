@@ -9,7 +9,7 @@ public class LogContextMiddleware(RequestDelegate next, ILogger<LogContextMiddle
         var userId = context.User.GetUserIdOrDefault();
         using (logger.BeginScope(new Dictionary<string, object?>
                {
-                   ["UserId"] = userId,
+                   ["UserId"] = userId
                }))
         {
             await next(context);

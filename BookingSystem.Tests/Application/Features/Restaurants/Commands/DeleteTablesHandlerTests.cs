@@ -11,14 +11,15 @@ public class DeleteTablesHandlerTests(PostgresTestFixture dbFixture) : Integrati
 {
     private Base5Users _users = null!;
     private Restaurant _restaurant1 = null!, _restaurant2 = null!;
-    protected override async Task InitAsync()
+
+    protected override async ValueTask InitAsync()
     {
         _users = await Users.CreateBase5Async();
         var restaurants = await Restaurants.CreateRestaurants(c =>
         {
             c.AddRestaurant(_users.Manager,
                     (1, 4), (2, 4), (3, 20))
-                .AddRestaurant(_users.AnotherManager, (1, 2), 
+                .AddRestaurant(_users.AnotherManager, (1, 2),
                     (2, 3), (3, 8), (4, 3));
         });
         (_restaurant1, _restaurant2) = (restaurants[0], restaurants[1]);
@@ -29,13 +30,15 @@ public class DeleteTablesHandlerTests(PostgresTestFixture dbFixture) : Integrati
     {
         SetCurrentUser(_users.Manager);
         var res = await Mediator.Send(new DeleteTablesCommand(
-            [new TableId(_restaurant1.Id, 2),
-                    new TableId(_restaurant1.Id, 3)]));
+        [
+            new TableId(_restaurant1.Id, 2),
+            new TableId(_restaurant1.Id, 3)
+        ]), TestContext.Current.CancellationToken);
         res.Errors.Should().BeEmpty();
         NewScope();
 
         (await DbContext.Tables.Where(t => t.RestaurantId == _restaurant1.Id && t.TableNumber == 2)
-                .FirstOrDefaultAsync())
+                .FirstOrDefaultAsync(cancellationToken: TestContext.Current.CancellationToken))
             .Should().BeNull();
     }
 }

@@ -36,9 +36,9 @@ public class CancelBookingHandler(
 
         var cr = curUser.Role is UserRole.Guest
             ? CancellationReason.GuestRequest
-            : (request.IsGuestRequest
+            : request.IsGuestRequest
                 ? CancellationReason.ManagerOrAdminBeenAskedByGuest
-                : CancellationReason.ManagerOrAdminRequest);
+                : CancellationReason.ManagerOrAdminRequest;
         
         return (await bookingCancellationService.CancelAsync(booking, cr))
             .ToResult();

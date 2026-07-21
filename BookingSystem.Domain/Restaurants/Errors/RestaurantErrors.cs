@@ -10,7 +10,7 @@ public static class RestaurantErrors
         new ForbiddenError("Restaurant.AccessDenied", "Access to this restaurant is denied");
     public static class Description
     {
-        public static readonly ValidationError TooLong = new ValidationError("Restaurant.Description.TooLong",
+        public static readonly DomainError TooLong = new ValidationError("Restaurant.Description.TooLong",
             $"Description must be at most {Restaurant.DescriptionMaxLength} characters long");
     }
 }

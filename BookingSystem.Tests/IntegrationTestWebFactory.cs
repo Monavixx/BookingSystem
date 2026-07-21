@@ -21,7 +21,7 @@ namespace BookingSystem.Tests;
 public class IntegrationTestWebFactory : WebApplicationFactory<Program>
 {
     public string ConnectionString { get; init; } = null!;
-    private Mock<IBackgroundJobService> _backgroundJobServiceMock = new ();
+    private readonly Mock<IBackgroundJobService> _backgroundJobServiceMock = new ();
 
     public FakeTimeProvider FakeTime { get; init; } =
         new FakeTimeProvider(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));

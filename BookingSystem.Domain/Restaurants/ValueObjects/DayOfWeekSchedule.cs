@@ -7,8 +7,8 @@ public sealed record DayOfWeekSchedule
 {
     private DayOfWeekSchedule(){}
     public DayOfWeek DayOfWeek { get; private init; }
-    public TimeOnly? OpeningTime { get; private init; } = null;
-    public TimeOnly? ClosingTime { get; private init; } = null;
+    public TimeOnly? OpeningTime { get; private init; }
+    public TimeOnly? ClosingTime { get; private init; }
     public bool IsClosed { get; private init; }
     public bool IsAlwaysOpen => !IsClosed && OpeningTime == ClosingTime;
     public TimeSpan WorkTime => IsClosed ? TimeSpan.Zero : ClosingTime!.Value - OpeningTime!.Value;
@@ -19,7 +19,7 @@ public sealed record DayOfWeekSchedule
         if (isClosed && (openingTime is not null || closingTime is not null)
             || (!isClosed && (openingTime is null || closingTime is null)))
             return Result.Fail<DayOfWeekSchedule>(DayOfWeekScheduleErrors.AmbiguousSchedule);
-        return new DayOfWeekSchedule()
+        return new DayOfWeekSchedule
         {
             DayOfWeek = dayOfWeek,
             OpeningTime = openingTime,
@@ -29,7 +29,7 @@ public sealed record DayOfWeekSchedule
     }
 
     public static DayOfWeekSchedule Create(DayOfWeek dayOfWeek, TimeOnly openingTime, TimeOnly closingTime)
-        => new DayOfWeekSchedule()
+        => new()
         {
             DayOfWeek = dayOfWeek,
             OpeningTime = openingTime,
@@ -37,7 +37,7 @@ public sealed record DayOfWeekSchedule
             IsClosed = false
         };
     public static DayOfWeekSchedule CreateDayOff(DayOfWeek dayOfWeek)
-        => new DayOfWeekSchedule()
+        => new()
         {
             DayOfWeek = dayOfWeek,
             IsClosed = true

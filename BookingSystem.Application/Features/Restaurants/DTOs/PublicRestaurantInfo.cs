@@ -32,15 +32,13 @@ public sealed record PublicRestaurantInfo(
         string? ZipCode)
     {
         public static AddressDto FromAddress(Address address)
-        {
-            return new(Country: address.Country,
+            => new AddressDto(Country: address.Country,
                 State: address.State,
                 City: address.City,
                 Street: address.Street,
                 HouseNumber: address.HouseNumber,
                 ApartmentNumber: address.ApartmentNumber,
                 ZipCode: address.ZipCode);
-        }
     }
 
     public sealed record ContactDto(string PhoneNumber, string Email);

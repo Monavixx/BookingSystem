@@ -49,7 +49,7 @@ public class AuthController(IMediator mediator, IOptions<JwtOptions> jwtOptions,
 
     private void AddAuthTokensToCookie(AuthTokens authTokens)
     {
-        HttpContext.Response.Cookies.Append("access_token", authTokens.AccessToken, new CookieOptions()
+        HttpContext.Response.Cookies.Append("access_token", authTokens.AccessToken, new CookieOptions
         {
             HttpOnly = true,
             Secure = true,
@@ -58,7 +58,7 @@ public class AuthController(IMediator mediator, IOptions<JwtOptions> jwtOptions,
         });
 
         HttpContext.Response.Cookies.Append("refresh_token", authTokens.RefreshToken.ToString(),
-            new CookieOptions()
+            new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,

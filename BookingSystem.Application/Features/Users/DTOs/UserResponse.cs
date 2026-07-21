@@ -32,7 +32,7 @@ public record UserResponse
     }
 
     public static readonly Expression<Func<User, UserResponse>> Projection =
-        u => new UserResponse()
+        u => new UserResponse
         {
             Id = u.Id.Value,
             Username = u.Username.Value,
@@ -53,9 +53,9 @@ public record UserResponse
     public string Email { get; init; } = null!;
     public string FirstName { get; init; } = null!;
     public string LastName { get; init; } = null!;
-    public DateTimeOffset RegistrationDate { get; init; } = default;
-    public DateOnly BirthDate { get; init; } = default;
-    public UserRole Role { get; init; } = default;
+    public DateTimeOffset RegistrationDate { get; init; }
+    public DateOnly BirthDate { get; init; }
+    public UserRole Role { get; init; }
     public bool IsBlocked { get; init; }
-    public DateTimeOffset? BlockedUntil { get; init; } = null!;
+    public DateTimeOffset? BlockedUntil { get; init; }
 }

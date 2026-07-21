@@ -1,5 +1,4 @@
-﻿using System.Linq.Expressions;
-using BookingSystem.Domain.Common.ValueObjects;
+﻿using BookingSystem.Domain.Common.ValueObjects;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BookingSystem.Application.Persistence.Configurations.Converters;

@@ -18,7 +18,7 @@ public class UserBlockerTests(PostgresTestFixture dbFixture) : IntegrationTestBa
     private Restaurant _restaurant1 = null!,
         _restaurant2 = null!;
 
-    protected override async Task InitAsync()
+    protected override async ValueTask InitAsync()
     {
         _users = await Users.CreateBase5Async();
         var restaurants = await Restaurants.CreateRestaurants(builder => builder
@@ -43,7 +43,7 @@ public class UserBlockerTests(PostgresTestFixture dbFixture) : IntegrationTestBa
         });
         DbContext.CancellationRecords.AddRange(bookings.Select(b =>
             CancellationRecord.Create(FakeTime, _users.Guest.Id, b.Id, CancellationReason.GuestRequest)));
-        await DbContext.SaveChangesAsync();
+        await DbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
         NewScope();
 
         var userBlocker = Scope.ServiceProvider.GetRequiredService<UserBlocker>();
@@ -51,7 +51,7 @@ public class UserBlockerTests(PostgresTestFixture dbFixture) : IntegrationTestBa
         res.IsSuccess.Should().BeTrue();
 
         NewScope();
-        var user = await DbContext.Users.FindAsync(_users.Guest.Id);
+        var user = await DbContext.Users.FindAsync([_users.Guest.Id], TestContext.Current.CancellationToken);
         user.Should().NotBeNull();
         user.IsBlocked.Should().BeTrue();
         user.BlockedUntil.Should()
@@ -70,7 +70,7 @@ public class UserBlockerTests(PostgresTestFixture dbFixture) : IntegrationTestBa
         });
         DbContext.CancellationRecords.AddRange(bookings.Select(b =>
             CancellationRecord.Create(FakeTime, _users.Guest.Id, b.Id, CancellationReason.GuestRequest)));
-        await DbContext.SaveChangesAsync();
+        await DbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
         NewScope();
 
         var userBlocker = Scope.ServiceProvider.GetRequiredService<UserBlocker>();
@@ -78,7 +78,7 @@ public class UserBlockerTests(PostgresTestFixture dbFixture) : IntegrationTestBa
         res.IsSuccess.Should().BeTrue();
 
         NewScope();
-        var user = await DbContext.Users.FindAsync(_users.Guest.Id);
+        var user = await DbContext.Users.FindAsync([_users.Guest.Id], TestContext.Current.CancellationToken);
         user.Should().NotBeNull();
         user.IsBlocked.Should().BeFalse();
         user.BlockedUntil.Should().BeNull();
@@ -96,7 +96,7 @@ public class UserBlockerTests(PostgresTestFixture dbFixture) : IntegrationTestBa
         });
         DbContext.CancellationRecords.AddRange(bookings.Select(b =>
             CancellationRecord.Create(FakeTime, _users.Admin.Id, b.Id, CancellationReason.NoShow)));
-        await DbContext.SaveChangesAsync();
+        await DbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
         NewScope();
 
         var userBlocker = Scope.ServiceProvider.GetRequiredService<UserBlocker>();
@@ -104,7 +104,7 @@ public class UserBlockerTests(PostgresTestFixture dbFixture) : IntegrationTestBa
         res.IsFailed.Should().BeTrue();
 
         NewScope();
-        var user = await DbContext.Users.FindAsync(_users.Admin.Id);
+        var user = await DbContext.Users.FindAsync([_users.Admin.Id], TestContext.Current.CancellationToken);
         user.Should().NotBeNull();
         user.IsBlocked.Should().BeFalse();
         user.BlockedUntil.Should().BeNull();
@@ -129,7 +129,7 @@ public class UserBlockerTests(PostgresTestFixture dbFixture) : IntegrationTestBa
         FakeTime.AdjustTime(FakeTime.GetUtcNow() - _bookingOptions.BookingCancellationPeriod.Add(TimeSpan.FromDays(1)));
         DbContext.CancellationRecords.Add(CancellationRecord.Create(FakeTime, _users.Guest.Id, bookings[^1].Id,
             CancellationReason.GuestRequest));
-        await DbContext.SaveChangesAsync();
+        await DbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
         NewScope();
 
         var userBlocker = Scope.ServiceProvider.GetRequiredService<UserBlocker>();
@@ -137,7 +137,7 @@ public class UserBlockerTests(PostgresTestFixture dbFixture) : IntegrationTestBa
         res.IsSuccess.Should().BeTrue();
 
         NewScope();
-        var user = await DbContext.Users.FindAsync(_users.Guest.Id);
+        var user = await DbContext.Users.FindAsync([_users.Guest.Id], TestContext.Current.CancellationToken);
         user.Should().NotBeNull();
         user.IsBlocked.Should().BeFalse();
         user.BlockedUntil.Should().BeNull();

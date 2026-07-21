@@ -40,15 +40,14 @@ public class CreateBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         SetCurrentUser(guest);
 
         var scheduledAt = FakeTime.GetUtcNow().AddHours(1);
-        var res = await Mediator.Send(
-            new CreateBookingCommand(
+        var res = await Mediator.Send(new CreateBookingCommand(
                 GuestCount: 2,
                 RestaurantId: restaurant.Id.Value,
                 TableNumber: tableNumber,
-                ScheduledAt: scheduledAt));
+                ScheduledAt: scheduledAt), TestContext.Current.CancellationToken);
         res.Errors.Should().BeEmpty();
         
-        var booking = await DbContext.Bookings.SingleOrDefaultAsync();
+        var booking = await DbContext.Bookings.SingleOrDefaultAsync(cancellationToken: TestContext.Current.CancellationToken);
         booking.Should().NotBeNull();
         booking.TableNumber.Should().Be(1);
         booking.Status.Should().Be(BookingStatus.Pending);
@@ -71,15 +70,14 @@ public class CreateBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         SetCurrentUser(guest);
 
         var scheduledAt = FakeTime.GetUtcNow().AddHours(1);
-        var res = await Mediator.Send(
-            new CreateBookingCommand(
+        var res = await Mediator.Send(new CreateBookingCommand(
                 GuestCount: 5,
                 RestaurantId: restaurant.Id.Value,
                 TableNumber: tableNumber,
-                ScheduledAt: scheduledAt));
+                ScheduledAt: scheduledAt), TestContext.Current.CancellationToken);
         res.IsFailed.Should().BeTrue();
         
-        var booking = await DbContext.Bookings.SingleOrDefaultAsync();
+        var booking = await DbContext.Bookings.SingleOrDefaultAsync(cancellationToken: TestContext.Current.CancellationToken);
         booking.Should().BeNull();
     }
     
@@ -96,15 +94,14 @@ public class CreateBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         var scheduledAt = FakeTime.GetUtcNow().AddHours(-1);
 
         NewScope();
-        var res = await Mediator.Send(
-            new CreateBookingCommand(
+        var res = await Mediator.Send(new CreateBookingCommand(
                 GuestCount: 2,
                 RestaurantId: restaurant.Id.Value,
                 TableNumber: tableNumber,
-                ScheduledAt: scheduledAt));
+                ScheduledAt: scheduledAt), TestContext.Current.CancellationToken);
         res.IsFailed.Should().BeTrue();
         
-        var booking = await NewDbContext().Bookings.SingleOrDefaultAsync();
+        var booking = await NewDbContext().Bookings.SingleOrDefaultAsync(cancellationToken: TestContext.Current.CancellationToken);
         booking.Should().BeNull();
         BackgroundJobServiceMock.VerifyNoOtherCalls();
     }
@@ -122,15 +119,14 @@ public class CreateBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
 
         NewScope();
         // Create a booking for the only table with capacity 2
-        var res1 = await Mediator.Send(
-            new CreateBookingCommand(
+        var res1 = await Mediator.Send(new CreateBookingCommand(
                 GuestCount: 2,
                 RestaurantId: restaurant.Id.Value,
                 TableNumber: null,
-                ScheduledAt: scheduledAt));
+                ScheduledAt: scheduledAt), TestContext.Current.CancellationToken);
         res1.IsSuccess.Should().BeTrue();
 
-        var firstBooking = await NewDbContext().Bookings.AsNoTracking().SingleOrDefaultAsync();
+        var firstBooking = await NewDbContext().Bookings.AsNoTracking().SingleOrDefaultAsync(cancellationToken: TestContext.Current.CancellationToken);
         firstBooking.Should().NotBeNull();
         ShouldScheduleBookingStatusChangeJobWithTimeout(firstBooking);
 
@@ -139,16 +135,15 @@ public class CreateBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
 
         SetCurrentUser(guest2);
         
-        var res = await Mediator.Send(
-            new CreateBookingCommand(
+        var res = await Mediator.Send(new CreateBookingCommand(
                 GuestCount: 2,
                 RestaurantId: restaurant.Id.Value,
                 TableNumber: null,
-                ScheduledAt: scheduledAt));
+                ScheduledAt: scheduledAt), TestContext.Current.CancellationToken);
         res.IsFailed.Should().BeTrue();
         res.ShouldContain(TableErrors.NotFound);
 
-        var bookingsCount = await NewDbContext().Bookings.CountAsync();
+        var bookingsCount = await NewDbContext().Bookings.CountAsync(cancellationToken: TestContext.Current.CancellationToken);
         bookingsCount.Should().Be(1);
 
         BackgroundJobServiceMock.Verify(
@@ -170,15 +165,14 @@ public class CreateBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
 
         NewScope();
         // Create a booking for the specified table
-        var res1 = await Mediator.Send(
-            new CreateBookingCommand(
+        var res1 = await Mediator.Send(new CreateBookingCommand(
                 GuestCount: 4,
                 RestaurantId: restaurant.Id.Value,
                 TableNumber: 1,
-                ScheduledAt: scheduledAt1));
+                ScheduledAt: scheduledAt1), TestContext.Current.CancellationToken);
         res1.IsSuccess.Should().BeTrue();
         
-        var firstBooking = await NewDbContext().Bookings.AsNoTracking().FirstOrDefaultAsync();
+        var firstBooking = await NewDbContext().Bookings.AsNoTracking().FirstOrDefaultAsync(cancellationToken: TestContext.Current.CancellationToken);
         firstBooking.Should().NotBeNull();
         ShouldScheduleBookingStatusChangeJobWithTimeout(firstBooking);
         BackgroundJobServiceMock.Reset();
@@ -187,19 +181,18 @@ public class CreateBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
 
         NewScope();
         SetCurrentUser(guest2);
-        var res = await Mediator.Send(
-            new CreateBookingCommand(
+        var res = await Mediator.Send(new CreateBookingCommand(
                 GuestCount: 4,
                 RestaurantId: restaurant.Id.Value,
                 TableNumber: 1,
-                ScheduledAt: scheduledAt2));
+                ScheduledAt: scheduledAt2), TestContext.Current.CancellationToken);
         res.IsSuccess.Should().BeTrue();
         
-        var secondBooking = await NewDbContext().Bookings.SingleOrDefaultAsync(b => b.Id != firstBookingId);
+        var secondBooking = await NewDbContext().Bookings.SingleOrDefaultAsync(b => b.Id != firstBookingId, cancellationToken: TestContext.Current.CancellationToken);
         secondBooking.Should().NotBeNull();
         ShouldScheduleBookingStatusChangeJobWithTimeout(secondBooking);
         
-        var bookingsCount = await NewDbContext().Bookings.CountAsync();
+        var bookingsCount = await NewDbContext().Bookings.CountAsync(cancellationToken: TestContext.Current.CancellationToken);
         bookingsCount.Should().Be(2);
     }
     
@@ -216,15 +209,14 @@ public class CreateBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         var scheduledAt = FakeTime.GetUtcNow().AddHours(1);
         
         NewScope();
-        var res = await Mediator.Send(
-            new CreateBookingCommand(
+        var res = await Mediator.Send(new CreateBookingCommand(
                 GuestCount: 5,
                 RestaurantId: restaurant.Id.Value,
                 TableNumber: null,
-                ScheduledAt: scheduledAt));
+                ScheduledAt: scheduledAt), TestContext.Current.CancellationToken);
         res.IsSuccess.Should().BeTrue();
         
-        var booking = await NewDbContext().Bookings.SingleOrDefaultAsync();
+        var booking = await NewDbContext().Bookings.SingleOrDefaultAsync(cancellationToken: TestContext.Current.CancellationToken);
         booking.Should().NotBeNull();
         booking.TableNumber.Should().BeOneOf(3, 4); // The table with the smallest capacity that fits 5 guests
         

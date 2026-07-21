@@ -12,10 +12,12 @@ public record GetUsersQuery(
     int? YoungerThan,
     int? BookingCountGreaterThan,
     int? BookingCountLessThan,
-    bool? IsBlocked
+    bool? IsBlocked,
+    int Page = 1,
+    int PageSize = 50
 ) : IRequest<Result<IEnumerable<UserResponse>>>, IRequireActiveUser
 {
-    public GetUsersQuery() 
+    public GetUsersQuery()
         : this(null, null,
             null, null, null,
             null, null)

@@ -18,7 +18,7 @@ public class Table : IEntity
     public static Result<Table> Create(RestaurantId restaurantId, int tableNumber, int capacity)
     {
         if (capacity <= 0) return Result.Fail<Table>(TableErrors.Capacity.OutOfRange);
-        return new Table()
+        return new Table
         {
             RestaurantId = restaurantId,
             TableNumber = tableNumber,

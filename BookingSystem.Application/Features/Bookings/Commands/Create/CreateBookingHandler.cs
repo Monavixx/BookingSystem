@@ -9,10 +9,8 @@ using BookingSystem.Domain.Bookings.Errors;
 using BookingSystem.Domain.Bookings.Services;
 using BookingSystem.Domain.Bookings.ValueObjects;
 using BookingSystem.Domain.Bookings.ValueObjects.Helpers;
-using BookingSystem.Domain.Restaurants;
 using BookingSystem.Domain.Restaurants.Errors;
 using BookingSystem.Domain.Restaurants.ValueObjects;
-using BookingSystem.Domain.Users.ValueObjects;
 using Dapper;
 using FluentResults;
 using MediatR;
@@ -82,7 +80,7 @@ public class CreateBookingHandler(AppDbContext dbContext, BookingDurationCalcula
         if (tableNumber is null)
         {
             return await dbContext.Database.GetDbConnection().QueryFirstOrDefaultAsync<TableDto>(
-                $"""
+                """
                  SELECT t.capacity as Capacity, 
                         t.restaurant_id as RestaurantId, 
                         t.table_number as TableNumber

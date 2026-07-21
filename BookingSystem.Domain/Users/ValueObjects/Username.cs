@@ -11,7 +11,7 @@ public record Username
     private Username() { }
     public string Value { get; private init; } = null!;
     
-    private static readonly Regex UsernameRegex = new(@"^[a-zA-Z0-9_\.]+$", RegexOptions.Compiled);
+    private static readonly Regex UsernameRegex = new (@"^[a-zA-Z0-9_\.]+$", RegexOptions.Compiled);
 
     public void Deconstruct(out string username)
     {

@@ -28,41 +28,37 @@ public abstract class ApiController(IMediator mediator) : ControllerBase
     {
         var errorTypes = result.Errors.DistinctBy(e => e.GetType()).ToArray();
         var typesCount = errorTypes.Length;
-        switch (typesCount)
+        return typesCount switch
         {
-            case 0:
-                throw new ArgumentException("Result must contain at least one error");
-            case 1:
-                return Problem(
-                    title: GetTitle(result.Errors[0]),
-                    statusCode: ErrorToHttpCode(result.Errors[0]),
-                    detail: result.Errors.Count == 1 ? result.Errors[0].Message : "More than one error occurred",
-                    extensions: new Dictionary<string, object?>
-                    {
-                        ["errors"] = result.Errors.Select(e => new
-                                { message = e.Message, code = (e as DomainError)?.Code, metadata = e.Metadata })
-                            .ToArray()
-                    }
-                );
-            default:
-                return Problem(
-                    title: "Multiple errors",
-                    statusCode: StatusCodes.Status400BadRequest,
-                    detail: string.Join("; ", errorTypes.Select(GetTitle)),
-                    extensions: new Dictionary<string, object?>
-                    {
-                        ["errors"] = result.Errors.Select(e => new
-                            {
-                                title = GetTitle(e), statusCode = ErrorToHttpCode(e), message = e.Message,
-                                code = (e as DomainError)?.Code, metadata = e.Metadata
-                            })
-                            .ToArray()
-                    }
-                );
-        }
+            0 => throw new ArgumentException("Result must contain at least one error"),
+            1 => Problem(title: GetTitle(result.Errors[0]), statusCode: ErrorToHttpCode(result.Errors[0]),
+                detail: result.Errors.Count == 1 ? result.Errors[0].Message : "More than one error occurred",
+                extensions: new Dictionary<string, object?>
+                {
+                    ["errors"] = result.Errors.Select(e => new
+                        {
+                            message = e.Message, code = (e as DomainError)?.Code, metadata = e.Metadata
+                        })
+                        .ToArray()
+                }),
+            _ => Problem(title: "Multiple errors", statusCode: StatusCodes.Status400BadRequest,
+                detail: string.Join("; ", errorTypes.Select(GetTitle)),
+                extensions: new Dictionary<string, object?>
+                {
+                    ["errors"] = result.Errors.Select(e => new
+                        {
+                            title = GetTitle(e),
+                            statusCode = ErrorToHttpCode(e),
+                            message = e.Message,
+                            code = (e as DomainError)?.Code,
+                            metadata = e.Metadata
+                        })
+                        .ToArray()
+                })
+        };
     }
 
-    private int ErrorToHttpCode(IError error)
+    private static int ErrorToHttpCode(IError error)
         => error switch
         {
             ValidationError or ReferenceError => StatusCodes.Status400BadRequest,
@@ -74,6 +70,6 @@ public abstract class ApiController(IMediator mediator) : ControllerBase
             _ => StatusCodes.Status500InternalServerError
         };
 
-    private string GetTitle(IError e)
+    private static string GetTitle(IError e)
         => e is DomainError de2 ? de2.Title : e.GetType().Name;
 }

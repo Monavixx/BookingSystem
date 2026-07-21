@@ -28,7 +28,7 @@ public class LoggingBehavior<TRequest, TResponse>(ILogger<LoggingBehavior<TReque
         return response;
     }
 
-    private Dictionary<string, object?>? Sanitize(object? obj)
+    private static Dictionary<string, object?>? Sanitize(object? obj)
     {
         if (obj is null) return null;
         var result = new Dictionary<string, object?>();

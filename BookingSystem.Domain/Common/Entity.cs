@@ -5,7 +5,7 @@ public abstract class Entity<TId> : IEntity
     protected Entity(TId id) => Id = id;
     protected Entity() { }
 
-    public TId Id { get; protected init; } = default(TId)!;
+    public TId Id { get; protected init; } = default!;
     public uint RowVersion { get; set; }
 
     public bool Equals(Entity<TId> other)
