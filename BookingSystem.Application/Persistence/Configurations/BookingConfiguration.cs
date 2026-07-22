@@ -42,6 +42,9 @@ public class BookingConfiguration : IEntityTypeConfiguration<Booking>, IConstrai
             c.Property(t=>t.End).HasColumnName("end_time");
         });
         builder.Ignore(b => b.TableId);
+        
+        builder.Navigation(b=>b.CancellationRecord)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 
     public void Configure(ConstraintErrorRegistryBase registry)

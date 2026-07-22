@@ -9,6 +9,7 @@ using BookingSystem.Domain.Restaurants.ValueObjects;
 using BookingSystem.Domain.Users;
 using BookingSystem.Domain.Users.ValueObjects;
 using FluentResults;
+using JetBrains.Annotations;
 
 namespace BookingSystem.Domain.Bookings;
 
@@ -23,7 +24,7 @@ public class Booking : AggregateRoot<BookingId>
     public BookingTimeSlot TimeSlot { get; private set; } = null!;
     public BookingStatus Status { get; private set; } = BookingStatus.Pending;
     public TableId TableId => new(RestaurantId, TableNumber);
-    public CancellationRecord? CancellationRecord { get; private set; }
+    public CancellationRecord? CancellationRecord { get; [UsedImplicitly] private set; }
 
     private Booking() { }
 

@@ -1,7 +1,9 @@
 using BookingSystem.Domain.Common.ValueObjects;
+using JetBrains.Annotations;
 
 namespace BookingSystem.Application.Features.Restaurants.DTOs;
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public sealed record PublicRestaurantInfo(
     Guid RestaurantId,
     Guid OwnerId,
@@ -11,17 +13,7 @@ public sealed record PublicRestaurantInfo(
     PublicRestaurantInfo.ContactDto? Contact,
     IEnumerable<PublicRestaurantInfo.TableDto> Tables)
 {
-    // public static GetPublicRestaurantInfoResponse FromRestaurant(Restaurant restaurant)
-    // {
-    //     return new GetPublicRestaurantInfoResponse(RestaurantId: restaurant.Id.Value,
-    //         ImageUrl: restaurant.ImageUrl?.Value,
-    //         Description: restaurant.Description,
-    //         Address: AddressDto.FromAddress(restaurant.Address),
-    //         Contact: new ContactDto(PhoneNumber: restaurant.ContactPhoneNumber.Value, Email: restaurant.Email.Value),
-    //         Tables: restaurant.Tables.Select(t => new TableDto(TableNumber: t.TableNumber, Capacity: t.Capacity))
-    //     );
-    // }
-
+    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public sealed record AddressDto(
         string Country,
         string? State,
@@ -32,7 +24,7 @@ public sealed record PublicRestaurantInfo(
         string? ZipCode)
     {
         public static AddressDto FromAddress(Address address)
-            => new AddressDto(Country: address.Country,
+            => new (Country: address.Country,
                 State: address.State,
                 City: address.City,
                 Street: address.Street,
@@ -41,7 +33,9 @@ public sealed record PublicRestaurantInfo(
                 ZipCode: address.ZipCode);
     }
 
+    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public sealed record ContactDto(string PhoneNumber, string Email);
 
+    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public readonly record struct TableDto(int TableNumber, int Capacity);
 }

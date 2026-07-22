@@ -1,8 +1,10 @@
 using BookingSystem.Domain.Bookings;
 using BookingSystem.Domain.Bookings.ValueObjects;
+using JetBrains.Annotations;
 
 namespace BookingSystem.Application.Features.Bookings.DTOs;
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public record BookingDto(
     Guid Id,
     Guid GuestId,

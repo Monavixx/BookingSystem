@@ -1,7 +1,9 @@
 ﻿using BookingSystem.Domain.Users;
+using JetBrains.Annotations;
 
 namespace BookingSystem.Application.Common.DTOs;
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public sealed record UserDto(
     Guid Id,
     string Username,

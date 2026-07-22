@@ -26,4 +26,10 @@
       <Folder Include="Features\Auth\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Reference Include="Hangfire.Core">
+        <HintPath>..\..\..\.nuget\packages\hangfire.core\1.8.24\lib\netstandard2.0\Hangfire.Core.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
 </Project>

@@ -1,8 +1,10 @@
 using System.Linq.Expressions;
 using BookingSystem.Domain.Users;
+using JetBrains.Annotations;
 
 namespace BookingSystem.Application.Features.Users.DTOs;
 
+[UsedImplicitly (ImplicitUseKindFlags.Access, ImplicitUseTargetFlags.WithMembers)]
 public record UserResponse
 {
     public UserResponse() { }
