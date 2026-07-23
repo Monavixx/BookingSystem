@@ -4,14 +4,15 @@ using FluentResults;
 
 namespace BookingSystem.Domain.Users.ValueObjects;
 
-public record Username
+public partial record Username
 {
     public const int MinLength = 3;
     public const int MaxLength = 100;
     private Username() { }
     public string Value { get; private init; } = null!;
     
-    private static readonly Regex UsernameRegex = new (@"^[a-zA-Z0-9_\.]+$", RegexOptions.Compiled);
+    [GeneratedRegex(@"^[a-zA-Z0-9_\.]+$")]
+    private static partial Regex UsernameRegex { get; }
 
     public void Deconstruct(out string username)
     {

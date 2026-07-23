@@ -6,32 +6,62 @@ namespace BookingSystem.Tests;
 
 public static class DomainErrorTestExtensions
 {
-    public static void ShouldContain(this IResultBase result, string code)
+    extension(IResultBase result)
     {
-        foreach (var error in result.Errors)
+        public void ShouldContain(string code)
         {
-            if (error is DomainError de && de.Code == code)
-                return;
+            foreach (var error in result.Errors)
+            {
+                if (error is DomainError de && de.Code == code)
+                    return;
+            }
+
+            throw new AssertionFailedException(
+                $"Expected error with code '{code}' not found, the errors: " +
+                string.Join(", ", result.Errors.OfType<DomainError>().Select(e => e.Code)));
         }
 
-        throw new AssertionFailedException(
-            $"Expected error with code '{code}' not found, the errors: " +
-            string.Join(", ", result.Errors.OfType<DomainError>().Select(e => e.Code)));
-    }
-    public static void ShouldNotContain(this IResultBase result, string code)
-    {
-        foreach (var error in result.Errors)
+        public void ShouldNotContain(string code)
         {
-            if (error is DomainError de && de.Code == code)
-                throw new AssertionFailedException($"Error happened to contain code '{code}'");
+            foreach (var error in result.Errors)
+            {
+                if (error is DomainError de && de.Code == code)
+                    throw new AssertionFailedException($"Error happened to contain code '{code}'");
+            }
         }
-    }
-    public static void ShouldContain(this IResultBase result, DomainError error)
-    {
-        result.ShouldContain(error.Code);
-    }
-    public static void ShouldNotContain(this IResultBase result, DomainError error)
-    {
-        result.ShouldNotContain(error.Code);
+
+        public void ShouldContain(DomainError error)
+        {
+            result.ShouldContain(error.Code);
+        }
+
+        public void ShouldNotContain(DomainError error)
+        {
+            result.ShouldNotContain(error.Code);
+        }
+
+        public void ShouldContain<TError>() where TError : IError
+        {
+            if (result.Errors.OfType<TError>().Any()) return;
+
+            throw new AssertionFailedException(
+                $"Expected error of type '{typeof(TError).Name}' not found, the errors: " +
+                string.Join(", ", result.Errors.OfType<DomainError>().Select(e =>
+                    $"{e.GetType().Name}:{e.Code}")));
+        }
+
+        public void ShouldNotContain<TError>() where TError : IError
+        {
+            if (result.Errors.OfType<TError>().Any())
+                throw new AssertionFailedException($"Error happened to contain error of type '{typeof(TError).Name}'");
+        }
+
+        public void ShouldBeSuccess()
+        {
+            if (result.IsFailed)
+                throw new AssertionFailedException(
+                    $"Expected success but got errors: " +
+                    $"{string.Join(", ", result.Errors.OfType<DomainError>().Select(e => e.Code))}");
+        }
     }
 }
