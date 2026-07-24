@@ -55,7 +55,7 @@ public sealed class Restaurant : AggregateRoot<RestaurantId>
         
         return new Restaurant
         {
-            Id = id ?? RestaurantId.Create(),
+            Id = id ?? RestaurantId.New(),
             Address = addressResult.Value,
             ContactPhoneNumber = contactPhoneNumberResult.Value,
             Email = emailResult.Value,

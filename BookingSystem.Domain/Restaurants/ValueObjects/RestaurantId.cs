@@ -2,5 +2,5 @@
 
 public readonly record struct RestaurantId (Guid Value)
 {
-    public static RestaurantId Create() => new(Guid.CreateVersion7());
+    public static RestaurantId New() => new(Guid.CreateVersion7());
 }

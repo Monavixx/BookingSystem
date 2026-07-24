@@ -15,5 +15,4 @@ public class BookingDurationCalculator
             : TimeSpan.FromMinutes(guestCount > MaxGroupSizeForSmallGroups
                 ? BookingTimeForLargeGroupsInMinutes
                 : BookingTimeForSmallGroupsInMinutes);
-    
 }
