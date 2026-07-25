@@ -1,4 +1,8 @@
-﻿namespace BookingSystem.Domain.Users.ValueObjects;
+﻿using System.Text;
+using BookingSystem.Domain.Users.Errors;
+using FluentResults;
+
+namespace BookingSystem.Domain.Users.ValueObjects;
 
 public record RefreshToken
 {
@@ -20,8 +24,16 @@ public record RefreshToken
     {
         return Convert.ToBase64String(Token);
     }
-    public static byte[] FromString(string token)
+    public static Result<byte[]> FromString(string token)
     {
-        return Convert.FromBase64String(token);
+        int maxDecodedLength = (token.Length * 3) / 4;
+        Span<byte> buffer = stackalloc byte[maxDecodedLength];
+
+        if (Convert.TryFromBase64String(token, buffer, out int bytesWritten))
+        {
+            ReadOnlySpan<byte> actualData = buffer.Slice(0, bytesWritten);
+            return actualData.ToArray();
+        }
+        return RefreshTokenErrors.Invalid;
     }
 }

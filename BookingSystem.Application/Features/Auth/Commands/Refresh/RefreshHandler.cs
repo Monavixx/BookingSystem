@@ -19,14 +19,16 @@ public class RefreshHandler(
     public async Task<Result<AuthTokens>> Handle(RefreshCommand request, CancellationToken cancellationToken)
     {
         logger.LogInformation("Trying refresh auth tokens");
-        var refreshToken = RefreshToken.FromString(request.RefreshToken);
+        var refreshTokenRes = RefreshToken.FromString(request.RefreshToken);
+        if(refreshTokenRes.IsFailed) return refreshTokenRes.ToResult<AuthTokens>();
+        byte[] refreshToken = refreshTokenRes.Value;
         var session =
             await dbContext.Sessions.Include(session => session.User)
                 .FirstOrDefaultAsync(s => s.RefreshToken.Token == refreshToken, cancellationToken);
         if (session is null)
         {
             logger.LogWarning("Refresh failed: invalid refresh token");
-            return Result.Fail<AuthTokens>(SessionErrors.InvalidRefreshToken);
+            return Result.Fail<AuthTokens>(SessionErrors.NotFound);
         }
 
         if (session.User is null)

@@ -1,4 +1,5 @@
 using BookingSystem.Domain.Common.Errors;
+using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentResults;
 
@@ -11,13 +12,22 @@ public static class DomainErrorTestExtensions
         public void ShouldContain(string code)
         {
             foreach (var error in result.Errors)
-            {
                 if (error is DomainError de && de.Code == code)
                     return;
-            }
 
             throw new AssertionFailedException(
                 $"Expected error with code '{code}' not found, the errors: " +
+                string.Join(";\n", result.Errors));
+        }
+        public void ShouldContainOneOf(params IEnumerable<string> codes)
+        {
+            var codesArray = codes.ToArray();
+            foreach (var error in result.Errors)
+                if (error is DomainError de && codesArray.Contains(de.Code))
+                    return;
+
+            throw new AssertionFailedException(
+                $"Expected error with code '{codesArray}' not found, the errors: " +
                 string.Join(";\n", result.Errors/*.OfType<DomainError>()*/));
         }
 
@@ -33,6 +43,10 @@ public static class DomainErrorTestExtensions
         public void ShouldContain(DomainError error)
         {
             result.ShouldContain(error.Code);
+        }
+        public void ShouldContainOneOf(params IEnumerable<DomainError> error)
+        {
+            result.ShouldContainOneOf(error.Select(e => e.Code));
         }
 
         public void ShouldNotContain(DomainError error)
