@@ -18,7 +18,7 @@ public static class DomainErrorTestExtensions
 
             throw new AssertionFailedException(
                 $"Expected error with code '{code}' not found, the errors: " +
-                string.Join(", ", result.Errors.OfType<DomainError>().Select(e => e.Code)));
+                string.Join(";\n", result.Errors/*.OfType<DomainError>()*/));
         }
 
         public void ShouldNotContain(string code)

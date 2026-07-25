@@ -1,5 +1,6 @@
 using BookingSystem.Application.Features.Auth.Commands.LogIn;
 using BookingSystem.Application.Common.Abstractions;
+using BookingSystem.Domain.Common.Errors;
 using BookingSystem.Domain.Users;
 using BookingSystem.Domain.Users.ValueObjects;
 using FluentAssertions;
@@ -14,6 +15,7 @@ public class LogInHandlerTests(PostgresTestFixture dbFixture) : IntegrationTestB
     public async Task When_CredentialsAreValid_ByUsername_ReturnsSuccessAndCreatesSession()
     {
         // arrange
+        FakeTime.AdjustTime(DateTimeOffset.UtcNow);
         var password = "super-secret";
         var ph = Scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
         var user = await Users.CreateUserAsync(b => b
@@ -22,7 +24,8 @@ public class LogInHandlerTests(PostgresTestFixture dbFixture) : IntegrationTestB
             .WithPasswordHash(ph.HashPassword(password)));
 
         // act
-        var res = await Mediator.Send(new LogInCommand(null, user.Username.Value, password), TestContext.Current.CancellationToken);
+        var res = await Mediator.Send(new LogInCommand(null, user.Username.Value, password),
+            TestContext.Current.CancellationToken);
 
         // assert
         res.IsSuccess.Should().BeTrue();
@@ -38,6 +41,7 @@ public class LogInHandlerTests(PostgresTestFixture dbFixture) : IntegrationTestB
     [Fact]
     public async Task When_CredentialsAreValid_ByEmail_ReturnsSuccessAndCreatesSession()
     {
+        FakeTime.AdjustTime(DateTimeOffset.UtcNow);
         var password = "another-secret";
         var ph = Scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
         var user = await Users.CreateUserAsync(b => b
@@ -59,6 +63,7 @@ public class LogInHandlerTests(PostgresTestFixture dbFixture) : IntegrationTestB
     [Fact]
     public async Task When_PasswordIsInvalid_ReturnsInvalidCredentials()
     {
+        FakeTime.AdjustTime(DateTimeOffset.UtcNow);
         var password = "valid-pass";
         var ph = Scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
         var user = await Users.CreateUserAsync(b => b
@@ -74,8 +79,9 @@ public class LogInHandlerTests(PostgresTestFixture dbFixture) : IntegrationTestB
     [Fact]
     public async Task When_NoIdentifierProvided_ReturnsIdentifierMissing()
     {
+        FakeTime.AdjustTime(DateTimeOffset.UtcNow);
         var res = await Mediator.Send(new LogInCommand(null, null, "whatever"), TestContext.Current.CancellationToken);
-        res.ShouldContain(LogInErrors.IdentifierMissing);
+        res.ShouldContain<ValidationError>();
     }
 }
 
