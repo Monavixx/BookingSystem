@@ -16,13 +16,6 @@ public class GetUsersFavoriteRestaurantsHandler(AppDbContext dbContext)
     public async Task<Result<IEnumerable<PublicRestaurantInfo>>> Handle(GetUsersFavoriteRestaurantsQuery request,
         CancellationToken cancellationToken)
     {
-        // var connection = dbContext.Database.GetDbConnection();
-        // var res = await connection.QueryAsync<PublicRestaurantInfo>(
-        //     """
-        //     SELECT r. FROM favorite_restaurants fr
-        //     JOIN restaurants r ON fr.restaurant_id = r.id
-        //     WHERE fr.user_id = @UserId
-        //     """);
         var res = (await dbContext.FavoriteRestaurants
             .Where(fr => fr.UserId == new UserId(request.UserId))
             .Select(fr => new
