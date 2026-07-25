@@ -1,7 +1,7 @@
 using BookingSystem.Domain.Common.ValueObjects;
 using JetBrains.Annotations;
 
-namespace BookingSystem.Application.Features.Restaurants.DTOs;
+namespace BookingSystem.Application.Common.DTOs;
 
 [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public sealed record PublicRestaurantInfo(
@@ -13,6 +13,10 @@ public sealed record PublicRestaurantInfo(
     PublicRestaurantInfo.ContactDto? Contact,
     IEnumerable<PublicRestaurantInfo.TableDto> Tables)
 {
+    public PublicRestaurantInfo() :
+        this(Guid.Empty, Guid.Empty, null, null, null, null, null!)
+    { }
+
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public sealed record AddressDto(
         string Country,

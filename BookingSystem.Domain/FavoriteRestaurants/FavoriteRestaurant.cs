@@ -1,4 +1,5 @@
-﻿using BookingSystem.Domain.Restaurants.ValueObjects;
+﻿using BookingSystem.Domain.Restaurants;
+using BookingSystem.Domain.Restaurants.ValueObjects;
 using BookingSystem.Domain.Users.ValueObjects;
 using FluentResults;
 
@@ -9,7 +10,8 @@ public sealed class FavoriteRestaurant
     private FavoriteRestaurant(){}
     public UserId UserId { get; private set; }
     public RestaurantId RestaurantId { get; private set; }
-
+    public Restaurant Restaurant { get; private set; } = null!;
+    
     public static Result<FavoriteRestaurant> Create(UserId userId, RestaurantId restaurantId)
         => new FavoriteRestaurant()
         {

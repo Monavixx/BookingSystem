@@ -5,7 +5,7 @@ using BookingSystem.Domain.Restaurants.ValueObjects;
 using FluentResults;
 using MediatR;
 
-namespace BookingSystem.Application.Features.FavoriteRestaurants.Commands;
+namespace BookingSystem.Application.Features.FavoriteRestaurants.Commands.AddRestaurantToFavorites;
 
 public class AddRestaurantToFavoritesHandler (AppDbContext dbContext, ICurrentUserService currentUserService) : IRequestHandler<AddRestaurantToFavoritesCommand, Result>
 {

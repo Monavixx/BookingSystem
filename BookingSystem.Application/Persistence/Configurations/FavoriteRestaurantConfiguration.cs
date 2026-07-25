@@ -16,7 +16,7 @@ public class FavoriteRestaurantConfiguration : IEntityTypeConfiguration<Favorite
     public void Configure(EntityTypeBuilder<FavoriteRestaurant> builder)
     {
         builder.HasKey(fr => new { fr.UserId, fr.RestaurantId });
-        
+
         builder.Property(fr => fr.UserId)
             .HasConversion(id => id.Value, s => new UserId(s))
             .IsRequired()
@@ -30,7 +30,7 @@ public class FavoriteRestaurantConfiguration : IEntityTypeConfiguration<Favorite
             .WithMany(u => u.FavoriteRestaurants)
             .HasForeignKey(fr => fr.UserId)
             .OnDelete(DeleteBehavior.Cascade);
-        builder.HasOne<Restaurant>()
+        builder.HasOne<Restaurant>(fr => fr.Restaurant)
             .WithMany()
             .HasForeignKey(fr => fr.RestaurantId)
             .OnDelete(DeleteBehavior.Cascade);
