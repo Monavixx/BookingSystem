@@ -1,5 +1,4 @@
 using BookingSystem.Application.Features.Bookings.Commands.Complete.CompleteByManager;
-using BookingSystem.Domain.Bookings;
 using BookingSystem.Domain.Bookings.Errors;
 using BookingSystem.Domain.Bookings.ValueObjects;
 using BookingSystem.Domain.Users;
@@ -13,7 +12,6 @@ public class CompleteBookingByManagerHandlerTests(PostgresTestFixture dbFixture)
     [Fact]
     public async Task When_Manager_BookingStatusSeated_ShouldCompleteBooking()
     {
-        // Arrange
         var users = await Users.CreateBase3Async();
         User manager = users[1], guest = users[2];
         SetCurrentUser(manager);
@@ -24,12 +22,10 @@ public class CompleteBookingByManagerHandlerTests(PostgresTestFixture dbFixture)
             .WithStatus(BookingStatus.Seated));
         NewScope();
 
-        // Act
         var res = await Mediator.Send(
             new CompleteBookingByManagerCommand(booking.Id.Value),
             TestContext.Current.CancellationToken);
 
-        // Assert
         res.IsSuccess.Should().BeTrue();
         NewScope();
 
@@ -41,24 +37,20 @@ public class CompleteBookingByManagerHandlerTests(PostgresTestFixture dbFixture)
     [Fact]
     public async Task When_BookingDoesNotExist_ShouldReturnNotFound()
     {
-        // Arrange
         var manager = await Users.CreateManagerAsync();
         SetCurrentUser(manager);
         NewScope();
 
-        // Act
         var res = await Mediator.Send(
             new CompleteBookingByManagerCommand(Guid.NewGuid()),
             TestContext.Current.CancellationToken);
 
-        // Assert
         res.ShouldContain(BookingErrors.NotFound);
     }
 
     [Fact]
     public async Task When_ManagerOfAnotherRestaurant_ShouldReturnAccessDenied()
     {
-        // Arrange
         var (_, manager, anotherManager, guest, _) = await Users.CreateBase5Async();
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
         var booking = await Bookings.Create(c => c
@@ -68,12 +60,10 @@ public class CompleteBookingByManagerHandlerTests(PostgresTestFixture dbFixture)
         SetCurrentUser(anotherManager);
         NewScope();
 
-        // Act
         var res = await Mediator.Send(
             new CompleteBookingByManagerCommand(booking.Id.Value),
             TestContext.Current.CancellationToken);
 
-        // Assert
         res.ShouldContain(BookingErrors.AccessDenied);
         NewScope();
 
@@ -214,7 +204,7 @@ public class CompleteBookingByManagerHandlerTests(PostgresTestFixture dbFixture)
     {
         // Arrange
         var users = await Users.CreateBase5Async();
-        User manager = users[0], guest = users[2];
+        User manager = users.Manager, guest = users.Guest;
         var restaurants = await Restaurants.CreateRestaurants(c =>
         {
             c.AddRestaurant(manager, (1, 4), (2, 4), (3, 20))
