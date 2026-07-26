@@ -64,11 +64,11 @@ public class RestaurantsController(IMediator mediator) : ApiController(mediator)
 
     [HttpGet]
     public async Task<IActionResult> GetRestaurants(
-        [FromQuery(Name = "lt")] int limit = 10,
-        [FromQuery(Name = "sp")] int skip = 0,
+        [FromQuery(Name = "p")] int page = 1,
+        [FromQuery(Name = "ps")] int pageSize = 50,
         [FromQuery(Name="city")] string? city = null)
     {
-        var result = await Mediator.Send(new GetRestaurantListQuery(limit, skip, city));
+        var result = await Mediator.Send(new GetRestaurantListQuery(page, pageSize, city));
         if (result.IsFailed) return HandleErrors(result);
         return Ok(result.Value);
     }

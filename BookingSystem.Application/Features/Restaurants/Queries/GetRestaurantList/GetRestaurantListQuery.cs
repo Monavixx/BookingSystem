@@ -5,4 +5,4 @@ using MediatR;
 
 namespace BookingSystem.Application.Features.Restaurants.Queries.GetRestaurantList;
 
-public record GetRestaurantListQuery(int Limit, int Skip, string? City) : IRequest<Result<IEnumerable<PublicRestaurantInfo>>>;
+public record GetRestaurantListQuery(int Page, int PageSize, string? City) : IRequest<Result<IEnumerable<PublicRestaurantInfo>>>;

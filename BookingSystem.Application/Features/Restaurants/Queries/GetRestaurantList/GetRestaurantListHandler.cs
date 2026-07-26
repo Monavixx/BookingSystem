@@ -12,9 +12,8 @@ namespace BookingSystem.Application.Features.Restaurants.Queries.GetRestaurantLi
 public class GetRestaurantListHandler(AppDbContext dbContext, ILogger<GetRestaurantListHandler> logger)
     : IRequestHandler<GetRestaurantListQuery, Result<IEnumerable<PublicRestaurantInfo>>>
 {
-    private static string SqlQueryRestaurants(int limit, string? city)
+    private static string SqlQueryRestaurants(string? city)
     {
-        var limitClause = limit <= 0 ? "" : "LIMIT @Limit OFFSET @Skip\n";
         var filterCityClause = city is null ? "" : "WHERE address_city = @City\n";
         return $"""
                 SELECT id, image_url, owner_id, email, description, 
@@ -28,8 +27,8 @@ public class GetRestaurantListHandler(AppDbContext dbContext, ILogger<GetRestaur
                        contact_phone_number
                 FROM restaurants
                 {filterCityClause}
-                ORDER BY id 
-                {limitClause}
+                ORDER BY id
+                LIMIT @Limit OFFSET @Skip
                 """;
     }
 
@@ -44,13 +43,16 @@ public class GetRestaurantListHandler(AppDbContext dbContext, ILogger<GetRestaur
         CancellationToken cancellationToken)
     {
         var connection = dbContext.Database.GetDbConnection();
-        var restaurants = (await connection.QueryAsync<RestaurantRow>(SqlQueryRestaurants(request.Limit, request.City),
+        var skip = (request.Page - 1) * request.PageSize;
+        var restaurants = (await connection.QueryAsync<RestaurantRow>(SqlQueryRestaurants(request.City),
             new
             {
-                request.Limit, request.Skip, request.City
+                Limit = request.PageSize,
+                Skip = skip,
+                request.City
             })).ToArray();
         logger.LogInformation("Retrieved {Count} restaurants from database with limit {Limit}, skip {Skip} and city filter {City}",
-            restaurants.Length, request.Limit, request.Skip, request.City);
+            restaurants.Length, request.PageSize, skip, request.City);
 
         var tables = (await connection.QueryAsync<TableRow>(SqlQueryTables,
             new
