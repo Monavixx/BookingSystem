@@ -1,5 +1,5 @@
 using System.Linq.Expressions;
-using BookingSystem.Application.Features.Bookings.Commands.Complete.CompleteBySystem;
+using BookingSystem.Application.Features.Bookings.Abstractions;
 using BookingSystem.Application.Features.Bookings.Commands.GuestSeated;
 using BookingSystem.Domain.Bookings;
 using BookingSystem.Domain.Bookings.Errors;
@@ -139,24 +139,21 @@ public class GuestSeatedHandlerTests(PostgresTestFixture dbFixture) : Integratio
     private void VerifyCompleteBookingBySystemCommand(Booking booking)
     {
         BackgroundJobServiceMock.Verify(b => b.Schedule(
-                It.Is<Expression<Action<IMediator>>>(e =>
-                    MatchesCompleteBookingBySystemCommand(e, booking.Id.Value)),
+                It.Is<Expression<Action<IBookingCompletionService>>>(e =>
+                    MatchesCompleteBooking(e, booking.Id)),
                 It.Is<DateTimeOffset>(dt =>
                     Math.Abs((dt - booking.TimeSlot.End).Ticks) < TimeSpan.TicksPerMillisecond)),
             Times.Once);
     }
     
-    private static bool MatchesCompleteBookingBySystemCommand(Expression<Action<IMediator>> expression, Guid bookingId)
+    private static bool MatchesCompleteBooking(Expression<Action<IBookingCompletionService>> expression, BookingId bookingId)
     {
         if (expression.Body is not MethodCallExpression methodCall) return false;
-        if (methodCall.Method.Name != nameof(IMediator.Send)) return false;
+        if (methodCall.Method.Name != nameof(IBookingCompletionService.Complete)) return false;
 
         var argument = methodCall.Arguments[0];
-        if (argument is not NewExpression newExpression) return false;
-        if (newExpression.Constructor!.DeclaringType != typeof(CompleteBookingBySystemCommand)) return false;
-        var id = Expression.Lambda<Func<Guid>>(newExpression.Arguments[0]).Compile()();
-        if (id != bookingId) return false;
-        return true;
+        var id = Expression.Lambda<Func<BookingId>>(argument).Compile()();
+        return id == bookingId;
     }
 
     [Fact]

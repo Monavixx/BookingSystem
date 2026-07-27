@@ -1,5 +1,5 @@
 using BookingSystem.Application.Common.Abstractions;
-using BookingSystem.Application.Features.Bookings.Commands.Complete.CompleteBySystem;
+using BookingSystem.Application.Features.Bookings.Abstractions;
 using BookingSystem.Application.Persistence;
 using BookingSystem.Domain.Bookings;
 using BookingSystem.Domain.Bookings.Errors;
@@ -95,9 +95,9 @@ public class GuestSeatedHandler(
 
         logger.LogInformation("Successfully updated booking");
 
-        backgroundJobService.Schedule<IMediator>(
+        backgroundJobService.Schedule<IBookingCompletionService>(
             // ReSharper disable once MethodSupportsCancellation
-            s => s.Send(new CompleteBookingBySystemCommand(booking.Id.Value)),
+            s => s.Complete(booking.Id),
             booking.TimeSlot.End);
         return Result.Ok();
     }
