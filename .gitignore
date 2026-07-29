@@ -5,6 +5,8 @@
 
 global.json
 
+.direnv/
+.nuget-packages/
 # dotenv files
 .env
 
