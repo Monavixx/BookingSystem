@@ -23,16 +23,16 @@ public class RestaurantBuilder
                 ))).Value;
     private readonly List<(int, int)> _tables = [(1, 4)];
     private Guid _ownerId = Guid.Empty;
-    
-    public RestaurantBuilder WithAddress(Address address) {_address = address; return this; }
-    public RestaurantBuilder WithContactPhoneNumber(string contactPhoneNumber) {_contactPhoneNumber = contactPhoneNumber; return this; }
-    public RestaurantBuilder WithEmail(string email) {_email = email; return this; }
-    public RestaurantBuilder WithDescription(string? description) {_description = description; return this; }
-    public RestaurantBuilder WithImageUrl(string? imageUrl) {_imageUrl = imageUrl; return this; }
-    public RestaurantBuilder WithWorkingSchedule(WorkingSchedule workingSchedule) {_workingSchedule = workingSchedule; return this; }
-    public RestaurantBuilder WithOwner(Guid ownerId) {_ownerId = ownerId; return this; }
-    public RestaurantBuilder AddTable(int tableNumber, int capacity) {_tables.Add((tableNumber, capacity)); return this; }
-    public RestaurantBuilder WithTables(params IEnumerable<(int tableNumber, int capacity)> tables) {_tables.Clear(); _tables.AddRange(tables); return this; }
+
+    public RestaurantBuilder WithAddress(Address address) { _address = address; return this; }
+    public RestaurantBuilder WithContactPhoneNumber(string contactPhoneNumber) { _contactPhoneNumber = contactPhoneNumber; return this; }
+    public RestaurantBuilder WithEmail(string email) { _email = email; return this; }
+    public RestaurantBuilder WithDescription(string? description) { _description = description; return this; }
+    public RestaurantBuilder WithImageUrl(string? imageUrl) { _imageUrl = imageUrl; return this; }
+    public RestaurantBuilder WithWorkingSchedule(WorkingSchedule? workingSchedule) { _workingSchedule = workingSchedule; return this; }
+    public RestaurantBuilder WithOwner(Guid ownerId) { _ownerId = ownerId; return this; }
+    public RestaurantBuilder AddTable(int tableNumber, int capacity) { _tables.Add((tableNumber, capacity)); return this; }
+    public RestaurantBuilder WithTables(params IEnumerable<(int tableNumber, int capacity)> tables) { _tables.Clear(); _tables.AddRange(tables); return this; }
 
     public Restaurant Build()
     {
