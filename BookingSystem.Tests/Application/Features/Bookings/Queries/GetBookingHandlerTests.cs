@@ -55,4 +55,54 @@ public class GetBookingHandlerTests(PostgresTestFixture fixture) : IntegrationTe
         var res = await Mediator.Send(new GetBookingQuery(Guid.NewGuid()), TestContext.Current.CancellationToken);
         res.ShouldContain(BookingErrors.NotFound);
     }
+
+    [Fact]
+    public async Task When_ManagerRequests_ReturnBooking()
+    {
+        (BookingSystem.Domain.Users.User Admin, BookingSystem.Domain.Users.User Manager, BookingSystem.Domain.Users.User Guest, BookingSystem.Domain.Users.User AnotherGuest) = await Users.CreateBase4Async();
+        var restaurant = await Restaurants.CreateDefault(Manager.Id.Value);
+        var booking = await Bookings.Create(b => b
+                .WithGuest(Guest)
+                .WithRestaurant(restaurant)
+                .WithStatus(BookingStatus.Confirmed));
+        NewScope();
+
+        SetCurrentUser(Manager);
+        var res = await Mediator.Send(new GetBookingQuery(booking.Id.Value), TestContext.Current.CancellationToken);
+        res.ShouldBeSuccess();
+        res.Value.Id.Should().Be(booking.Id.Value);
+    }
+
+    [Fact]
+    public async Task When_AdminRequests_ReturnBooking()
+    {
+        (BookingSystem.Domain.Users.User Admin, BookingSystem.Domain.Users.User Manager, BookingSystem.Domain.Users.User Guest, BookingSystem.Domain.Users.User AnotherGuest) = await Users.CreateBase4Async();
+        var restaurant = await Restaurants.CreateDefault(Manager.Id.Value);
+        var booking = await Bookings.Create(b => b
+                .WithGuest(Guest)
+                .WithRestaurant(restaurant)
+                .WithStatus(BookingStatus.Confirmed));
+        NewScope();
+
+        SetCurrentUser(Admin);
+        var res = await Mediator.Send(new GetBookingQuery(booking.Id.Value), TestContext.Current.CancellationToken);
+        res.ShouldBeSuccess();
+        res.Value.Id.Should().Be(booking.Id.Value);
+    }
+
+    [Fact]
+    public async Task When_AnotherManagerRequests_AccessDenied()
+    {
+        (BookingSystem.Domain.Users.User Admin, BookingSystem.Domain.Users.User Manager, BookingSystem.Domain.Users.User Guest, BookingSystem.Domain.Users.User AnotherGuest) = await Users.CreateBase4Async();
+        var restaurant = await Restaurants.CreateDefault(Manager.Id.Value);
+        var booking = await Bookings.Create(b => b
+                .WithGuest(Guest)
+                .WithRestaurant(restaurant)
+                .WithStatus(BookingStatus.Confirmed));
+        NewScope();
+
+        SetCurrentUser(AnotherGuest);
+        var res = await Mediator.Send(new GetBookingQuery(booking.Id.Value), TestContext.Current.CancellationToken);
+        res.ShouldContain(BookingErrors.AccessDenied);
+    }
 }
