@@ -1,3 +1,4 @@
+using BookingSystem.Domain.Bookings.Errors;
 using BookingSystem.Domain.Bookings.ValueObjects;
 using BookingSystem.Domain.Restaurants;
 using BookingSystem.Domain.Users;
@@ -13,15 +14,16 @@ public class BookingCancellationServiceTests(PostgresTestFixture fixture) : Inte
         _anotherManager = null!,
         _guest = null!;
     private Restaurant _restaurant = null!;
-    private BookingCancellationService bookingCancellationService = null!;
+    private BookingCancellationService _bookingCancellationService = null!;
     protected override async ValueTask InitAsync()
     {
         _manager = await Users.CreateManagerAsync();
         _anotherManager = await Users.CreateAnotherManagerAsync();
         _guest = await Users.CreateGuestAsync();
         _restaurant = await Restaurants.CreateDefault(_manager.Id.Value);
-        bookingCancellationService = Scope.ServiceProvider.GetRequiredService<BookingCancellationService>();
+        _bookingCancellationService = Scope.ServiceProvider.GetRequiredService<BookingCancellationService>();
     }
+
     [Fact]
     public async Task CancelAsync_Manager_WhenBookingExists_And_IsNotFinished_ShouldCancelBooking()
     {
@@ -31,7 +33,7 @@ public class BookingCancellationServiceTests(PostgresTestFixture fixture) : Inte
                 .WithGuest(_guest)
                 .WithTableNumber(1));
         SetCurrentUser(_manager);
-        var res = await bookingCancellationService.CancelAsync(booking.Id, CancellationReason.GuestRequest);
+        var res = await _bookingCancellationService.CancelAsync(booking.Id, CancellationReason.GuestRequest);
 
         res.ShouldBeSuccess();
 
@@ -39,5 +41,19 @@ public class BookingCancellationServiceTests(PostgresTestFixture fixture) : Inte
         var dbBooking = await DbContext.Bookings.FindAsync([booking.Id], TestContext.Current.CancellationToken);
         dbBooking.Should().NotBeNull();
         dbBooking.Status.Should().Be(BookingStatus.Canceled);
+    }
+
+    [Fact]
+    public async Task CancelAsync_WhenBookingIsFinished_ShouldReturnError()
+    {
+        var booking = await Bookings.Create(b => b
+                .WithStatus(BookingStatus.Completed)
+                .WithRestaurant(_restaurant)
+                .WithGuest(_guest)
+                .WithTableNumber(1));
+        SetCurrentUser(_manager);
+        var res = await _bookingCancellationService.CancelAsync(booking.Id, CancellationReason.GuestRequest);
+
+        res.ShouldContain(BookingErrors.Status.InvalidStatusOrReasonToCancelCode);
     }
 }
