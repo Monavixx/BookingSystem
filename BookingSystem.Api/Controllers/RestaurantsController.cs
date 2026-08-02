@@ -44,10 +44,10 @@ public class RestaurantsController(IMediator mediator) : ApiController(mediator)
         if (result.IsFailed) return HandleErrors(result);
         return NoContent();
     }
-    
+
     [HttpPost("delete-tables")]
     [Authorize(Roles = nameof(UserRole.Manager))]
-    public async Task<IActionResult> DeleteTables([FromBody] IEnumerable<TableId> tableIds)
+    public async Task<IActionResult> DeleteTables([FromBody] ICollection<TableId> tableIds)
     {
         var result = await Mediator.Send(new DeleteTablesCommand(tableIds));
         if (result.IsFailed) return HandleErrors(result);
@@ -66,7 +66,7 @@ public class RestaurantsController(IMediator mediator) : ApiController(mediator)
     public async Task<IActionResult> GetRestaurants(
         [FromQuery(Name = "p")] int page = 1,
         [FromQuery(Name = "ps")] int pageSize = 50,
-        [FromQuery(Name="city")] string? city = null)
+        [FromQuery(Name = "city")] string? city = null)
     {
         var result = await Mediator.Send(new GetRestaurantListQuery(page, pageSize, city));
         if (result.IsFailed) return HandleErrors(result);

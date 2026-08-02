@@ -1,6 +1,5 @@
 using BookingSystem.Application.Common.Abstractions;
 using BookingSystem.Application.Persistence;
-using BookingSystem.Domain.Common.Errors;
 using BookingSystem.Domain.Restaurants.Errors;
 using BookingSystem.Domain.Users;
 using FluentResults;
@@ -12,10 +11,6 @@ namespace BookingSystem.Application.Features.Restaurants.Commands.DeleteTable;
 public class DeleteTablesHandler(AppDbContext dbContext, ICurrentUserService currentUserService)
     : IRequestHandler<DeleteTablesCommand, Result>
 {
-    public static readonly DomainError ListOfTablesCannotBeEmpty =
-        new ValidationError("DeleteTables.ListOfTablesCannotBeEmpty",
-            "The list of tables to delete cannot be empty");
-
     public async Task<Result> Handle(DeleteTablesCommand request, CancellationToken cancellationToken)
     {
         var restaurantIds = request.Commands.Select(c => c.RestaurantId.Value).ToList();
@@ -28,15 +23,17 @@ public class DeleteTablesHandler(AppDbContext dbContext, ICurrentUserService cur
                 """)
             .Select(t => new { Table = t, RestaurantOwnerId = t.Restaurant.OwnerId })
             .ToListAsync(cancellationToken);
-        if (tablesInfo.Count is 0) return ListOfTablesCannotBeEmpty;
-        
+        if (tablesInfo.Count < tableNumbers.Count)
+            return TableErrors.NotFound.CloneWithMessage(
+                "One or more of the provided tables do not exist.");
+
         var curUser = await currentUserService.GetUserAsync();
         if (tablesInfo.Any(t => t.RestaurantOwnerId != currentUserService.UserId &&
                                 curUser?.Role is not UserRole.Admin))
             return TableErrors.AccessDenied.CloneWithMessage(
                 "You are not allowed to delete one or more of the provided tables.");
-        
-        dbContext.Tables.RemoveRange(tablesInfo.Select(t=>t.Table));
+
+        dbContext.Tables.RemoveRange(tablesInfo.Select(t => t.Table));
         await dbContext.SaveChangesAsync(cancellationToken);
         return Result.Ok();
     }

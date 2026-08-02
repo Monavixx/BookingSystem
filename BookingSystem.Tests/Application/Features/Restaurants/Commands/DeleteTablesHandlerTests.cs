@@ -1,5 +1,6 @@
 using BookingSystem.Application.Features.Restaurants.Commands.DeleteTable;
 using BookingSystem.Domain.Restaurants;
+using BookingSystem.Domain.Restaurants.Errors;
 using BookingSystem.Domain.Restaurants.ValueObjects;
 using BookingSystem.Tests.Services;
 using FluentAssertions;
@@ -34,11 +35,27 @@ public class DeleteTablesHandlerTests(PostgresTestFixture dbFixture) : Integrati
             new TableId(_restaurant1.Id, 2),
             new TableId(_restaurant1.Id, 3)
         ]), TestContext.Current.CancellationToken);
-        res.Errors.Should().BeEmpty();
+        res.ShouldBeSuccess();
         NewScope();
 
         (await DbContext.Tables.Where(t => t.RestaurantId == _restaurant1.Id && t.TableNumber == 2)
                 .FirstOrDefaultAsync(cancellationToken: TestContext.Current.CancellationToken))
             .Should().BeNull();
+    }
+    [Fact]
+    public async Task When_Manager_ProvidedTableDoesNotExist_ShouldReturnError()
+    {
+        SetCurrentUser(_users.Manager);
+        var res = await Mediator.Send(new DeleteTablesCommand(
+        [
+            new TableId(_restaurant1.Id, 2),
+            new TableId(_restaurant1.Id, 99)
+        ]), TestContext.Current.CancellationToken);
+        res.ShouldContain(TableErrors.NotFound);
+        // ensure the operation is atomic and no table was deleted
+        NewScope();
+        (await DbContext.Tables.Where(t => t.RestaurantId == _restaurant1.Id && t.TableNumber == 2)
+                .FirstOrDefaultAsync(cancellationToken: TestContext.Current.CancellationToken))
+            .Should().NotBeNull();
     }
 }
