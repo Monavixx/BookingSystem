@@ -1,8 +1,6 @@
 using BookingSystem.Application.Features.Auth.Commands.LogIn;
 using BookingSystem.Application.Common.Abstractions;
 using BookingSystem.Domain.Common.Errors;
-using BookingSystem.Domain.Users;
-using BookingSystem.Domain.Users.ValueObjects;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

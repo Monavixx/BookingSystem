@@ -1,5 +1,4 @@
-﻿using System.Text;
-using BookingSystem.Domain.Users.Errors;
+﻿using BookingSystem.Domain.Users.Errors;
 using FluentResults;
 
 namespace BookingSystem.Domain.Users.ValueObjects;
@@ -7,7 +6,7 @@ namespace BookingSystem.Domain.Users.ValueObjects;
 public record RefreshToken
 {
     public const int TokenLength = 32;
-    
+
     private RefreshToken() { }
 
     public byte[] Token { get; private init; } = null!;

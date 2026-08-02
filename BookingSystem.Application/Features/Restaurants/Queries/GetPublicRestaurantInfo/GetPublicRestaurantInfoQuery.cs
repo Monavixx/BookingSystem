@@ -1,5 +1,4 @@
 using BookingSystem.Application.Common.DTOs;
-using BookingSystem.Application.Features.Restaurants.DTOs;
 using FluentResults;
 using MediatR;
 

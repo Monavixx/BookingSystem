@@ -6,7 +6,6 @@ using BookingSystem.Domain.Bookings.Errors;
 using BookingSystem.Domain.Bookings.ValueObjects;
 using BookingSystem.Domain.Users;
 using FluentAssertions;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 
@@ -98,7 +97,7 @@ public class GuestSeatedHandlerTests(PostgresTestFixture dbFixture) : Integratio
         var res = await Mediator.Send(new GuestSeatedCommand(booking.Id.Value), TestContext.Current.CancellationToken);
 
         res.ShouldContain(BookingErrors.Expired);
-        
+
         BackgroundJobServiceMock.VerifyNoOtherCalls();
     }
 
@@ -132,7 +131,7 @@ public class GuestSeatedHandlerTests(PostgresTestFixture dbFixture) : Integratio
         updatedBooking.Status.Should().Be(BookingStatus.Seated);
         updatedBooking.TimeSlot.Start.Should().BeCloseTo(scheduledAt, TimeSpan.FromMilliseconds(5));
         updatedBooking.TimeSlot.End.Should().BeCloseTo(scheduledAt + duration, TimeSpan.FromMilliseconds(5));
-        
+
         VerifyCompleteBookingBySystemCommand(booking);
     }
 
@@ -145,7 +144,7 @@ public class GuestSeatedHandlerTests(PostgresTestFixture dbFixture) : Integratio
                     Math.Abs((dt - booking.TimeSlot.End).Ticks) < TimeSpan.TicksPerMillisecond)),
             Times.Once);
     }
-    
+
     private static bool MatchesCompleteBooking(Expression<Action<IBookingCompletionService>> expression, BookingId bookingId)
     {
         if (expression.Body is not MethodCallExpression methodCall) return false;
@@ -186,7 +185,7 @@ public class GuestSeatedHandlerTests(PostgresTestFixture dbFixture) : Integratio
         updatedBooking.Status.Should().Be(BookingStatus.Seated);
         updatedBooking.TimeSlot.Start.Should().BeCloseTo(FakeTime.GetUtcNow(), TimeSpan.FromSeconds(5));
         updatedBooking.TimeSlot.End.Should().BeCloseTo(FakeTime.GetUtcNow() + duration, TimeSpan.FromSeconds(5));
-        
+
         VerifyCompleteBookingBySystemCommand(booking);
     }
 
@@ -224,7 +223,7 @@ public class GuestSeatedHandlerTests(PostgresTestFixture dbFixture) : Integratio
         var updatedBookingCount = await NewDbContext().Bookings.AsNoTracking()
             .Where(b => b.Status == BookingStatus.Seated).CountAsync(cancellationToken: TestContext.Current.CancellationToken);
         updatedBookingCount.Should().Be(0);
-        
+
         BackgroundJobServiceMock.VerifyNoOtherCalls();
     }
 }

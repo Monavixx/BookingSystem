@@ -1,6 +1,5 @@
 using BookingSystem.Application.Common.Abstractions;
 using BookingSystem.Application.Features.Bookings.Commands.Cancel;
-using BookingSystem.Domain.Bookings;
 using BookingSystem.Domain.Bookings.Errors;
 using BookingSystem.Domain.Bookings.ValueObjects;
 using BookingSystem.Domain.Bookings.ValueObjects.Helpers;
@@ -29,7 +28,7 @@ public class CancelBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
             .WithStatus(BookingStatus.Confirmed)
             .WithTableNumber(restaurant.Tables.First().TableNumber));
         NewScope();
-        
+
         var res = await Mediator.Send(new CancelBookingCommand(booking.Id.Value), TestContext.Current.CancellationToken);
         res.IsSuccess.Should().BeTrue();
 
@@ -51,11 +50,11 @@ public class CancelBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
             .WithTableNumber(restaurant.Tables.First().TableNumber)
             .WithTimeSlotNoChecking(FakeTime.GetUtcNow().AddHours(1), TimeSpan.FromMinutes(90)));
         NewScope();
-        
+
         SetCurrentUser(anotherGuest);
         var res = await Mediator.Send(new CancelBookingCommand(booking.Id.Value), TestContext.Current.CancellationToken);
         res.ShouldContain(BookingErrors.AccessDenied);
-        
+
         (await NewDbContext().Bookings.AsNoTracking().FirstAsync(b => b.Id == booking.Id, cancellationToken: TestContext.Current.CancellationToken))
             .Status.Should().Be(BookingStatus.Confirmed);
     }
@@ -72,11 +71,11 @@ public class CancelBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
             .WithStatus(BookingStatus.Confirmed)
             .WithTableNumber(restaurant.Tables.First().TableNumber));
         NewScope();
-        
+
         SetCurrentUser(anotherManager);
         var res = await Mediator.Send(new CancelBookingCommand(booking.Id.Value), TestContext.Current.CancellationToken);
         res.ShouldContain(BookingErrors.AccessDenied);
-        
+
         (await NewDbContext().Bookings.AsNoTracking().FirstAsync(b => b.Id == booking.Id, cancellationToken: TestContext.Current.CancellationToken))
             .Status.Should().Be(BookingStatus.Confirmed);
     }
@@ -97,15 +96,15 @@ public class CancelBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
             .WithStatus(finalStatus)
             .WithTableNumber(restaurant.Tables.First().TableNumber));
         NewScope();
-        
+
         SetCurrentUser(guest);
         var res = await Mediator.Send(new CancelBookingCommand(booking.Id.Value), TestContext.Current.CancellationToken);
         res.ShouldContain(BookingErrors.Status.InvalidStatusOrReasonToCancelCode);
-        
+
         (await NewDbContext().Bookings.AsNoTracking().FirstAsync(b => b.Id == booking.Id, cancellationToken: TestContext.Current.CancellationToken))
             .Status.Should().Be(finalStatus);
     }
-    
+
     [Fact]
     public async Task When_BookingDoesNotExist_ShouldReturnNotFound()
     {
@@ -114,7 +113,7 @@ public class CancelBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         var res = await Mediator.Send(new CancelBookingCommand(Guid.NewGuid()), TestContext.Current.CancellationToken);
         res.ShouldContain(BookingErrors.NotFound);
     }
-    
+
     [Fact]
     public async Task When_GuestSeated_ShouldReturnInvalidStatusTransition()
     {
@@ -128,11 +127,11 @@ public class CancelBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
             .WithStatus(BookingStatus.Seated)
             .WithTableNumber(restaurant.Tables.First().TableNumber));
         NewScope();
-        
+
         SetCurrentUser(guest);
         var res = await Mediator.Send(new CancelBookingCommand(booking.Id.Value), TestContext.Current.CancellationToken);
         res.ShouldContain(BookingErrors.Status.InvalidStatusOrReasonToCancelCode);
-        
+
         (await NewDbContext().Bookings.AsNoTracking().FirstAsync(b => b.Id == booking.Id, cancellationToken: TestContext.Current.CancellationToken))
             .Status.Should().Be(BookingStatus.Seated);
     }
@@ -151,7 +150,7 @@ public class CancelBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
             .WithStatus(BookingStatus.Confirmed)
             .WithTableNumber(restaurant.Tables.First().TableNumber));
         NewScope();
-        
+
         var res = await Mediator.Send(new CancelBookingCommand(booking.Id.Value), TestContext.Current.CancellationToken);
         res.IsSuccess.Should().BeTrue();
 
@@ -160,11 +159,11 @@ public class CancelBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         cr.WhoCancelledId.Should().Be(guest.Id);
         cr.CanceledAt.Should().BeCloseTo(FakeTime.GetUtcNow(), TimeSpan.FromMilliseconds(1));
         cr.BookingId.Should().Be(booking.Id);
-        
+
         BackgroundJobServiceMock.Verify(b => b.Enqueue<IUserBlocker>(
-            u=>u.BlockUserIfCancellationPolicyViolated(booking.GuestId)));
+            u => u.BlockUserIfCancellationPolicyViolated(booking.GuestId)));
     }
-    
+
     [Fact]
     public async Task When_Manager_SuccessfullyCancelsBookingOfAnotherGuestByTheirRequest_ShouldCreateValidCancellationRecord()
     {
@@ -179,7 +178,7 @@ public class CancelBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
             .WithStatus(BookingStatus.Confirmed)
             .WithTableNumber(restaurant.Tables.First().TableNumber));
         NewScope();
-        
+
         var res = await Mediator.Send(new CancelBookingCommand(booking.Id.Value, true), TestContext.Current.CancellationToken);
         res.IsSuccess.Should().BeTrue();
 
@@ -188,8 +187,8 @@ public class CancelBookingHandlerTests(PostgresTestFixture dbFixture) : Integrat
         cr.WhoCancelledId.Should().Be(manager.Id);
         cr.CanceledAt.Should().BeCloseTo(FakeTime.GetUtcNow(), TimeSpan.FromMilliseconds(1));
         cr.BookingId.Should().Be(booking.Id);
-        
+
         BackgroundJobServiceMock.Verify(b => b.Enqueue<IUserBlocker>(
-            u=>u.BlockUserIfCancellationPolicyViolated(booking.GuestId)));
+            u => u.BlockUserIfCancellationPolicyViolated(booking.GuestId)));
     }
 }

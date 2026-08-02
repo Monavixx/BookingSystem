@@ -1,5 +1,4 @@
 using BookingSystem.Domain.Common.Errors;
-using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentResults;
 

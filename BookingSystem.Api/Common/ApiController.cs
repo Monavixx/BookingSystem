@@ -36,9 +36,11 @@ public abstract class ApiController(IMediator mediator) : ControllerBase
                 extensions: new Dictionary<string, object?>
                 {
                     ["errors"] = result.Errors.Select(e => new
-                        {
-                            message = e.Message, code = (e as DomainError)?.Code, metadata = e.Metadata
-                        })
+                    {
+                        message = e.Message,
+                        code = (e as DomainError)?.Code,
+                        metadata = e.Metadata
+                    })
                         .ToArray()
                 }),
             _ => Problem(title: "Multiple errors", statusCode: StatusCodes.Status400BadRequest,
@@ -46,13 +48,13 @@ public abstract class ApiController(IMediator mediator) : ControllerBase
                 extensions: new Dictionary<string, object?>
                 {
                     ["errors"] = result.Errors.Select(e => new
-                        {
-                            title = GetTitle(e),
-                            statusCode = ErrorToHttpCode(e),
-                            message = e.Message,
-                            code = (e as DomainError)?.Code,
-                            metadata = e.Metadata
-                        })
+                    {
+                        title = GetTitle(e),
+                        statusCode = ErrorToHttpCode(e),
+                        message = e.Message,
+                        code = (e as DomainError)?.Code,
+                        metadata = e.Metadata
+                    })
                         .ToArray()
                 })
         };

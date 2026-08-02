@@ -1,6 +1,5 @@
 using BookingSystem.Api.Common;
 using BookingSystem.Application.Features.Bookings.Commands.Cancel;
-using BookingSystem.Application.Features.Bookings.Commands.Complete.CompleteByManager;
 using BookingSystem.Application.Features.Bookings.Commands.Confirm;
 using BookingSystem.Application.Features.Bookings.Commands.ConfirmByGuest;
 using BookingSystem.Application.Features.Bookings.Commands.Create;
@@ -45,25 +44,25 @@ public class BookingsController(IMediator mediator) : ApiController(mediator)
         if (result.IsFailed) return HandleErrors(result);
         return Ok();
     }
-    
+
     [HttpPost("{id:guid}/confirm")]
-    [Authorize(Roles=$"{nameof(UserRole.Manager)},{nameof(UserRole.Admin)}")]
+    [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Admin)}")]
     public async Task<IActionResult> ConfirmBooking([FromRoute] Guid id)
     {
         var result = await Mediator.Send(new ConfirmBookingCommand(BookingId: id));
         if (result.IsFailed) return HandleErrors(result);
         return Ok();
     }
-    
+
     [HttpPost("{id:guid}/guest-seated")]
-    [Authorize(Roles=$"{nameof(UserRole.Manager)},{nameof(UserRole.Admin)}")]
+    [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Admin)}")]
     public async Task<IActionResult> MarkGuestAsSeated([FromRoute] Guid id)
     {
         var result = await Mediator.Send(new GuestSeatedCommand(BookingId: id));
         if (result.IsFailed) return HandleErrors(result);
         return Ok();
     }
-    
+
     [HttpPost("{id:guid}/cancel")]
     [Authorize]
     public async Task<IActionResult> CancelBooking(
@@ -71,14 +70,14 @@ public class BookingsController(IMediator mediator) : ApiController(mediator)
         [FromQuery(Name = "guestAsked")] bool isGuestRequest = false)
     {
         var result = await Mediator.Send(
-            new CancelBookingCommand(BookingId: id, 
+            new CancelBookingCommand(BookingId: id,
                 IsGuestRequest: isGuestRequest));
         if (result.IsFailed) return HandleErrors(result);
         return Ok();
     }
 
     [HttpPost("{id:guid}/complete")]
-    [Authorize(Roles=$"{nameof(UserRole.Manager)},{nameof(UserRole.Admin)}")]
+    [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Admin)}")]
     public async Task<IActionResult> CompleteBooking([FromRoute] Guid id)
     {
         var result = await Mediator.Send(

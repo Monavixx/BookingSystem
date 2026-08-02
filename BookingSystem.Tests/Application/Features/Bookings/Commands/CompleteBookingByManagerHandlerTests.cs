@@ -1,4 +1,4 @@
-using BookingSystem.Application.Features.Bookings.Commands.Complete.CompleteByManager;
+using BookingSystem.Application.Features.Bookings.Commands.Complete;
 using BookingSystem.Domain.Bookings.Errors;
 using BookingSystem.Domain.Bookings.ValueObjects;
 using BookingSystem.Domain.Users;
@@ -23,7 +23,7 @@ public class CompleteBookingByManagerHandlerTests(PostgresTestFixture dbFixture)
         NewScope();
 
         var res = await Mediator.Send(
-            new CompleteBookingByManagerCommand(booking.Id.Value),
+            new CompleteBookingCommand(booking.Id.Value),
             TestContext.Current.CancellationToken);
 
         res.IsSuccess.Should().BeTrue();
@@ -42,7 +42,7 @@ public class CompleteBookingByManagerHandlerTests(PostgresTestFixture dbFixture)
         NewScope();
 
         var res = await Mediator.Send(
-            new CompleteBookingByManagerCommand(Guid.NewGuid()),
+            new CompleteBookingCommand(Guid.NewGuid()),
             TestContext.Current.CancellationToken);
 
         res.ShouldContain(BookingErrors.NotFound);
@@ -61,7 +61,7 @@ public class CompleteBookingByManagerHandlerTests(PostgresTestFixture dbFixture)
         NewScope();
 
         var res = await Mediator.Send(
-            new CompleteBookingByManagerCommand(booking.Id.Value),
+            new CompleteBookingCommand(booking.Id.Value),
             TestContext.Current.CancellationToken);
 
         res.ShouldContain(BookingErrors.AccessDenied);
@@ -93,7 +93,7 @@ public class CompleteBookingByManagerHandlerTests(PostgresTestFixture dbFixture)
 
         // Act
         var res = await Mediator.Send(
-            new CompleteBookingByManagerCommand(booking.Id.Value),
+            new CompleteBookingCommand(booking.Id.Value),
             TestContext.Current.CancellationToken);
 
         // Assert
@@ -122,7 +122,7 @@ public class CompleteBookingByManagerHandlerTests(PostgresTestFixture dbFixture)
 
         // Act
         var res = await Mediator.Send(
-            new CompleteBookingByManagerCommand(booking.Id.Value),
+            new CompleteBookingCommand(booking.Id.Value),
             TestContext.Current.CancellationToken);
 
         // Assert
@@ -149,7 +149,7 @@ public class CompleteBookingByManagerHandlerTests(PostgresTestFixture dbFixture)
 
         // Act
         var res = await Mediator.Send(
-            new CompleteBookingByManagerCommand(booking.Id.Value),
+            new CompleteBookingCommand(booking.Id.Value),
             TestContext.Current.CancellationToken);
 
         // Assert
@@ -169,7 +169,7 @@ public class CompleteBookingByManagerHandlerTests(PostgresTestFixture dbFixture)
         User manager = users[1], guest = users[2];
         SetCurrentUser(manager);
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
-        
+
         var booking1 = await Bookings.Create(c => c
             .WithGuest(guest)
             .WithRestaurant(restaurant)
@@ -183,7 +183,7 @@ public class CompleteBookingByManagerHandlerTests(PostgresTestFixture dbFixture)
 
         // Act
         var res = await Mediator.Send(
-            new CompleteBookingByManagerCommand(booking1.Id.Value),
+            new CompleteBookingCommand(booking1.Id.Value),
             TestContext.Current.CancellationToken);
 
         // Assert
@@ -210,7 +210,7 @@ public class CompleteBookingByManagerHandlerTests(PostgresTestFixture dbFixture)
             c.AddRestaurant(manager, (1, 4), (2, 4), (3, 20))
                 .AddRestaurant(manager, (1, 2), (2, 3), (3, 8), (4, 3));
         });
-        
+
         SetCurrentUser(manager);
         var booking1 = await Bookings.Create(c => c
             .WithGuest(guest)
@@ -224,7 +224,7 @@ public class CompleteBookingByManagerHandlerTests(PostgresTestFixture dbFixture)
 
         // Act
         var res = await Mediator.Send(
-            new CompleteBookingByManagerCommand(booking1.Id.Value),
+            new CompleteBookingCommand(booking1.Id.Value),
             TestContext.Current.CancellationToken);
 
         // Assert
@@ -257,17 +257,17 @@ public class CompleteBookingByManagerHandlerTests(PostgresTestFixture dbFixture)
 
         // Act
         var res = await Mediator.Send(
-            new CompleteBookingByManagerCommand(bookingId.Value),
+            new CompleteBookingCommand(bookingId.Value),
             TestContext.Current.CancellationToken);
 
         // Assert
         res.IsSuccess.Should().BeTrue();
-        
+
         // Verify with a completely new scope/context
         NewScope();
         var dbBooking = await DbContext.Bookings.AsNoTracking()
             .SingleAsync(b => b.Id == bookingId, cancellationToken: TestContext.Current.CancellationToken);
-        
+
         dbBooking.Status.Should().Be(BookingStatus.Completed);
     }
 }

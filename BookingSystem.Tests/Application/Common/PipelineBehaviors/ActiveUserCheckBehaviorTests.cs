@@ -1,6 +1,5 @@
 using BookingSystem.Application.Common.Abstractions;
 using BookingSystem.Application.Common.PipelineBehaviors;
-using BookingSystem.Domain.Users;
 using BookingSystem.Domain.Users.Errors;
 using BookingSystem.Tests.Builders;
 using FluentAssertions;

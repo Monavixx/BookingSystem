@@ -7,13 +7,13 @@ using FluentResults;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace BookingSystem.Application.Features.Bookings.Commands.Complete.CompleteByManager;
+namespace BookingSystem.Application.Features.Bookings.Commands.Complete;
 
-public sealed class CompleteBookingByManagerHandler(AppDbContext dbContext, ICurrentUserService currentUserService,
+public sealed class CompleteBookingHandler(AppDbContext dbContext, ICurrentUserService currentUserService,
     IBookingCompletionService bookingCompletionService)
-    : IRequestHandler<CompleteBookingByManagerCommand, Result>
+    : IRequestHandler<CompleteBookingCommand, Result>
 {
-    public async Task<Result> Handle(CompleteBookingByManagerCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(CompleteBookingCommand request, CancellationToken cancellationToken)
     {
         var res = await dbContext.Bookings.Where(b => b.Id == new BookingId(request.BookingId))
             .Select(b => new
@@ -21,9 +21,9 @@ public sealed class CompleteBookingByManagerHandler(AppDbContext dbContext, ICur
                 Booking = b,
                 RestaurantOwnerId = b.Table.Restaurant.OwnerId
             }).FirstOrDefaultAsync(cancellationToken);
-        if(res is null) return Result.Fail(BookingErrors.NotFound);
-        
-        if(res.RestaurantOwnerId != currentUserService.UserId) return Result.Fail(BookingErrors.AccessDenied);
+        if (res is null) return Result.Fail(BookingErrors.NotFound);
+
+        if (res.RestaurantOwnerId != currentUserService.UserId) return Result.Fail(BookingErrors.AccessDenied);
         var booking = res.Booking;
 
         return await bookingCompletionService.Complete(booking, cancellationToken);

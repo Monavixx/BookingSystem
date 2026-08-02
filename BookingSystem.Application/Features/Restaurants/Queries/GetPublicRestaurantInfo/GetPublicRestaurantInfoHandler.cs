@@ -1,5 +1,4 @@
 using BookingSystem.Application.Common.DTOs;
-using BookingSystem.Application.Features.Restaurants.DTOs;
 using BookingSystem.Application.Persistence;
 using BookingSystem.Domain.Restaurants.Errors;
 using Dapper;
@@ -9,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookingSystem.Application.Features.Restaurants.Queries.GetPublicRestaurantInfo;
 
-public class GetPublicRestaurantInfoHandler (AppDbContext dbContext) : IRequestHandler<GetPublicRestaurantInfoQuery, Result<PublicRestaurantInfo>>
+public class GetPublicRestaurantInfoHandler(AppDbContext dbContext) : IRequestHandler<GetPublicRestaurantInfoQuery, Result<PublicRestaurantInfo>>
 {
     private const string SqlQuery =
         """
@@ -30,21 +29,21 @@ public class GetPublicRestaurantInfoHandler (AppDbContext dbContext) : IRequestH
         FROM tables
         WHERE restaurant_id = @RestaurantId;
         """;
-    
+
     public async Task<Result<PublicRestaurantInfo>> Handle(GetPublicRestaurantInfoQuery request, CancellationToken cancellationToken)
     {
         var connection = dbContext.Database.GetDbConnection();
         var reader = await connection.QueryMultipleAsync(SqlQuery, new { request.RestaurantId });
         var restaurantResult = await reader.ReadFirstOrDefaultAsync();
         if (restaurantResult is null) return Result.Fail<PublicRestaurantInfo>(RestaurantErrors.NotFound);
-        
+
         return new PublicRestaurantInfo(
             RestaurantId: request.RestaurantId,
             OwnerId: restaurantResult.owner_id,
             ImageUrl: restaurantResult.image_url,
-            Description:restaurantResult.description,
+            Description: restaurantResult.description,
             Contact: new PublicRestaurantInfo.ContactDto(
-                PhoneNumber: restaurantResult.contact_phone_number, 
+                PhoneNumber: restaurantResult.contact_phone_number,
                 Email: restaurantResult.email),
             Address: new PublicRestaurantInfo.AddressDto(
                 Country: restaurantResult.address_country,

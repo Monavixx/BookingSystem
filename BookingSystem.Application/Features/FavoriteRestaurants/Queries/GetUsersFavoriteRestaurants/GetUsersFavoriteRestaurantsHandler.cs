@@ -1,9 +1,7 @@
 using BookingSystem.Application.Common.DTOs;
 using BookingSystem.Application.Persistence;
 using BookingSystem.Domain.Users.ValueObjects;
-using Dapper;
 using FluentResults;
-using Hangfire;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
