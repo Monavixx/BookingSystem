@@ -21,7 +21,7 @@ namespace BookingSystem.Tests;
 public class IntegrationTestWebFactory : WebApplicationFactory<Program>
 {
     public string ConnectionString { get; init; } = null!;
-    private readonly Mock<IBackgroundJobService> _backgroundJobServiceMock = new ();
+    private readonly Mock<IBackgroundJobService> _backgroundJobServiceMock = new();
 
     public FakeTimeProvider FakeTime { get; init; } =
         new FakeTimeProvider(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
@@ -46,9 +46,9 @@ public class IntegrationTestWebFactory : WebApplicationFactory<Program>
                     d.ServiceType == typeof(IHostedService)
                     && d.ImplementationType == typeof(BackgroundJobServerHostedService));
             if (hangfireServer is not null) services.Remove(hangfireServer);
-            
-            services.Replace(ServiceDescriptor.Scoped<IBackgroundJobService>(_ => GetBackgroundJobService()));
-            
+
+            services.Replace(ServiceDescriptor.Scoped(_ => GetBackgroundJobService()));
+
             var descriptors = services.Where(d =>
                     d.ServiceType == typeof(DbContextOptions<AppDbContext>) ||
                     d.ServiceType == typeof(AppDbContext) ||
@@ -59,10 +59,11 @@ public class IntegrationTestWebFactory : WebApplicationFactory<Program>
 
             foreach (var d in descriptors)
                 services.Remove(d);
-            
+
             services.Replace(ServiceDescriptor.Singleton<TimeProvider>(FakeTime));
 
-            services.AddDbContextFactory<AppDbContext>(options => { 
+            services.AddDbContextFactory<AppDbContext>(options =>
+            {
                 options.UseNpgsql(ConnectionString)
                     .UseSnakeCaseNamingConvention();
                 options.ConfigureWarnings(c => c.Ignore(RelationalEventId.PendingModelChangesWarning));
@@ -72,6 +73,7 @@ public class IntegrationTestWebFactory : WebApplicationFactory<Program>
             services.AddScoped<RestaurantTestDataService>();
             services.AddScoped<BookingTestDataService>();
             services.AddScoped<UserBlocker>();
+            services.AddScoped<BookingCancellationService>();
         });
     }
 }

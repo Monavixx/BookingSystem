@@ -1,5 +1,6 @@
 using BookingSystem.Api.Common;
 using BookingSystem.Application.Features.Bookings.Commands.Cancel;
+using BookingSystem.Application.Features.Bookings.Commands.Complete;
 using BookingSystem.Application.Features.Bookings.Commands.Confirm;
 using BookingSystem.Application.Features.Bookings.Commands.ConfirmByGuest;
 using BookingSystem.Application.Features.Bookings.Commands.Create;
@@ -81,7 +82,7 @@ public class BookingsController(IMediator mediator) : ApiController(mediator)
     public async Task<IActionResult> CompleteBooking([FromRoute] Guid id)
     {
         var result = await Mediator.Send(
-            new CompleteBookingByManagerCommand(BookingId: id));
+            new CompleteBookingCommand(BookingId: id));
         if (result.IsFailed) return HandleErrors(result);
         return Ok();
     }
