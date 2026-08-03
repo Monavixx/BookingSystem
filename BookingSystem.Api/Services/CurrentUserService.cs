@@ -9,19 +9,19 @@ namespace BookingSystem.Api.Services;
 
 public class CurrentUserService(IHttpContextAccessor httpContextAccessor, AppDbContext dbContext) : ICurrentUserService
 {
-    public Guid? UserIdGuid => httpContextAccessor.HttpContext?.User.GetUserIdOrDefault();
+    public Guid? UserIdGuid => httpContextAccessor?.HttpContext?.User.GetUserIdOrDefault();
     public UserId? UserId => UserIdGuid is null ? null : new UserId(UserIdGuid.Value);
 
     public Guid GetRequiredUserIdGuid()
         => httpContextAccessor.HttpContext!.User.GetUserId();
     public UserId GetRequiredUserId()
-        => new (GetRequiredUserIdGuid());
+        => new(GetRequiredUserIdGuid());
 
     private User? _user;
     public async ValueTask<User?> GetUserAsync()
     {
-        if(_user is not null) return _user;
-        if(UserId is not {} userId) return null;
+        if (_user is not null) return _user;
+        if (UserId is not { } userId) return null;
         return _user = await dbContext.Users.FindAsync(userId);
     }
 

@@ -25,7 +25,7 @@ public class BookingCancellationServiceTests(PostgresTestFixture fixture) : Inte
     }
 
     [Fact]
-    public async Task CancelAsync_Manager_WhenBookingExists_And_IsNotFinished_ShouldCancelBooking()
+    public async Task CancelAsync_WhenBookingExists_And_IsNotFinished_ShouldCancelBooking()
     {
         var booking = await Bookings.Create(b => b
                 .WithStatus(BookingStatus.Confirmed)
@@ -33,7 +33,7 @@ public class BookingCancellationServiceTests(PostgresTestFixture fixture) : Inte
                 .WithGuest(_guest)
                 .WithTableNumber(1));
         SetCurrentUser(_manager);
-        var res = await _bookingCancellationService.CancelAsync(booking.Id, CancellationReason.GuestRequest);
+        var res = await _bookingCancellationService.CancelAsync(booking.Id, CancellationReason.ManagerOrAdminBeenAskedByGuest);
 
         res.ShouldBeSuccess();
 
@@ -51,9 +51,18 @@ public class BookingCancellationServiceTests(PostgresTestFixture fixture) : Inte
                 .WithRestaurant(_restaurant)
                 .WithGuest(_guest)
                 .WithTableNumber(1));
-        SetCurrentUser(_manager);
+        SetCurrentUser(_guest);
         var res = await _bookingCancellationService.CancelAsync(booking.Id, CancellationReason.GuestRequest);
 
         res.ShouldContain(BookingErrors.Status.InvalidStatusOrReasonToCancelCode);
+    }
+
+    [Fact]
+    public async Task CancelAsync_WhenBookingDoesNotExist_ShouldReturnError()
+    {
+        SetCurrentUser(_guest);
+        var res = await _bookingCancellationService.CancelAsync(BookingId.New(), CancellationReason.GuestRequest);
+
+        res.ShouldContain(BookingErrors.NotFound);
     }
 }
