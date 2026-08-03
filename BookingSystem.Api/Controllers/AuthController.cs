@@ -20,19 +20,20 @@ public class AuthController(IMediator mediator, IOptions<JwtOptions> jwtOptions,
     {
         var result = await Mediator.Send(command);
         if (result.IsFailed) return HandleErrors(result);
-        
+
         AddAuthTokensToCookie(result.Value.AuthTokens);
 
         return CreatedAtAction(nameof(UsersController.GetCurrentUser),
-            nameof(UsersController).Remove(nameof(UsersController).Length - 10), null, new { result.Value.Id });
+            nameof(UsersController)[..^10], null, new { result.Value.Id });
     }
+
 
     [HttpPost("log-in")]
     public async Task<IActionResult> LogIn([FromBody] LogInCommand command)
     {
         var result = await Mediator.Send(command);
         if (result.IsFailed) return HandleErrors(result);
-        
+
         AddAuthTokensToCookie(result.Value.AuthTokens);
         return Ok(new { result.Value.Id });
     }

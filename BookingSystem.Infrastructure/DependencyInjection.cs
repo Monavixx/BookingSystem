@@ -1,4 +1,5 @@
-﻿using BookingSystem.Application.Common.Abstractions;
+﻿using System.Reflection;
+using BookingSystem.Application.Common.Abstractions;
 using BookingSystem.Application.Features.Bookings.Abstractions;
 using BookingSystem.Application.Persistence;
 using BookingSystem.Application.Persistence.Abstractions;
@@ -7,6 +8,7 @@ using BookingSystem.Infrastructure.Options;
 using BookingSystem.Infrastructure.Services;
 using Hangfire;
 using Hangfire.PostgreSql;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,7 +16,7 @@ namespace BookingSystem.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services,  IConfiguration configuration)
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddOptions<RefreshTokenOptions>()
             .Bind(configuration.GetSection(RefreshTokenOptions.SectionName))
@@ -25,30 +27,41 @@ public static class DependencyInjection
         services.AddSingleton<IRefreshTokenService, RefreshTokenService>();
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
-        services.AddSingleton<ConstraintErrorRegistryBase, ConstraintErrorRegistry>(sp =>
-        {
-            using var scope = sp.CreateScope();
-            var cer = new ConstraintErrorRegistry(scope.ServiceProvider.GetService<AppDbContext>()!.Model);
-            cer.AddConstraintErrorsFromAssembly(typeof(AppDbContext).Assembly);
-            return cer;
-        });
+        services.AddSingleton<ConstraintErrorRegistryBase>(sp =>
+            {
+                var factory = sp.GetRequiredService<IDbContextFactory<AppDbContext>>();
 
-        services.AddHangfire(c => c
-            .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
-            .UseSimpleAssemblyNameTypeSerializer()
-            .UseRecommendedSerializerSettings()
-            .UsePostgreSqlStorage(a =>
-                a.UseNpgsqlConnection(configuration.GetConnectionString("HangfireConnection")))
+                using var db = factory.CreateDbContext();
+
+                var cer = new ConstraintErrorRegistry(db.Model);
+                cer.AddConstraintErrorsFromAssembly(typeof(AppDbContext).Assembly);
+
+                return cer;
+            }
         );
-        services.AddHangfireServer(c =>
+        if (Assembly.GetEntryAssembly()?.GetName().Name != "GetDocument.Insider")
         {
-            c.WorkerCount = 2;
-        });
-        services.AddScoped<IBackgroundJobService, BackgroundJobService>();
+            var hangfireConnection = configuration.GetConnectionString("HangfireConnection");
+            if (!string.IsNullOrEmpty(hangfireConnection))
+            {
+                services.AddHangfire(c => c
+                    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                    .UseSimpleAssemblyNameTypeSerializer()
+                    .UseRecommendedSerializerSettings()
+                    .UsePostgreSqlStorage(a =>
+                        a.UseNpgsqlConnection(hangfireConnection))
+                );
+                services.AddHangfireServer(c =>
+                {
+                    c.WorkerCount = 2;
+                });
+                services.AddScoped<IBackgroundJobService, BackgroundJobService>();
+            }
+        }
         services.AddScoped<IBookingCancellationService, BookingCancellationService>();
         services.AddScoped<IBookingCompletionService, BookingCompletionService>();
         services.AddScoped<IUserBlocker, UserBlocker>();
-        
+
         return services;
     }
 }

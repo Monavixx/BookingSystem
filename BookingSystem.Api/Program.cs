@@ -14,6 +14,7 @@ using Hangfire;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Scalar.AspNetCore;
 using Serilog;
 using Serilog.Events;
 
@@ -30,14 +31,14 @@ try
     // claim types (e.g., sub → NameIdentifier URI), which breaks direct claim lookups.
     JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
     JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
-    
+
     var builder = WebApplication.CreateBuilder(args);
 
     builder.Services.AddSerilog((services, s) => s
         .ReadFrom.Configuration(builder.Configuration)
         .ReadFrom.Services(services)
         .Enrich.FromLogContext()
-        .WriteTo.Console(LogEventLevel.Debug, outputTemplate:"[{Timestamp:HH:mm:ss} {Level:u3}] ({SourceContext}){NewLine}{Message:lj}{NewLine}{Exception}")
+        .WriteTo.Console(LogEventLevel.Debug, outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] ({SourceContext}){NewLine}{Message:lj}{NewLine}{Exception}")
         .WriteTo.Seq("http://localhost:5341")
     );
 
@@ -96,10 +97,11 @@ try
     {
         app.MapOpenApi();
         app.MapHangfireDashboard();
+        app.MapScalarApiReference();
     }
 
     app.UseHttpsRedirection();
-    
+
     app.UseSerilogRequestLogging();
 
     app.UseAuthentication();
@@ -110,7 +112,7 @@ try
 
     app.Run();
 }
-catch(HostAbortedException){}
+catch (HostAbortedException) { }
 catch (Exception ex)
 {
     Log.Fatal(ex, "Application terminated unexpectedly");
