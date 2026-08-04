@@ -4,4 +4,4 @@ comment_sense.require_capitalization = true
 comment_sense.require_ending_punctuation = true
 
 # CSENSE002: Missing parameter documentation
-dotnet_diagnostic.CSENSE002.severity = suggestion
+dotnet_diagnostic.CSENSE002.severity = silent
