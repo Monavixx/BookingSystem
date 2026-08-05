@@ -2,6 +2,7 @@
 using BookingSystem.Domain.Common.ValueObjects;
 using BookingSystem.Domain.Common.ValueObjects.Errors;
 using BookingSystem.Domain.FavoriteRestaurants;
+using BookingSystem.Domain.Users.DomainEvents;
 using BookingSystem.Domain.Users.Errors;
 using BookingSystem.Domain.Users.ValueObjects;
 using FluentResults;
@@ -10,15 +11,15 @@ namespace BookingSystem.Domain.Users;
 
 using FavoriteRestaurant = FavoriteRestaurant;
 
-public sealed partial class User : Entity<UserId>
+public sealed partial class User : AggregateRoot<UserId>
 {
     public const int FirstNameMaxLength = 100;
     public const int LastNameMaxLength = 150;
-    public const int PasswordHashLength = 128+16;
+    public const int PasswordHashLength = 128 + 16;
     public const int PasswordMinLength = 8;
     public const int PasswordMaxLength = 150;
-    
-    private User(){}
+
+    private User() { }
 
     public Username Username { get; private set; } = null!;
     public EmailAddress Email { get; private set; } = null!;
@@ -31,7 +32,7 @@ public sealed partial class User : Entity<UserId>
     public UserRole Role { get; private set; } = UserRole.Guest;
     public bool IsBlocked { get; private set; }
     public DateTimeOffset? BlockedUntil { get; private set; }
-    
+
     private readonly List<Session> _sessions = [];
     public IReadOnlyCollection<Session> Sessions => _sessions;
 
@@ -63,11 +64,11 @@ public sealed partial class User : Entity<UserId>
             ..phoneNumberResult.Errors,
             ..birthdateResult.Errors
         ];
-        if(string.IsNullOrWhiteSpace(firstName)) errors.Add(UserErrors.FirstName.Empty);
-        if(firstName.Length > FirstNameMaxLength) errors.Add(UserErrors.FirstName.TooLong);
-        if(string.IsNullOrWhiteSpace(lastName)) errors.Add(UserErrors.LastName.Empty);
-        if(lastName.Length > LastNameMaxLength) errors.Add(UserErrors.LastName.TooLong);
-        if(passwordHash is null || passwordHash.Length == 0) errors.Add(UserErrors.PasswordHash.Empty);
+        if (string.IsNullOrWhiteSpace(firstName)) errors.Add(UserErrors.FirstName.Empty);
+        if (firstName.Length > FirstNameMaxLength) errors.Add(UserErrors.FirstName.TooLong);
+        if (string.IsNullOrWhiteSpace(lastName)) errors.Add(UserErrors.LastName.Empty);
+        if (lastName.Length > LastNameMaxLength) errors.Add(UserErrors.LastName.TooLong);
+        if (passwordHash is null || passwordHash.Length == 0) errors.Add(UserErrors.PasswordHash.Empty);
 
         if (errors.Count > 0)
             return Result.Fail<User>(errors).MapErrors(e =>
@@ -81,7 +82,7 @@ public sealed partial class User : Entity<UserId>
                     _ when e == PhoneNumberErrors.TooLong => UserErrors.PhoneNumber.TooLong,
                     _ => e
                 });
-        
+
         return new User
         {
             Id = UserId.New(),
@@ -102,13 +103,21 @@ public sealed partial class User : Entity<UserId>
         _sessions.Add(Session.Create(Id, refreshToken));
     }
 
-    public void MakeManager() => Role = UserRole.Manager;
+    public void MakeManager()
+    {
+        Role = UserRole.Manager;
+        Updated();
+    }
 
     public Result Block(TimeProvider timeProvider, TimeSpan? duration)
     {
-        if(Role is UserRole.Admin) return Result.Fail(UserErrors.AdminCannotBeBlocked);
+        if (Role is UserRole.Admin) return Result.Fail(UserErrors.AdminCannotBeBlocked);
         IsBlocked = true;
         BlockedUntil = duration is null ? null : timeProvider.GetUtcNow() + duration;
+        Updated();
         return Result.Ok();
     }
+
+    private void Updated()
+        => AddDomainEvent(new UserUpdatedEvent(this));
 }

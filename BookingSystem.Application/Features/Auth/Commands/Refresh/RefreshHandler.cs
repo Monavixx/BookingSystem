@@ -20,7 +20,7 @@ public class RefreshHandler(
     {
         logger.LogInformation("Trying refresh auth tokens");
         var refreshTokenRes = RefreshToken.FromString(request.RefreshToken);
-        if(refreshTokenRes.IsFailed) return refreshTokenRes.ToResult<AuthTokens>();
+        if (refreshTokenRes.IsFailed) return refreshTokenRes.ToResult<AuthTokens>();
         byte[] refreshToken = refreshTokenRes.Value;
         var session =
             await dbContext.Sessions.Include(session => session.User)
@@ -28,13 +28,13 @@ public class RefreshHandler(
         if (session is null)
         {
             logger.LogWarning("Refresh failed: invalid refresh token");
-            return Result.Fail<AuthTokens>(SessionErrors.NotFound);
+            return SessionErrors.NotFound;
         }
 
         if (session.User is null)
         {
             logger.LogError("Refresh failed: invalid user");
-            return Result.Fail<AuthTokens>(UserErrors.NotFound);
+            return UserErrors.NotFound;
         }
 
         session.UpdateRefreshToken(refreshTokenService.GenerateRefreshToken());
