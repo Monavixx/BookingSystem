@@ -7,6 +7,8 @@ services:
       POSTGRES_DB: BookingSystemDB
     ports:
       - "5432:5432"
+    volumes:
+      - ./postgres-init:/docker-entrypoint-initdb.d
     container_name: BookingSystemDB
   seq:
     image: datalust/seq:latest
@@ -16,3 +18,10 @@ services:
         ACCEPT_EULA: "Y"
         SEQ_FIRSTRUN_ADMINPASSWORD: "admin"
     container_name: BookingSystemSeq
+  redis:
+    image: redis:latest
+    container_name: redis_server
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --save 20 1 --loglevel warning --requirepass admin
