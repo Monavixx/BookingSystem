@@ -7,7 +7,7 @@ using MediatR;
 
 namespace BookingSystem.Application.Features.Restaurants.Commands.SetWorkingSchedule;
 
-public class SetWorkingScheduleHandler (AppDbContext dbContext, ICurrentUserService currentUserService)
+public class SetWorkingScheduleHandler(AppDbContext dbContext, IReadOnlyCurrentUserService currentUserService)
     : IRequestHandler<SetWorkingScheduleCommand, Result>
 {
     public async Task<Result> Handle(SetWorkingScheduleCommand request, CancellationToken cancellationToken)
@@ -29,13 +29,13 @@ public class SetWorkingScheduleHandler (AppDbContext dbContext, ICurrentUserServ
             if (resDoWc.IsFailed) return resDoWc.ToResult();
             schedules.Add(resDoWc.Value);
         }
-        
+
         var workingSchedule = WorkingSchedule.Create(schedules);
         if (workingSchedule.IsFailed) return workingSchedule.ToResult();
-        
+
         restaurant.SetWorkingSchedule(workingSchedule.Value);
         await dbContext.SaveChangesAsync(cancellationToken);
-        
+
         return Result.Ok();
     }
 }

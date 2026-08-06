@@ -33,17 +33,22 @@ public abstract class IntegrationTestBase : IAsyncLifetime
 
     protected FakeCurrentUserService CurrentUserService =>
         (FakeCurrentUserService)Scope.ServiceProvider.GetRequiredService<ICurrentUserService>();
+    protected FakeReadOnlyCurrentUserService ReadOnlyCurrentUserService =>
+        (FakeReadOnlyCurrentUserService)Scope.ServiceProvider.GetRequiredService<IReadOnlyCurrentUserService>();
     protected UserTestDataService Users => Scope.ServiceProvider.GetRequiredService<UserTestDataService>();
     protected RestaurantTestDataService Restaurants => Scope.ServiceProvider.GetRequiredService<RestaurantTestDataService>();
     protected BookingTestDataService Bookings => Scope.ServiceProvider.GetRequiredService<BookingTestDataService>();
     protected Mock<IBackgroundJobService> BackgroundJobServiceMock => Factory.GetBackgroundJobServiceMock();
-    
+
     protected IntegrationTestBase(PostgresTestFixture dbFixture)
     {
         DbFixture = dbFixture;
         Factory = new IntegrationTestWebFactory { ConnectionString = DbFixture.ConnectionString };
     }
 
+    protected void SetReadOnlyCurrentUser(User user) => CurrentUserService.UserIdGuid = user.Id.Value;
+    protected void SetReadOnlyCurrentUser(Guid id) => CurrentUserService.UserIdGuid = id;
+    protected void SetReadOnlyCurrentUser(UserId id) => CurrentUserService.UserIdGuid = id.Value;
     protected void SetCurrentUser(User user) => CurrentUserService.UserIdGuid = user.Id.Value;
     protected void SetCurrentUser(Guid id) => CurrentUserService.UserIdGuid = id;
     protected void SetCurrentUser(UserId id) => CurrentUserService.UserIdGuid = id.Value;
@@ -70,7 +75,7 @@ public abstract class IntegrationTestBase : IAsyncLifetime
         return InitAsync();
     }
 
-    public async ValueTask DisposeAsync()
+    public virtual async ValueTask DisposeAsync()
     {
         Scope.Dispose();
         await Task.WhenAll(_dbContextsToDispose.Select(c => c.DisposeAsync().AsTask()));

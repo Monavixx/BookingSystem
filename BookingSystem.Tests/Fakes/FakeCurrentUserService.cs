@@ -6,7 +6,7 @@ using BookingSystem.Domain.Users.ValueObjects;
 
 namespace BookingSystem.Tests.Fakes;
 
-public class FakeCurrentUserService (AppDbContext dbContext) : ICurrentUserService
+public class FakeCurrentUserService(AppDbContext dbContext) : ICurrentUserService
 {
     public Guid? UserIdGuid { get; set; }
     public UserId? UserId => new UserId(UserIdGuid!.Value);
@@ -14,12 +14,12 @@ public class FakeCurrentUserService (AppDbContext dbContext) : ICurrentUserServi
 
     public UserId GetRequiredUserId() => UserId!.Value;
 
-    public ValueTask<User?> GetUserAsync()
+    public ValueTask<User?> GetAsync()
     {
         return dbContext.Users.FindAsync(GetRequiredUserId());
     }
 
-    public ValueTask<User?> GetUserAsync(ClaimsPrincipal principal)
+    public ValueTask<User?> GetAsync(ClaimsPrincipal principal)
     {
         throw new NotSupportedException();
     }

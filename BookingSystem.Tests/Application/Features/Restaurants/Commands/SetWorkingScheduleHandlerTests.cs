@@ -13,7 +13,7 @@ public class SetWorkingScheduleHandlerTests(PostgresTestFixture dbFixture) : Int
     {
         var manager = await Users.CreateManagerAsync();
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
-        SetCurrentUser(manager);
+        SetReadOnlyCurrentUser(manager);
 
         var res = await Mediator.Send(new SetWorkingScheduleCommand(restaurant.Id.Value, [
             new DayOfWeekScheduleRequest(DayOfWeek.Monday, TimeOnly.FromTimeSpan(new TimeSpan(9, 0, 0)),
@@ -51,7 +51,7 @@ public class SetWorkingScheduleHandlerTests(PostgresTestFixture dbFixture) : Int
                     .WithWorkingSchedule(null)));
         var restaurant = restaurants[0];
 
-        SetCurrentUser(manager);
+        SetReadOnlyCurrentUser(manager);
 
         var res = await Mediator.Send(new SetWorkingScheduleCommand(restaurant.Id.Value, [
             new DayOfWeekScheduleRequest(DayOfWeek.Monday, TimeOnly.FromTimeSpan(new TimeSpan(9, 0, 0)),

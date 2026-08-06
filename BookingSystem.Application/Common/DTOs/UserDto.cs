@@ -1,4 +1,4 @@
-﻿using BookingSystem.Domain.Users;
+﻿using BookingSystem.Application.Features.Users.DTOs;
 using JetBrains.Annotations;
 
 namespace BookingSystem.Application.Common.DTOs;
@@ -18,14 +18,14 @@ public sealed record UserDto(
     DateTimeOffset? BlockedUntil = null
 )
 {
-    public static UserDto FromUser(User user)
-        => new (
-            Id: user.Id.Value,
-            Username : user.Username.Value,
-            Email: user.Email.Value,
-            PhoneNumber: user.PhoneNumber.Value,
+    public static UserDto FromUser(CachedUser user)
+        => new(
+            Id: user.Id,
+            Username: user.Username,
+            Email: user.Email,
+            PhoneNumber: user.PhoneNumber,
             RegistrationDateTime: user.RegistrationDateTime,
-            BirthDate: user.BirthDate.Value,
+            BirthDate: user.BirthDate,
             FirstName: user.FirstName,
             LastName: user.LastName,
             Role: user.Role.ToString(),

@@ -1,5 +1,6 @@
 using BookingSystem.Application.Common.Abstractions;
 using BookingSystem.Application.Features.Bookings.DTOs;
+using BookingSystem.Application.Features.Users.DTOs;
 using BookingSystem.Application.Persistence;
 using BookingSystem.Domain.Bookings;
 using BookingSystem.Domain.Bookings.Errors;
@@ -12,12 +13,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookingSystem.Application.Features.Bookings.Queries.GetAll;
 
-public class GetAllBookingsHandler(AppDbContext dbContext, ICurrentUserService currentUserService)
+public class GetAllBookingsHandler(AppDbContext dbContext, IReadOnlyCurrentUserService currentUserService)
     : IRequestHandler<GetAllBookingsQuery, Result<ICollection<BookingDto>>>
 {
     public async Task<Result<ICollection<BookingDto>>> Handle(GetAllBookingsQuery request, CancellationToken cancellationToken)
     {
-        var user = await currentUserService.GetUserAsync();
+        var user = await currentUserService.GetAsync();
         if (user is null) return BookingErrors.AccessDenied;
         var query = ApplyAuthorization(
             dbContext.Bookings
@@ -42,15 +43,15 @@ public class GetAllBookingsHandler(AppDbContext dbContext, ICurrentUserService c
         return bookings;
     }
 
-    private static IQueryable<Booking> ApplyAuthorization(IQueryable<Booking> query, User user)
+    private static IQueryable<Booking> ApplyAuthorization(IQueryable<Booking> query, CachedUser user)
         => user.Role switch
         {
             UserRole.Admin => query,
-            UserRole.Manager => query.Where(b => b.Table.Restaurant.OwnerId == user.Id || b.GuestId == user.Id),
-            UserRole.Guest => query.Where(b => b.GuestId == user.Id),
+            UserRole.Manager => query.Where(b => b.Table.Restaurant.OwnerId == new UserId(user.Id) || b.GuestId == new UserId(user.Id)),
+            UserRole.Guest => query.Where(b => b.GuestId == new UserId(user.Id)),
             _ => throw new InvalidOperationException($"Unknown user role: {user.Role}")
         };
-    
+
     private static IQueryable<Booking> ApplyAllFilters(IQueryable<Booking> query, GetAllBookingsQuery request,
         DateTimeOffset? start, DateTimeOffset? end)
     {
@@ -102,15 +103,15 @@ public class GetAllBookingsHandler(AppDbContext dbContext, ICurrentUserService c
         DateTimeOffset? start, DateTimeOffset? end)
     {
         IQueryable<Booking>? result = null;
-        
-        if(request.RestaurantId.HasValue)
+
+        if (request.RestaurantId.HasValue)
             result = query.Where(b => new RestaurantId(request.RestaurantId.Value) == b.RestaurantId);
         if (request.TableNumber.HasValue)
         {
             var filter = query.Where(b => b.TableNumber == request.TableNumber.Value);
             result = result is null ? filter : result.Concat(filter);
         }
-        if(request.Status.HasValue)
+        if (request.Status.HasValue)
         {
             var filter = query.Where(b => b.Status == request.Status.Value);
             result = result is null ? filter : result.Concat(filter);
@@ -144,7 +145,7 @@ public class GetAllBookingsHandler(AppDbContext dbContext, ICurrentUserService c
             },
             _ => null
         };
-        if(timeFilter is not null)
+        if (timeFilter is not null)
             result = result is null ? timeFilter : result.Concat(timeFilter);
 
         if (request.GuestId.HasValue)

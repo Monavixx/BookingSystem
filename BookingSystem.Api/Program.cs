@@ -20,7 +20,6 @@ using Serilog.Events;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console(LogEventLevel.Debug)
-    .WriteTo.Seq("http://localhost:5341")
     .Enrich.FromLogContext()
     .CreateBootstrapLogger();
 
@@ -34,13 +33,19 @@ try
 
     var builder = WebApplication.CreateBuilder(args);
 
-    builder.Services.AddSerilog((services, s) => s
-        .ReadFrom.Configuration(builder.Configuration)
-        .ReadFrom.Services(services)
-        .Enrich.FromLogContext()
-        .WriteTo.Console(LogEventLevel.Debug, outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] ({SourceContext}){NewLine}{Message:lj}{NewLine}{Exception}")
-        .WriteTo.Seq("http://localhost:5341")
-    );
+    builder.Services.AddSerilog((services, s) =>
+    {
+        var config = s
+            .ReadFrom.Configuration(builder.Configuration)
+            .ReadFrom.Services(services)
+            .Enrich.FromLogContext()
+            .WriteTo.Console(LogEventLevel.Debug, outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] ({SourceContext}){NewLine}{Message:lj}{NewLine}{Exception}");
+
+        if (!builder.Environment.IsEnvironment("Test"))
+        {
+            config.WriteTo.Seq("http://localhost:5341");
+        }
+    });
 
     builder.Services.AddControllers().AddJsonOptions(options =>
     {
@@ -87,6 +92,7 @@ try
     builder.Services.AddApplication(builder.Configuration);
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+    builder.Services.AddScoped<IReadOnlyCurrentUserService, ReadOnlyCurrentUserService>();
     builder.Services.AddScoped<IClaimsTransformation, RoleClaimsTransformation>();
     builder.Services.AddSingleton(TimeProvider.System);
 

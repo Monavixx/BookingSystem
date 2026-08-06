@@ -12,8 +12,8 @@ using Microsoft.Extensions.Logging;
 
 namespace BookingSystem.Application.Features.Restaurants.Commands.UpdateRestaurant;
 
-public class UpdateRestaurantHandler (AppDbContext dbContext, ILogger<UpdateRestaurantHandler> logger,
-    ICurrentUserService currentUserService)
+public class UpdateRestaurantHandler(AppDbContext dbContext, ILogger<UpdateRestaurantHandler> logger,
+    IReadOnlyCurrentUserService currentUserService)
     : IRequestHandler<UpdateRestaurantCommand, Result>
 {
     private record RestaurantRow(Guid OwnerId, uint RowVersion);
@@ -25,7 +25,7 @@ public class UpdateRestaurantHandler (AppDbContext dbContext, ILogger<UpdateRest
             WHERE id = @Id
             """, new { Id = request.RestaurantId });
         if (oldRestaurant is null) return Result.Fail(RestaurantErrors.NotFound);
-        
+
         if (currentUserService.UserIdGuid is not { } userId || userId != oldRestaurant.OwnerId)
             return Result.Fail(RestaurantErrors.AccessDenied);
 
@@ -46,10 +46,10 @@ public class UpdateRestaurantHandler (AppDbContext dbContext, ILogger<UpdateRest
         );
         if (newRestaurant.IsFailed) return newRestaurant.ToResult();
         newRestaurant.Value.RowVersion = oldRestaurant.RowVersion;
-        
+
         dbContext.Update(newRestaurant.Value);
         await dbContext.SaveChangesAsync(cancellationToken);
-        
+
         logger.LogInformation("Restaurant {RestaurantId} updated successfully", request.RestaurantId);
         return Result.Ok();
     }

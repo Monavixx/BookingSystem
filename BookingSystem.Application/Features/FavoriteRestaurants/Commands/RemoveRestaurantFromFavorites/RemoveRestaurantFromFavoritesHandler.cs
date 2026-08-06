@@ -8,8 +8,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookingSystem.Application.Features.FavoriteRestaurants.Commands.RemoveRestaurantFromFavorites;
 
-public class RemoveRestaurantFromFavoritesHandler (AppDbContext dbContext, ICurrentUserService
-     currentUserService): IRequestHandler<RemoveRestaurantFromFavoritesCommand, Result>
+public class RemoveRestaurantFromFavoritesHandler(AppDbContext dbContext, IReadOnlyCurrentUserService
+     currentUserService) : IRequestHandler<RemoveRestaurantFromFavoritesCommand, Result>
 {
     public async Task<Result> Handle(RemoveRestaurantFromFavoritesCommand request, CancellationToken cancellationToken)
     {

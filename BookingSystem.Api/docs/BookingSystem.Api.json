@@ -232,7 +232,9 @@
         "tags": [
           "Bookings"
         ],
+        "summary": "Creates a new booking for a guest at a restaurant.",
         "requestBody": {
+          "description": "The booking creation request containing guest count, restaurant ID, optional table number, and scheduled time.",
           "content": {
             "application/json": {
               "schema": {
@@ -253,8 +255,69 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "OK"
+          "201": {
+            "description": "Booking created successfully.",
+            "content": {
+              "application/json": {
+                "schema": { }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data or validation error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Restaurant or table not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Booking conflict (e.g., table already booked for that time).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable request entity.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": { }
+            }
           }
         }
       },
@@ -262,6 +325,7 @@
         "tags": [
           "Bookings"
         ],
+        "summary": "Retrieves a paginated list of bookings with optional filters.",
         "parameters": [
           {
             "name": "RestaurantId",
@@ -355,7 +419,38 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Bookings retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": { }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid filter parameters or validation error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": { }
+            }
           }
         }
       }
@@ -365,10 +460,12 @@
         "tags": [
           "Bookings"
         ],
+        "summary": "Confirms a booking by the guest.",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "The booking ID to confirm.",
             "required": true,
             "schema": {
               "type": "string",
@@ -378,7 +475,66 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Booking confirmed successfully by guest.",
+            "content": {
+              "application/json": { }
+            }
+          },
+          "400": {
+            "description": "Invalid request or validation error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Booking not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Booking cannot be confirmed due to conflict with current state.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable request entity.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": { }
+            }
           }
         }
       }
@@ -388,10 +544,12 @@
         "tags": [
           "Bookings"
         ],
+        "summary": "Confirms a booking by a manager or admin.",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "The booking ID to confirm.",
             "required": true,
             "schema": {
               "type": "string",
@@ -401,7 +559,76 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Booking confirmed successfully by manager/admin.",
+            "content": {
+              "application/json": { }
+            }
+          },
+          "400": {
+            "description": "Invalid request or validation error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User does not have the required Manager or Admin role.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Booking not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Booking cannot be confirmed due to conflict with current state.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable request entity.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": { }
+            }
           }
         }
       }
@@ -411,10 +638,12 @@
         "tags": [
           "Bookings"
         ],
+        "summary": "Marks a guest as seated for a confirmed booking.",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "The booking ID to mark the guest as seated.",
             "required": true,
             "schema": {
               "type": "string",
@@ -424,7 +653,76 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Guest marked as seated successfully.",
+            "content": {
+              "application/json": { }
+            }
+          },
+          "400": {
+            "description": "Invalid request or validation error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User does not have the required Manager or Admin role.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Booking not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Booking cannot be updated due to conflict with current state.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable request entity.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": { }
+            }
           }
         }
       }
@@ -434,10 +732,12 @@
         "tags": [
           "Bookings"
         ],
+        "summary": "Cancels a booking.",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "The booking ID to cancel.",
             "required": true,
             "schema": {
               "type": "string",
@@ -455,7 +755,66 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Booking cancelled successfully.",
+            "content": {
+              "application/json": { }
+            }
+          },
+          "400": {
+            "description": "Invalid request or validation error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Booking not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Booking cannot be cancelled due to conflict with current state.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable request entity.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": { }
+            }
           }
         }
       }
@@ -465,10 +824,12 @@
         "tags": [
           "Bookings"
         ],
+        "summary": "Completes a booking after the guest has finished their visit.",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "The booking ID to complete.",
             "required": true,
             "schema": {
               "type": "string",
@@ -478,7 +839,76 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Booking completed successfully.",
+            "content": {
+              "application/json": { }
+            }
+          },
+          "400": {
+            "description": "Invalid request or validation error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User does not have the required Manager or Admin role.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Booking not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Booking cannot be completed due to conflict with current state.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable request entity.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": { }
+            }
           }
         }
       }
@@ -488,10 +918,12 @@
         "tags": [
           "Bookings"
         ],
+        "summary": "Retrieves a specific booking by its id.",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "The booking ID to retrieve.",
             "required": true,
             "schema": {
               "type": "string",
@@ -501,7 +933,48 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Booking retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": { }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or validation error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Booking not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": { }
+            }
           }
         }
       }
@@ -511,10 +984,12 @@
         "tags": [
           "FavoriteRestaurants"
         ],
+        "summary": "Adds a restaurant to the current user's favorites.",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "The restaurant ID to add to favorites.",
             "required": true,
             "schema": {
               "type": "string",
@@ -523,8 +998,51 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
+          "204": {
+            "description": "Restaurant successfully added to favorites."
+          },
+          "400": {
+            "description": "Validation error or reference error. Details include error codes and messages.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - user is not authenticated.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error."
           }
         }
       },
@@ -532,10 +1050,12 @@
         "tags": [
           "FavoriteRestaurants"
         ],
+        "summary": "Removes a restaurant from the current user's favorites.",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "The restaurant ID to remove from favorites.",
             "required": true,
             "schema": {
               "type": "string",
@@ -544,8 +1064,51 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
+          "204": {
+            "description": "Restaurant successfully removed from favorites."
+          },
+          "401": {
+            "description": "Unauthorized - user is not authenticated.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found - the restaurant is not in the user's favorites.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error."
           }
         }
       }
@@ -555,6 +1118,7 @@
         "tags": [
           "FavoriteRestaurants"
         ],
+        "summary": "Gets the current user's favorite restaurants with pagination.",
         "parameters": [
           {
             "name": "p",
@@ -585,7 +1149,30 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Successfully retrieved the user's favorite restaurants."
+          },
+          "401": {
+            "description": "Unauthorized - user is not authenticated.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error."
           }
         }
       }
@@ -595,10 +1182,12 @@
         "tags": [
           "FavoriteRestaurants"
         ],
+        "summary": "Gets a specific user's favorite restaurants. Requires admin role.",
         "parameters": [
           {
             "name": "userId",
             "in": "path",
+            "description": "The user ID to retrieve favorites for.",
             "required": true,
             "schema": {
               "type": "string",
@@ -634,7 +1223,50 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Successfully retrieved the user's favorite restaurants."
+          },
+          "401": {
+            "description": "Unauthorized - user is not authenticated.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - user does not have admin role.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error."
           }
         }
       }
@@ -644,7 +1276,9 @@
         "tags": [
           "Restaurants"
         ],
+        "summary": "Creates a new restaurant.",
         "requestBody": {
+          "description": "The restaurant creation command containing name, address, contact, and other details.",
           "content": {
             "application/json": {
               "schema": {
@@ -665,8 +1299,91 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "OK"
+          "201": {
+            "description": "Restaurant created successfully."
+          },
+          "400": {
+            "description": "Invalid request data or validation failure.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User does not have Manager role.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Restaurant already exists or conflict with existing data.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error."
           }
         }
       },
@@ -674,6 +1391,7 @@
         "tags": [
           "Restaurants"
         ],
+        "summary": "Retrieves a paginated list of all restaurants, optionally filtered by city.",
         "parameters": [
           {
             "name": "p",
@@ -704,6 +1422,7 @@
           {
             "name": "city",
             "in": "query",
+            "description": "Optional city filter to retrieve restaurants in a specific city.",
             "schema": {
               "type": "string"
             }
@@ -711,7 +1430,30 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Restaurant list retrieved successfully."
+          },
+          "400": {
+            "description": "Invalid pagination parameters or query filters.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error."
           }
         }
       }
@@ -721,10 +1463,12 @@
         "tags": [
           "Restaurants"
         ],
+        "summary": "Adds a table to a specific restaurant.",
         "parameters": [
           {
             "name": "restaurantId",
             "in": "path",
+            "description": "The unique identifier of the restaurant.",
             "required": true,
             "schema": {
               "type": "string",
@@ -733,6 +1477,7 @@
           }
         ],
         "requestBody": {
+          "description": "The request body containing table number and seating capacity.",
           "content": {
             "application/json": {
               "schema": {
@@ -753,8 +1498,111 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "OK"
+          "204": {
+            "description": "Table added successfully."
+          },
+          "400": {
+            "description": "Invalid request data or validation failure.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User does not have Manager role.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Restaurant not found.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Table with this number already exists for the restaurant.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error."
           }
         }
       }
@@ -764,7 +1612,9 @@
         "tags": [
           "Restaurants"
         ],
+        "summary": "Deletes multiple tables from a restaurant.",
         "requestBody": {
+          "description": "Collection of table identifiers to delete.",
           "content": {
             "application/json": {
               "schema": {
@@ -794,8 +1644,91 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "OK"
+          "204": {
+            "description": "Tables deleted successfully."
+          },
+          "400": {
+            "description": "Invalid request data or validation failure.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User does not have Manager role.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "One or more tables not found.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error."
           }
         }
       }
@@ -805,10 +1738,12 @@
         "tags": [
           "Restaurants"
         ],
+        "summary": "Retrieves public information about a specific restaurant.",
         "parameters": [
           {
             "name": "restaurantId",
             "in": "path",
+            "description": "The unique identifier of the restaurant.",
             "required": true,
             "schema": {
               "type": "string",
@@ -818,7 +1753,50 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Restaurant information retrieved successfully."
+          },
+          "400": {
+            "description": "Invalid restaurant ID format.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Restaurant not found.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error."
           }
         }
       },
@@ -826,10 +1804,12 @@
         "tags": [
           "Restaurants"
         ],
+        "summary": "Deletes a restaurant.",
         "parameters": [
           {
             "name": "restaurantId",
             "in": "path",
+            "description": "The unique identifier of the restaurant to delete.",
             "required": true,
             "schema": {
               "type": "string",
@@ -838,8 +1818,91 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
+          "204": {
+            "description": "Restaurant deleted successfully."
+          },
+          "400": {
+            "description": "Invalid restaurant ID format.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User does not have Manager role.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Restaurant not found.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error."
           }
         }
       },
@@ -847,10 +1910,12 @@
         "tags": [
           "Restaurants"
         ],
+        "summary": "Updates restaurant information including address, contact details, description, and image.",
         "parameters": [
           {
             "name": "restaurantId",
             "in": "path",
+            "description": "The unique identifier of the restaurant to update.",
             "required": true,
             "schema": {
               "type": "string",
@@ -859,6 +1924,7 @@
           }
         ],
         "requestBody": {
+          "description": "The request body containing updated address, contact, description, and image URL.",
           "content": {
             "application/json": {
               "schema": {
@@ -879,8 +1945,91 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "OK"
+          "204": {
+            "description": "Restaurant updated successfully."
+          },
+          "400": {
+            "description": "Invalid request data or validation failure.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User does not have Manager role.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Restaurant not found.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error."
           }
         }
       }
@@ -890,10 +2039,12 @@
         "tags": [
           "Restaurants"
         ],
+        "summary": "Sets the working schedule for a restaurant, specifying which days and hours the restaurant operates.",
         "parameters": [
           {
             "name": "restaurantId",
             "in": "path",
+            "description": "The unique identifier of the restaurant.",
             "required": true,
             "schema": {
               "type": "string",
@@ -902,6 +2053,7 @@
           }
         ],
         "requestBody": {
+          "description": "The request body containing working days and their schedule information.",
           "content": {
             "application/json": {
               "schema": {
@@ -922,8 +2074,91 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "OK"
+          "204": {
+            "description": "Working schedule set successfully."
+          },
+          "400": {
+            "description": "Invalid request data or validation failure.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User does not have Manager role.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Restaurant not found.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error."
           }
         }
       }
@@ -933,10 +2168,12 @@
         "tags": [
           "Restaurants"
         ],
+        "summary": "Retrieves the working schedule of a specific restaurant.",
         "parameters": [
           {
             "name": "restaurantId",
             "in": "path",
+            "description": "The unique identifier of the restaurant.",
             "required": true,
             "schema": {
               "type": "string",
@@ -946,7 +2183,50 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Working schedule retrieved successfully."
+          },
+          "400": {
+            "description": "Invalid restaurant ID format.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Restaurant not found or has no working schedule defined.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error."
           }
         }
       }
@@ -956,9 +2236,38 @@
         "tags": [
           "Users"
         ],
+        "summary": "Retrieves the current authenticated user's information.",
+        "description": "Requires authentication. Returns the profile information of the currently logged-in user.",
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Successfully retrieved the current user's profile.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated or token is invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The current user was not found in the system.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
           }
         }
       }
@@ -968,10 +2277,13 @@
         "tags": [
           "Users"
         ],
+        "summary": "Promotes a user to the manager role.",
+        "description": "Requires administrator privileges. Elevates the specified user's role from Guest to Manager,\nallowing them to manage restaurant operations.",
         "parameters": [
           {
             "name": "userId",
             "in": "path",
+            "description": "The unique identifier of the user to be promoted to manager.",
             "required": true,
             "schema": {
               "type": "string",
@@ -980,8 +2292,48 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
+          "204": {
+            "description": "The user has been successfully promoted to manager."
+          },
+          "403": {
+            "description": "User lacks administrator privileges to perform this action.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The specified user was not found in the system.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
           }
         }
       }
@@ -991,10 +2343,13 @@
         "tags": [
           "Users"
         ],
+        "summary": "Blocks a user from using the platform.",
+        "description": "Requires administrator privileges. Prevents a user from performing booking-related actions.\nThe block can be temporary (with a specified duration) or permanent (when no duration is provided).\nAdmin users cannot be blocked.",
         "parameters": [
           {
             "name": "userId",
             "in": "path",
+            "description": "The unique identifier of the user to be blocked.",
             "required": true,
             "schema": {
               "type": "string",
@@ -1003,6 +2358,7 @@
           }
         ],
         "requestBody": {
+          "description": "Optional. The duration for which the user should be blocked. If not provided, the block is permanent.",
           "content": {
             "application/json": {
               "schema": {
@@ -1055,8 +2411,48 @@
           }
         },
         "responses": {
-          "200": {
-            "description": "OK"
+          "204": {
+            "description": "The user has been successfully blocked."
+          },
+          "403": {
+            "description": "User lacks administrator privileges, or the target user is an admin and cannot be blocked.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The specified user was not found in the system.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
           }
         }
       }
@@ -1066,7 +2462,10 @@
         "tags": [
           "Users"
         ],
+        "summary": "Retrieves a paginated list of users with optional filtering criteria.",
+        "description": "Requires administrator privileges. Returns a filtered list of users based on various criteria including\nage range, booking count, block status, and restaurant history. The results are paginated and exclude the current user.",
         "requestBody": {
+          "description": "Query parameters for filtering and pagination.",
           "content": {
             "application/json": {
               "schema": {
@@ -1088,7 +2487,27 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Successfully retrieved the list of users matching the filter criteria.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserResponse"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User lacks administrator privileges to access this resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
           }
         }
       }
@@ -1563,6 +2982,111 @@
             ]
           }
         }
+      },
+      "UserDto": {
+        "required": [
+          "id",
+          "username",
+          "email",
+          "phoneNumber",
+          "registrationDateTime",
+          "birthDate",
+          "firstName",
+          "lastName",
+          "role",
+          "isBlocked"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "username": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "registrationDateTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "birthDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "isBlocked": {
+            "type": "boolean"
+          },
+          "blockedUntil": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "username": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "registrationDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "birthDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "role": {
+            "$ref": "#/components/schemas/UserRole"
+          },
+          "isBlocked": {
+            "type": "boolean"
+          },
+          "blockedUntil": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
+      "UserRole": {
+        "type": "integer"
       }
     }
   },

@@ -29,7 +29,7 @@ public class DeleteTablesHandlerTests(PostgresTestFixture dbFixture) : Integrati
     [Fact]
     public async Task When_Manager_ProvidedTableExists_ShouldDeleteTable()
     {
-        SetCurrentUser(_users.Manager);
+        SetReadOnlyCurrentUser(_users.Manager);
         var res = await Mediator.Send(new DeleteTablesCommand(
         [
             new TableId(_restaurant1.Id, 2),
@@ -45,7 +45,7 @@ public class DeleteTablesHandlerTests(PostgresTestFixture dbFixture) : Integrati
     [Fact]
     public async Task When_Manager_ProvidedTableDoesNotExist_ShouldReturnError()
     {
-        SetCurrentUser(_users.Manager);
+        SetReadOnlyCurrentUser(_users.Manager);
         var res = await Mediator.Send(new DeleteTablesCommand(
         [
             new TableId(_restaurant1.Id, 2),

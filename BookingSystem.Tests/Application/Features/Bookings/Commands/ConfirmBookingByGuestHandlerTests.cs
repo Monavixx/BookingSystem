@@ -15,7 +15,7 @@ public class ConfirmBookingByGuestHandlerTests(PostgresTestFixture dbFixture) : 
     {
         var users = await Users.CreateBase3Async();
         User guest = users[2], manager = users[1];
-        SetCurrentUser(guest);
+        SetReadOnlyCurrentUser(guest);
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
         var booking = await Bookings.Create(c => c
             .WithGuest(guest)
@@ -43,7 +43,7 @@ public class ConfirmBookingByGuestHandlerTests(PostgresTestFixture dbFixture) : 
         var manager = users[1];
         var anotherGuest = await Users.CreateGuestAsync(
             "popopo", "po@g.com", "+79468751245");
-        SetCurrentUser(users[user]);
+        SetReadOnlyCurrentUser(users[user]);
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
         var booking = await Bookings.Create(c => c
             .WithGuest(anotherGuest)

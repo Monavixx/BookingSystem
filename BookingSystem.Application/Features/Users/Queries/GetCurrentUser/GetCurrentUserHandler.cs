@@ -6,14 +6,14 @@ using MediatR;
 
 namespace BookingSystem.Application.Features.Users.Queries.GetCurrentUser;
 
-public class GetCurrentUserHandler(ICurrentUserService currentUserService)
+public class GetCurrentUserHandler(IReadOnlyCurrentUserService currentUserService)
     : IRequestHandler<GetCurrentUserQuery, Result<UserDto>>
 {
     public async Task<Result<UserDto>> Handle(GetCurrentUserQuery request, CancellationToken cancellationToken)
     {
-        var user = await currentUserService.GetUserAsync();
+        var user = await currentUserService.GetAsync();
         if (user is null) return Result.Fail<UserDto>(UserErrors.NotFound);
-        
+
         return Result.Ok(UserDto.FromUser(user));
     }
 }

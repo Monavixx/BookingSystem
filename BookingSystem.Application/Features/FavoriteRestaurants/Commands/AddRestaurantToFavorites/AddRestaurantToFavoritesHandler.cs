@@ -7,7 +7,7 @@ using MediatR;
 
 namespace BookingSystem.Application.Features.FavoriteRestaurants.Commands.AddRestaurantToFavorites;
 
-public class AddRestaurantToFavoritesHandler (AppDbContext dbContext, ICurrentUserService currentUserService) : IRequestHandler<AddRestaurantToFavoritesCommand, Result>
+public class AddRestaurantToFavoritesHandler(AppDbContext dbContext, IReadOnlyCurrentUserService currentUserService) : IRequestHandler<AddRestaurantToFavoritesCommand, Result>
 {
     public async Task<Result> Handle(AddRestaurantToFavoritesCommand request, CancellationToken cancellationToken)
     {

@@ -6,16 +6,16 @@ using MediatR;
 
 namespace BookingSystem.Application.Common.PipelineBehaviors;
 
-public class ActiveUserCheckBehavior<TRequest, TResponse>(ICurrentUserService currentUserService)
+public class ActiveUserCheckBehavior<TRequest, TResponse>(IReadOnlyCurrentUserService currentUserService)
     : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
     where TResponse : IResultBase
 {
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
-        if(request is IRequireActiveUser)
+        if (request is IRequireActiveUser)
         {
-            var user = await currentUserService.GetUserAsync();
+            var user = await currentUserService.GetAsync();
             if (user is null)
                 return ResultFactory.CreateFailure<TResponse>([UserErrors.NotFound]);
             if (user.IsBlocked)

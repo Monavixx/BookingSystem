@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 namespace BookingSystem.Application.Features.Restaurants.Commands.CreateRestaurant;
 
 public class CreateRestaurantHandler(AppDbContext dbContext, ILogger<CreateRestaurantHandler> logger,
-    ICurrentUserService currentUserService)
+    IReadOnlyCurrentUserService currentUserService)
     : IRequestHandler<CreateRestaurantCommand, Result<CreateRestaurantResult>>
 {
     public async Task<Result<CreateRestaurantResult>> Handle(CreateRestaurantCommand request,
@@ -28,14 +28,14 @@ public class CreateRestaurantHandler(AppDbContext dbContext, ILogger<CreateResta
             request.ImageUrl,
             currentUserService.GetRequiredUserId());
         if (restaurantResult.IsFailed) return restaurantResult.ToResult<CreateRestaurantResult>();
-        
+
         var restaurant = restaurantResult.Value;
 
         dbContext.Restaurants.Add(restaurant);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         logger.LogInformation("Restaurant with id {RestaurantId} created", restaurant.Id);
-        
+
         return new CreateRestaurantResult(restaurant.Id.Value);
     }
 }

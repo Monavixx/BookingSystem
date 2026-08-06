@@ -12,7 +12,7 @@ namespace BookingSystem.Infrastructure.Services;
 public class BookingCancellationService(
     AppDbContext dbContext,
     TimeProvider timeProvider,
-    ICurrentUserService currentUserService,
+    IReadOnlyCurrentUserService currentUserService,
     IBackgroundJobService backgroundJobService) : IBookingCancellationService
 {
     public async Task<Result<bool>> CancelAsync(BookingId bookingId, CancellationReason reason)
@@ -34,11 +34,11 @@ public class BookingCancellationService(
             dbContext.CancellationRecords.Add(
                 CancellationRecord.Create(timeProvider, currentUserService.UserId, booking.Id, reason));
         await dbContext.SaveChangesAsync();
-        
+
         if (res.Value)
             backgroundJobService.Enqueue<IUserBlocker>
                 (u => u.BlockUserIfCancellationPolicyViolated(booking.GuestId));
-        
+
         return res;
     }
 }

@@ -14,7 +14,7 @@ namespace BookingSystem.Application.Features.Restaurants.Commands.DeleteRestaura
 public class DeleteRestaurantHandler(
     AppDbContext dbContext,
     ILogger<DeleteRestaurantHandler> logger,
-    ICurrentUserService currentUserService)
+    IReadOnlyCurrentUserService currentUserService)
     : IRequestHandler<DeleteRestaurantCommand, Result>
 {
     private record RestaurantRow(Guid OwnerId);
@@ -25,7 +25,7 @@ public class DeleteRestaurantHandler(
             .QueryFirstOrDefaultAsync<RestaurantRow>(
             "SELECT owner_id FROM Restaurants WHERE id = @Id", new { Id = request.RestaurantId });
         if (restaurantRow is null) return Result.Fail(RestaurantErrors.NotFound);
-        if(restaurantRow.OwnerId != currentUserService.UserIdGuid)
+        if (restaurantRow.OwnerId != currentUserService.UserIdGuid)
             return Result.Fail(RestaurantErrors.AccessDenied);
 
         var rows = await dbContext.Restaurants

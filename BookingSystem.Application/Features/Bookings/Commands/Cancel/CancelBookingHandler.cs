@@ -1,5 +1,6 @@
 using BookingSystem.Application.Common.Abstractions;
 using BookingSystem.Application.Features.Bookings.Abstractions;
+using BookingSystem.Application.Features.Users.DTOs;
 using BookingSystem.Application.Persistence;
 using BookingSystem.Domain.Bookings;
 using BookingSystem.Domain.Bookings.Errors;
@@ -14,7 +15,7 @@ namespace BookingSystem.Application.Features.Bookings.Commands.Cancel;
 
 public class CancelBookingHandler(
     AppDbContext dbContext,
-    ICurrentUserService currentUserService,
+    IReadOnlyCurrentUserService currentUserService,
     IBookingCancellationService bookingCancellationService) : IRequestHandler<CancelBookingCommand, Result>
 {
     public async Task<Result> Handle(CancelBookingCommand request, CancellationToken cancellationToken)
@@ -30,7 +31,7 @@ public class CancelBookingHandler(
 
         var booking = bookingInfo.Booking;
 
-        var curUser = (await currentUserService.GetUserAsync())!;
+        var curUser = (await currentUserService.GetAsync())!;
         if (!CanAccess(booking, bookingInfo.RestaurantOwnerId, curUser))
             return Result.Fail(BookingErrors.AccessDenied);
 
@@ -39,17 +40,17 @@ public class CancelBookingHandler(
             : request.IsGuestRequest
                 ? CancellationReason.ManagerOrAdminBeenAskedByGuest
                 : CancellationReason.ManagerOrAdminRequest;
-        
+
         return (await bookingCancellationService.CancelAsync(booking, cr))
             .ToResult();
     }
 
-    private static bool CanAccess(Booking booking, UserId restaurantOwnerId, User? curUser)
+    private static bool CanAccess(Booking booking, UserId restaurantOwnerId, CachedUser? curUser)
     {
         if (curUser is null) return false;
         return curUser.Role is UserRole.Admin ||
                (curUser.Role is UserRole.Manager &&
-                (curUser.Id == restaurantOwnerId || curUser.Id == booking.GuestId)) ||
-               (curUser.Role is UserRole.Guest && curUser.Id == booking.GuestId);
+                (new UserId(curUser.Id) == restaurantOwnerId || new UserId(curUser.Id) == booking.GuestId)) ||
+               (curUser.Role is UserRole.Guest && new UserId(curUser.Id) == booking.GuestId);
     }
 }

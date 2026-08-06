@@ -1,5 +1,6 @@
 using BookingSystem.Application.Common.Abstractions;
 using BookingSystem.Application.Features.Bookings.DTOs;
+using BookingSystem.Application.Features.Users.DTOs;
 using BookingSystem.Application.Persistence;
 using BookingSystem.Domain.Bookings.Errors;
 using BookingSystem.Domain.Bookings.ValueObjects;
@@ -11,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookingSystem.Application.Features.Bookings.Queries.Get;
 
-public class GetBookingHandler(AppDbContext dbContext, ICurrentUserService currentUserService)
+public class GetBookingHandler(AppDbContext dbContext, IReadOnlyCurrentUserService currentUserService)
     : IRequestHandler<GetBookingQuery, Result<BookingDto>>
 {
     public async Task<Result<DTOs.BookingDto>> Handle(GetBookingQuery request, CancellationToken cancellationToken)
@@ -33,11 +34,11 @@ public class GetBookingHandler(AppDbContext dbContext, ICurrentUserService curre
             """, new { request.BookingId });
         if (res is null)
             return Result.Fail<DTOs.BookingDto>(BookingErrors.NotFound);
-        
-        var user = await currentUserService.GetUserAsync();
+
+        var user = await currentUserService.GetAsync();
         if (user is null || !CanAccess(user, res))
             return Result.Fail<DTOs.BookingDto>(BookingErrors.AccessDenied);
-        
+
         return new DTOs.BookingDto(
             Id: request.BookingId,
             GuestId: res.GuestId,
@@ -48,11 +49,11 @@ public class GetBookingHandler(AppDbContext dbContext, ICurrentUserService curre
             Start: res.Start,
             End: res.End);
     }
-    
-    private static bool CanAccess(User user, BookingDto booking) =>
+
+    private static bool CanAccess(CachedUser user, BookingDto booking) =>
         user.Role == UserRole.Admin ||
-        user.Id.Value == booking.GuestId ||
-        (user.Role == UserRole.Manager && user.Id.Value == booking.RestaurantOwnerId);
+        user.Id == booking.GuestId ||
+        (user.Role == UserRole.Manager && user.Id == booking.RestaurantOwnerId);
 
 
     private sealed record BookingDto

@@ -2,13 +2,14 @@ using BookingSystem.Application.Common.Abstractions;
 using BookingSystem.Application.Persistence;
 using BookingSystem.Domain.Restaurants.Errors;
 using BookingSystem.Domain.Users;
+using BookingSystem.Domain.Users.ValueObjects;
 using FluentResults;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookingSystem.Application.Features.Restaurants.Commands.DeleteTable;
 
-public class DeleteTablesHandler(AppDbContext dbContext, ICurrentUserService currentUserService)
+public class DeleteTablesHandler(AppDbContext dbContext, IReadOnlyCurrentUserService currentUserService)
     : IRequestHandler<DeleteTablesCommand, Result>
 {
     public async Task<Result> Handle(DeleteTablesCommand request, CancellationToken cancellationToken)
@@ -27,11 +28,12 @@ public class DeleteTablesHandler(AppDbContext dbContext, ICurrentUserService cur
             return TableErrors.NotFound.CloneWithMessage(
                 "One or more of the provided tables do not exist.");
 
-        var curUser = await currentUserService.GetUserAsync();
-        if (tablesInfo.Any(t => t.RestaurantOwnerId != currentUserService.UserId &&
-                                curUser?.Role is not UserRole.Admin))
-            return TableErrors.AccessDenied.CloneWithMessage(
-                "You are not allowed to delete one or more of the provided tables.");
+        var curUser = await currentUserService.GetAsync();
+        if (curUser is null) return TableErrors.AccessDenied;
+        if (curUser.Role is not UserRole.Admin)
+            if (tablesInfo.Any(t => t.RestaurantOwnerId != new UserId(curUser.Id)))
+                return TableErrors.AccessDenied.CloneWithMessage(
+                    "You are not allowed to delete one or more of the provided tables.");
 
         dbContext.Tables.RemoveRange(tablesInfo.Select(t => t.Table));
         await dbContext.SaveChangesAsync(cancellationToken);

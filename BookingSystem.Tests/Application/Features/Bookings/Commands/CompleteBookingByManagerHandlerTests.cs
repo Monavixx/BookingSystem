@@ -14,7 +14,7 @@ public class CompleteBookingByManagerHandlerTests(PostgresTestFixture dbFixture)
     {
         var users = await Users.CreateBase3Async();
         User manager = users[1], guest = users[2];
-        SetCurrentUser(manager);
+        SetReadOnlyCurrentUser(manager);
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
         var booking = await Bookings.Create(c => c
             .WithGuest(guest)
@@ -38,7 +38,7 @@ public class CompleteBookingByManagerHandlerTests(PostgresTestFixture dbFixture)
     public async Task When_BookingDoesNotExist_ShouldReturnNotFound()
     {
         var manager = await Users.CreateManagerAsync();
-        SetCurrentUser(manager);
+        SetReadOnlyCurrentUser(manager);
         NewScope();
 
         var res = await Mediator.Send(
@@ -57,7 +57,7 @@ public class CompleteBookingByManagerHandlerTests(PostgresTestFixture dbFixture)
             .WithGuest(guest)
             .WithRestaurant(restaurant)
             .WithStatus(BookingStatus.Seated));
-        SetCurrentUser(anotherManager);
+        SetReadOnlyCurrentUser(anotherManager);
         NewScope();
 
         var res = await Mediator.Send(
@@ -83,7 +83,7 @@ public class CompleteBookingByManagerHandlerTests(PostgresTestFixture dbFixture)
         // Arrange
         var users = await Users.CreateBase3Async();
         User manager = users[1], guest = users[2];
-        SetCurrentUser(manager);
+        SetReadOnlyCurrentUser(manager);
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
         var booking = await Bookings.Create(c => c
             .WithGuest(guest)
@@ -117,7 +117,7 @@ public class CompleteBookingByManagerHandlerTests(PostgresTestFixture dbFixture)
             .WithGuest(guest)
             .WithRestaurant(restaurant)
             .WithStatus(BookingStatus.Seated));
-        SetCurrentUser(guest);
+        SetReadOnlyCurrentUser(guest);
         NewScope();
 
         // Act
@@ -144,7 +144,7 @@ public class CompleteBookingByManagerHandlerTests(PostgresTestFixture dbFixture)
             .WithGuest(guest)
             .WithRestaurant(restaurant)
             .WithStatus(BookingStatus.Seated));
-        SetCurrentUser(admin);
+        SetReadOnlyCurrentUser(admin);
         NewScope();
 
         // Act
@@ -167,7 +167,7 @@ public class CompleteBookingByManagerHandlerTests(PostgresTestFixture dbFixture)
         // Arrange
         var users = await Users.CreateBase3Async();
         User manager = users[1], guest = users[2];
-        SetCurrentUser(manager);
+        SetReadOnlyCurrentUser(manager);
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
 
         var booking1 = await Bookings.Create(c => c
@@ -211,7 +211,7 @@ public class CompleteBookingByManagerHandlerTests(PostgresTestFixture dbFixture)
                 .AddRestaurant(manager, (1, 2), (2, 3), (3, 8), (4, 3));
         });
 
-        SetCurrentUser(manager);
+        SetReadOnlyCurrentUser(manager);
         var booking1 = await Bookings.Create(c => c
             .WithGuest(guest)
             .WithRestaurant(restaurants[0])
@@ -246,7 +246,7 @@ public class CompleteBookingByManagerHandlerTests(PostgresTestFixture dbFixture)
         // Arrange
         var users = await Users.CreateBase3Async();
         User manager = users[1], guest = users[2];
-        SetCurrentUser(manager);
+        SetReadOnlyCurrentUser(manager);
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
         var booking = await Bookings.Create(c => c
             .WithGuest(guest)

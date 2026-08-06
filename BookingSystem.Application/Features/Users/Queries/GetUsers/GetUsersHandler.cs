@@ -9,14 +9,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookingSystem.Application.Features.Users.Queries.GetUsers;
 
-public class GetUsersHandler (AppDbContext dbContext, TimeProvider timeProvider, ICurrentUserService currentUserService):
+public class GetUsersHandler(AppDbContext dbContext, TimeProvider timeProvider, IReadOnlyCurrentUserService currentUserService) :
     IRequestHandler<GetUsersQuery, Result<IEnumerable<UserResponse>>>
 {
     public async Task<Result<IEnumerable<UserResponse>>> Handle(GetUsersQuery request, CancellationToken cancellationToken)
     {
         var query = dbContext.Users
             .AsNoTracking()
-            .Where(u=>u.Id != currentUserService.GetRequiredUserId());
+            .Where(u => u.Id != currentUserService.GetRequiredUserId());
 
         if (request.OlderThan.HasValue)
         {
@@ -37,13 +37,13 @@ public class GetUsersHandler (AppDbContext dbContext, TimeProvider timeProvider,
         if (request.BookingCountLessThan.HasValue)
             query = query.Where(u =>
                 dbContext.Bookings.Count(b => b.GuestId == u.Id) <= request.BookingCountLessThan.Value);
-        if(request.IsBlocked.HasValue)
+        if (request.IsBlocked.HasValue)
             query = query.Where(u => u.IsBlocked == request.IsBlocked.Value);
         if (request.RestaurantUserBeenTo.HasValue)
             query = query.Where(u => dbContext.Bookings.Any(b =>
                 b.GuestId == u.Id && b.RestaurantId == new RestaurantId(request.RestaurantUserBeenTo.Value)
                 && (b.Status == BookingStatus.Completed || b.Status == BookingStatus.Seated)));
-        if(request.RestaurantUserIsAt.HasValue)
+        if (request.RestaurantUserIsAt.HasValue)
             query = query.Where(u => dbContext.Bookings.Any(b =>
                 b.GuestId == u.Id && b.RestaurantId == new RestaurantId(request.RestaurantUserIsAt.Value)
                 && b.Status == BookingStatus.Seated));

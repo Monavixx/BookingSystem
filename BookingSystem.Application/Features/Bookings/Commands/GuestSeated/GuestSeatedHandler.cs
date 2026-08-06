@@ -17,16 +17,16 @@ namespace BookingSystem.Application.Features.Bookings.Commands.GuestSeated;
 
 public class GuestSeatedHandler(
     AppDbContext dbContext,
-    ICurrentUserService currentUserService,
+    IReadOnlyCurrentUserService currentUserService,
     ILogger<GuestSeatedHandler> logger,
     IBackgroundJobService backgroundJobService,
     TimeProvider timeProvider) : IRequestHandler<GuestSeatedCommand, Result>
 {
     public async Task<Result> Handle(GuestSeatedCommand request, CancellationToken cancellationToken)
     {
-        if(await currentUserService.GetUserAsync() is {Role: not UserRole.Manager})
+        if (await currentUserService.GetAsync() is { Role: not UserRole.Manager })
             return Result.Fail(BookingErrors.AccessDenied);
-        
+
         var res = await GetBookingAndRestaurantOwnerId(request.BookingId, cancellationToken);
         if (res is null) return Result.Fail(BookingErrors.NotFound);
         var booking = res.Booking;
@@ -84,7 +84,7 @@ public class GuestSeatedHandler(
                 """,
                     booking.Status, booking.Id.Value, booking.RowVersion,
                     booking.RestaurantId.Value, booking.TableNumber,
-                    now, now + (booking.TimeSlot.End-booking.TimeSlot.Start),
+                    now, now + (booking.TimeSlot.End - booking.TimeSlot.Start),
                     BookingStatusHelper.FinalIntStatuses
                 );
             if (rows == 0)

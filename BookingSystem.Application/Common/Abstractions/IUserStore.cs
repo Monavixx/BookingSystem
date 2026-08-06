@@ -3,9 +3,7 @@ using BookingSystem.Domain.Users.ValueObjects;
 
 namespace BookingSystem.Application.Common.Abstractions;
 
-public interface IUserCache
+public interface IUserStore
 {
-    Task<CachedUser?> Find(UserId id);
-    Task Invalidate(UserId id);
-    Task Save(CachedUser user);
+    Task<CachedUser?> FindReadOnly(UserId id);
 }

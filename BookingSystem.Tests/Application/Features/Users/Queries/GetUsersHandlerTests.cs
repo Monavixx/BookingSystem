@@ -12,7 +12,7 @@ public class GetUsersHandlerTests(PostgresTestFixture dbFixture) : IntegrationTe
     protected override async ValueTask InitAsync()
     {
         _admin = await Users.CreateAdminAsync();
-        SetCurrentUser(_admin);
+        SetReadOnlyCurrentUser(_admin);
     }
 
     [Fact]
@@ -234,7 +234,7 @@ public class GetUsersHandlerTests(PostgresTestFixture dbFixture) : IntegrationTe
         NewScope();
 
         var res = await Mediator.Send(new GetUsersQuery()
-            { RestaurantUserBeenTo = restaurants[restaurantIndex].Id.Value }, TestContext.Current.CancellationToken);
+        { RestaurantUserBeenTo = restaurants[restaurantIndex].Id.Value }, TestContext.Current.CancellationToken);
         res.Errors.Should().BeEmpty();
         res.Value.Should().HaveCount(expectedCount);
     }

@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookingSystem.Application.Features.Bookings.Commands.Complete;
 
-public sealed class CompleteBookingHandler(AppDbContext dbContext, ICurrentUserService currentUserService,
+public sealed class CompleteBookingHandler(AppDbContext dbContext, IReadOnlyCurrentUserService currentUserService,
     IBookingCompletionService bookingCompletionService)
     : IRequestHandler<CompleteBookingCommand, Result>
 {

@@ -22,7 +22,7 @@ namespace BookingSystem.Application.Features.Bookings.Commands.Create;
 
 public class CreateBookingHandler(AppDbContext dbContext, BookingDurationCalculator durationCalculator,
     IBackgroundJobService backgroundJobService, IOptions<BookingOptions> bookingOptions,
-    ICurrentUserService currentUserService)
+    IReadOnlyCurrentUserService currentUserService)
     : IRequestHandler<CreateBookingCommand, Result<BookingDto>>
 {
     private sealed record TableDto(int Capacity, Guid RestaurantId, int TableNumber);
@@ -57,7 +57,7 @@ public class CreateBookingHandler(AppDbContext dbContext, BookingDurationCalcula
                 new RestaurantId(request.RestaurantId), table.TableNumber, slot.Value);
             if (bookingRes.IsFailed) return bookingRes.ToResult<BookingDto>();
             booking = bookingRes.Value;
-            
+
             dbContext.Bookings.Add(booking);
             await dbContext.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
@@ -70,7 +70,7 @@ public class CreateBookingHandler(AppDbContext dbContext, BookingDurationCalcula
         backgroundJobService.Schedule<IBookingCancellationService>(
             s => s.CancelAsync(booking.Id, CancellationReason.PendingTimeout),
             TimeSpan.FromMinutes(bookingOptions.Value.GuestConfirmationTimeoutMinutes));
-        
+
         return new BookingDto(booking);
     }
 
@@ -100,7 +100,10 @@ public class CreateBookingHandler(AppDbContext dbContext, BookingDurationCalcula
                  """,
                 new
                 {
-                    RestaurantId = restaurantId, GuestCount = guestCount, ScheduledAt = scheduledAt, EndTime = endTime,
+                    RestaurantId = restaurantId,
+                    GuestCount = guestCount,
+                    ScheduledAt = scheduledAt,
+                    EndTime = endTime,
                     FinalStatuses = BookingStatusHelper.FinalIntStatuses
                 }, transaction: transaction);
         }

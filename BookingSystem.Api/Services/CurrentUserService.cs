@@ -18,14 +18,14 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor, AppDbC
         => new(GetRequiredUserIdGuid());
 
     private User? _user;
-    public async ValueTask<User?> GetUserAsync()
+    public async ValueTask<User?> GetAsync()
     {
         if (_user is not null) return _user;
         if (UserId is not { } userId) return null;
         return _user = await dbContext.Users.FindAsync(userId);
     }
 
-    public async ValueTask<User?> GetUserAsync(ClaimsPrincipal principal)
+    public async ValueTask<User?> GetAsync(ClaimsPrincipal principal)
     {
         if (_user is not null) return _user;
         if (principal.GetUserIdOrDefault() is not { } userIdGuid) return null;

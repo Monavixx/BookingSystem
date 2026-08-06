@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookingSystem.Application.Features.Bookings.Commands.Confirm;
 
-public class ConfirmBookingHandler(AppDbContext dbContext, ICurrentUserService currentUserService)
+public class ConfirmBookingHandler(AppDbContext dbContext, IReadOnlyCurrentUserService currentUserService)
     : IRequestHandler<ConfirmBookingCommand, Result>
 {
     public async Task<Result> Handle(ConfirmBookingCommand request, CancellationToken cancellationToken)

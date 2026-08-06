@@ -10,7 +10,7 @@ public class BlockUserHandlerTests(PostgresTestFixture dbFixture) : IntegrationT
     {
         var admin =
             await Users.CreateAdminAsync("eprerereee", "fwrfnrwfnrihion@mmm.rre", "+79264875151");
-        SetCurrentUser(admin);
+        SetReadOnlyCurrentUser(admin);
     }
 
     [Fact]

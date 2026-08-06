@@ -35,6 +35,7 @@ public class IntegrationTestWebFactory : WebApplicationFactory<Program>
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        builder.UseEnvironment("Test");
         builder.ConfigureLogging(logging =>
         {
             logging.ClearProviders();
@@ -69,6 +70,7 @@ public class IntegrationTestWebFactory : WebApplicationFactory<Program>
                 options.ConfigureWarnings(c => c.Ignore(RelationalEventId.PendingModelChangesWarning));
             });
             services.Replace(ServiceDescriptor.Scoped<ICurrentUserService, FakeCurrentUserService>());
+            services.Replace(ServiceDescriptor.Scoped<IReadOnlyCurrentUserService, FakeReadOnlyCurrentUserService>());
             services.AddScoped<UserTestDataService>();
             services.AddScoped<RestaurantTestDataService>();
             services.AddScoped<BookingTestDataService>();

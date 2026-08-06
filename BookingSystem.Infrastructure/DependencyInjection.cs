@@ -6,6 +6,7 @@ using BookingSystem.Application.Persistence.Abstractions;
 using BookingSystem.Application.Persistence.Extensions;
 using BookingSystem.Infrastructure.Options;
 using BookingSystem.Infrastructure.Services;
+using BookingSystem.Infrastructure.Services.Cache;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.EntityFrameworkCore;
@@ -61,6 +62,8 @@ public static class DependencyInjection
         services.AddScoped<IBookingCancellationService, BookingCancellationService>();
         services.AddScoped<IBookingCompletionService, BookingCompletionService>();
         services.AddScoped<IUserBlocker, UserBlocker>();
+        services.AddScoped<IUserStore, UserStore>();
+        services.AddSingleton<IUserCache, RedisUserCache>();
 
         return services;
     }

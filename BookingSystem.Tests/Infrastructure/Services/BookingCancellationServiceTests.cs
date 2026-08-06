@@ -32,7 +32,7 @@ public class BookingCancellationServiceTests(PostgresTestFixture fixture) : Inte
                 .WithRestaurant(_restaurant)
                 .WithGuest(_guest)
                 .WithTableNumber(1));
-        SetCurrentUser(_manager);
+        SetReadOnlyCurrentUser(_manager);
         var res = await _bookingCancellationService.CancelAsync(booking.Id, CancellationReason.ManagerOrAdminBeenAskedByGuest);
 
         res.ShouldBeSuccess();
@@ -51,7 +51,7 @@ public class BookingCancellationServiceTests(PostgresTestFixture fixture) : Inte
                 .WithRestaurant(_restaurant)
                 .WithGuest(_guest)
                 .WithTableNumber(1));
-        SetCurrentUser(_guest);
+        SetReadOnlyCurrentUser(_guest);
         var res = await _bookingCancellationService.CancelAsync(booking.Id, CancellationReason.GuestRequest);
 
         res.ShouldContain(BookingErrors.Status.InvalidStatusOrReasonToCancelCode);
@@ -60,7 +60,7 @@ public class BookingCancellationServiceTests(PostgresTestFixture fixture) : Inte
     [Fact]
     public async Task CancelAsync_WhenBookingDoesNotExist_ShouldReturnError()
     {
-        SetCurrentUser(_guest);
+        SetReadOnlyCurrentUser(_guest);
         var res = await _bookingCancellationService.CancelAsync(BookingId.New(), CancellationReason.GuestRequest);
 
         res.ShouldContain(BookingErrors.NotFound);

@@ -6,13 +6,13 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace BookingSystem.Api;
 
-public class RoleClaimsTransformation(ICurrentUserService currentUserService) : IClaimsTransformation
+public class RoleClaimsTransformation(IReadOnlyCurrentUserService readOnlyCurrentUserService) : IClaimsTransformation
 {
     public async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
     {
         if (principal.Identity is { IsAuthenticated: true })
         {
-            var user = await currentUserService.GetUserAsync(principal);
+            var user = await readOnlyCurrentUserService.GetAsync(principal);
             if (user != null)
             {
                 var id = new ClaimsIdentity([new Claim("role", user.Role.ToString())],

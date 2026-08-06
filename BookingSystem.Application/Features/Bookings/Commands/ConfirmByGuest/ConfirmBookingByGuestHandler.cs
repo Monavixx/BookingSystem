@@ -11,7 +11,7 @@ namespace BookingSystem.Application.Features.Bookings.Commands.ConfirmByGuest;
 
 public class ConfirmBookingByGuestHandler(
     AppDbContext dbContext,
-    ICurrentUserService currentUserService,
+    IReadOnlyCurrentUserService currentUserService,
     ILogger<ConfirmBookingByGuestHandler> logger,
     IBackgroundJobService backgroundJobService)
     : IRequestHandler<ConfirmBookingByGuestCommand, Result>
@@ -27,11 +27,11 @@ public class ConfirmBookingByGuestHandler(
             return failed;
         await dbContext.SaveChangesAsync(cancellationToken);
         logger.LogInformation("Booking {BookingId} confirmed by guest", request.BookingId);
-        
+
         backgroundJobService.Schedule<IBookingCancellationService>(
             s => s.CancelAsync(booking.Id, CancellationReason.ManagerHasNotConfirmed),
             booking.TimeSlot.Start);
-        
+
         return Result.Ok();
     }
 }
