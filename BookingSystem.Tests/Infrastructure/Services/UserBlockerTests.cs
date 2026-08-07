@@ -10,7 +10,7 @@ using Microsoft.Extensions.Options;
 
 namespace BookingSystem.Tests.Infrastructure.Services;
 
-public class UserBlockerTests(PostgresTestFixture dbFixture) : IntegrationTestBase(dbFixture)
+public class UserBlockerTests(IntegrationTestFixture dbFixture) : IntegrationTestBase(dbFixture)
 {
     private BookingOptions _bookingOptions = null!;
     private Base5Users _users = null!;
@@ -109,7 +109,7 @@ public class UserBlockerTests(PostgresTestFixture dbFixture) : IntegrationTestBa
         user.IsBlocked.Should().BeFalse();
         user.BlockedUntil.Should().BeNull();
     }
-    
+
     [Fact]
     public async Task When_UserDoesNotHaveEnoughViolationsBecauseSomeAreOld_ShouldNotBlockUser()
     {

@@ -20,7 +20,8 @@ namespace BookingSystem.Tests;
 
 public class IntegrationTestWebFactory : WebApplicationFactory<Program>
 {
-    public string ConnectionString { get; init; } = null!;
+    public string PostgresConnectionString { get; init; } = null!;
+    public string RedisConnectionString { get; init; } = null!;
     private readonly Mock<IBackgroundJobService> _backgroundJobServiceMock = new();
 
     public FakeTimeProvider FakeTime { get; init; } =
@@ -40,6 +41,7 @@ public class IntegrationTestWebFactory : WebApplicationFactory<Program>
         {
             logging.ClearProviders();
         });
+        builder.UseSetting("ConnectionStrings:Redis", RedisConnectionString);
         builder.ConfigureServices(services =>
         {
             var hangfireServer =
@@ -65,7 +67,7 @@ public class IntegrationTestWebFactory : WebApplicationFactory<Program>
 
             services.AddDbContextFactory<AppDbContext>(options =>
             {
-                options.UseNpgsql(ConnectionString)
+                options.UseNpgsql(PostgresConnectionString)
                     .UseSnakeCaseNamingConvention();
                 options.ConfigureWarnings(c => c.Ignore(RelationalEventId.PendingModelChangesWarning));
             });

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookingSystem.Tests.Application.Features.Restaurants.Commands;
 
-public class SetWorkingScheduleHandlerTests(PostgresTestFixture dbFixture) : IntegrationTestBase(dbFixture)
+public class SetWorkingScheduleHandlerTests(IntegrationTestFixture dbFixture) : IntegrationTestBase(dbFixture)
 {
     [Fact]
     public async Task HappyPath_And_PreviousWorkingScheduleWasNotNull_ShouldSetWorkingSchedule_And_DeletePreviousOne()

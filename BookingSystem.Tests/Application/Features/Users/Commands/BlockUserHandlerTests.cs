@@ -4,7 +4,7 @@ using FluentAssertions;
 
 namespace BookingSystem.Tests.Application.Features.Users.Commands;
 
-public class BlockUserHandlerTests(PostgresTestFixture dbFixture) : IntegrationTestBase(dbFixture)
+public class BlockUserHandlerTests(IntegrationTestFixture dbFixture) : IntegrationTestBase(dbFixture)
 {
     protected override async ValueTask InitAsync()
     {

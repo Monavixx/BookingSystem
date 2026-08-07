@@ -4,7 +4,7 @@ using FluentAssertions;
 
 namespace BookingSystem.Tests.Application.Features.Users.Commands;
 
-public class MakeManagerHandlerTests(PostgresTestFixture fixture) : IntegrationTestBase(fixture)
+public class MakeManagerHandlerTests(IntegrationTestFixture fixture) : IntegrationTestBase(fixture)
 {
     [Fact]
     public async Task HappyPath_ShouldMakeManager()

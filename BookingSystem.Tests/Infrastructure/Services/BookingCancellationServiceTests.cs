@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BookingSystem.Tests.Infrastructure.Services;
 
-public class BookingCancellationServiceTests(PostgresTestFixture fixture) : IntegrationTestBase(fixture)
+public class BookingCancellationServiceTests(IntegrationTestFixture fixture) : IntegrationTestBase(fixture)
 {
     private User _manager = null!,
         _anotherManager = null!,

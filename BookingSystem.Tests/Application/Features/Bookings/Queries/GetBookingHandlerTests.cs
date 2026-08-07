@@ -5,7 +5,7 @@ using FluentAssertions;
 
 namespace BookingSystem.Tests.Application.Features.Bookings.Queries;
 
-public class GetBookingHandlerTests(PostgresTestFixture fixture) : IntegrationTestBase(fixture)
+public class GetBookingHandlerTests(IntegrationTestFixture fixture) : IntegrationTestBase(fixture)
 {
     [Fact]
     public async Task When_TheGuestRequests_ReturnBooking()

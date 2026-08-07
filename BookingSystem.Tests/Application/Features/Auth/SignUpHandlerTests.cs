@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookingSystem.Tests.Application.Features.Auth;
 
-public class SignUpHandlerTests(PostgresTestFixture dbFixture) : IntegrationTestBase(dbFixture)
+public class SignUpHandlerTests(IntegrationTestFixture dbFixture) : IntegrationTestBase(dbFixture)
 {
     [Fact]
     public async Task When_DataIsValid_ReturnsSuccessAndCreatesUserAndSession()

@@ -5,7 +5,7 @@ using FluentAssertions;
 
 namespace BookingSystem.Tests.Application.Features.Users.Queries;
 
-public class GetUsersHandlerTests(PostgresTestFixture dbFixture) : IntegrationTestBase(dbFixture)
+public class GetUsersHandlerTests(IntegrationTestFixture dbFixture) : IntegrationTestBase(dbFixture)
 {
     private User _admin = null!;
 

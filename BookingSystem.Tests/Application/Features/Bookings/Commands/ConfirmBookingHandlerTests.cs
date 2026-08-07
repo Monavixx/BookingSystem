@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookingSystem.Tests.Application.Features.Bookings.Commands;
 
-public class ConfirmBookingHandlerTests(PostgresTestFixture dbFixture) : IntegrationTestBase(dbFixture)
+public class ConfirmBookingHandlerTests(IntegrationTestFixture dbFixture) : IntegrationTestBase(dbFixture)
 {
     [Fact]
     public async Task When_ManagerConfirmsBookingInConfirmedByGuestStatus_ShouldConfirmBooking()

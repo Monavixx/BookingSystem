@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BookingSystem.Tests.Application.Features.Auth;
 
-public class LogInHandlerTests(PostgresTestFixture dbFixture) : IntegrationTestBase(dbFixture)
+public class LogInHandlerTests(IntegrationTestFixture dbFixture) : IntegrationTestBase(dbFixture)
 {
     [Fact]
     public async Task When_CredentialsAreValid_ByUsername_ReturnsSuccessAndCreatesSession()

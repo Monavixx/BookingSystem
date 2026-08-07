@@ -7,7 +7,7 @@ using FluentAssertions;
 
 namespace BookingSystem.Tests.Application.Features.Bookings.Queries;
 
-public class GetAllBookingsHandlerTests(PostgresTestFixture dbFixture) : IntegrationTestBase(dbFixture)
+public class GetAllBookingsHandlerTests(IntegrationTestFixture dbFixture) : IntegrationTestBase(dbFixture)
 {
     private Base5Users _users = null!;
     private Restaurant _restaurant1 = null!, _restaurant2 = null!;

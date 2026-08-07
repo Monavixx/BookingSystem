@@ -13,7 +13,7 @@ using Moq;
 
 namespace BookingSystem.Tests.Application.Features.Bookings.Commands;
 
-public class CreateBookingHandlerTests(PostgresTestFixture dbFixture) : IntegrationTestBase(dbFixture)
+public class CreateBookingHandlerTests(IntegrationTestFixture dbFixture) : IntegrationTestBase(dbFixture)
 {
     private void ShouldScheduleBookingStatusChangeJobWithTimeout(Booking booking)
     {

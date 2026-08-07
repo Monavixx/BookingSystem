@@ -12,12 +12,13 @@ using Hangfire.PostgreSql;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using StackExchange.Redis;
 
 namespace BookingSystem.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public static async Task AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddOptions<RefreshTokenOptions>()
             .Bind(configuration.GetSection(RefreshTokenOptions.SectionName))
@@ -40,6 +41,8 @@ public static class DependencyInjection
                 return cer;
             }
         );
+
+
         if (Assembly.GetEntryAssembly()?.GetName().Name != "GetDocument.Insider")
         {
             var hangfireConnection = configuration.GetConnectionString("HangfireConnection");
@@ -59,12 +62,20 @@ public static class DependencyInjection
                 services.AddScoped<IBackgroundJobService, BackgroundJobService>();
             }
         }
+        string redisConnectionString = configuration.GetConnectionString("Redis") ?? string.Empty;
+        IConnectionMultiplexer? connectionMultiplexer = null;
+        if (!string.IsNullOrEmpty(redisConnectionString))
+        {
+            var conf = ConfigurationOptions.Parse(redisConnectionString);
+            conf.AbortOnConnectFail = true;
+            connectionMultiplexer = await ConnectionMultiplexer.ConnectAsync(conf);
+            services.AddSingleton(connectionMultiplexer);
+            services.AddSingleton<IUserCache, RedisUserCache>();
+        }
+
         services.AddScoped<IBookingCancellationService, BookingCancellationService>();
         services.AddScoped<IBookingCompletionService, BookingCompletionService>();
         services.AddScoped<IUserBlocker, UserBlocker>();
         services.AddScoped<IUserStore, UserStore>();
-        services.AddSingleton<IUserCache, RedisUserCache>();
-
-        return services;
     }
 }

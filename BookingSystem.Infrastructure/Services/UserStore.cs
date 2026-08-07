@@ -13,9 +13,9 @@ public class UserStore(IUserCache userCache, AppDbContext dbContext) : IUserStor
     {
         var user = await userCache.Find(id);
         if (user is not null) return user;
-        user = await dbContext.Database.GetDbConnection().QueryFirstOrDefaultAsync(
+        user = await dbContext.Database.GetDbConnection().QueryFirstOrDefaultAsync<CachedUser>(
                 """
-                SELECT u.username, u.email, u.phone_number, u.registration_date_time, u.birth_date,
+                SELECT u.id, u.username, u.email, u.phone_number, u.registration_date_time, u.birth_date,
                 u.first_name, u.last_name, u.role, u.is_blocked, u.blocked_until
                 FROM users u
                 WHERE u.id = @Id 

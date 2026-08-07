@@ -16,7 +16,7 @@ namespace BookingSystem.Tests;
 [Collection("Postgres")]
 public abstract class IntegrationTestBase : IAsyncLifetime
 {
-    protected readonly PostgresTestFixture DbFixture;
+    protected readonly IntegrationTestFixture DbFixture;
     protected readonly IntegrationTestWebFactory Factory;
     protected IServiceScope Scope = null!;
     protected IMediator Mediator => Scope.ServiceProvider.GetRequiredService<IMediator>();
@@ -40,10 +40,10 @@ public abstract class IntegrationTestBase : IAsyncLifetime
     protected BookingTestDataService Bookings => Scope.ServiceProvider.GetRequiredService<BookingTestDataService>();
     protected Mock<IBackgroundJobService> BackgroundJobServiceMock => Factory.GetBackgroundJobServiceMock();
 
-    protected IntegrationTestBase(PostgresTestFixture dbFixture)
+    protected IntegrationTestBase(IntegrationTestFixture dbFixture)
     {
         DbFixture = dbFixture;
-        Factory = new IntegrationTestWebFactory { ConnectionString = DbFixture.ConnectionString };
+        Factory = new IntegrationTestWebFactory { PostgresConnectionString = DbFixture.PostgresConnectionString };
     }
 
     protected void SetReadOnlyCurrentUser(User user) => CurrentUserService.UserIdGuid = user.Id.Value;
@@ -84,4 +84,4 @@ public abstract class IntegrationTestBase : IAsyncLifetime
 }
 
 [CollectionDefinition("Postgres")]
-public class PostgresCollection : ICollectionFixture<PostgresTestFixture>;
+public class PostgresCollection : ICollectionFixture<IntegrationTestFixture>;

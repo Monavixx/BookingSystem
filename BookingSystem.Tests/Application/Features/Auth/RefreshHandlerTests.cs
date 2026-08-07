@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BookingSystem.Tests.Application.Features.Auth;
 
-public class RefreshHandlerTests(PostgresTestFixture dbFixture) : IntegrationTestBase(dbFixture)
+public class RefreshHandlerTests(IntegrationTestFixture dbFixture) : IntegrationTestBase(dbFixture)
 {
     [Fact]
     public async Task ValidRefreshToken_ReturnsNewAccessAndRefreshTokens()
@@ -16,7 +16,7 @@ public class RefreshHandlerTests(PostgresTestFixture dbFixture) : IntegrationTes
         FakeTime.AdjustTime(DateTimeOffset.UtcNow);
         var user = await Users.CreateGuestAsync();
         var refreshTokenService = Scope.ServiceProvider.GetRequiredService<IRefreshTokenService>();
-        
+
         var oldRefreshToken = refreshTokenService.GenerateRefreshToken();
         user.AddSession(oldRefreshToken);
         await DbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -39,11 +39,11 @@ public class RefreshHandlerTests(PostgresTestFixture dbFixture) : IntegrationTes
         FakeTime.AdjustTime(DateTimeOffset.UtcNow);
         var user = await Users.CreateGuestAsync();
         var refreshTokenService = Scope.ServiceProvider.GetRequiredService<IRefreshTokenService>();
-        
+
         var oldRefreshToken = refreshTokenService.GenerateRefreshToken();
         user.AddSession(oldRefreshToken);
         await DbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-        
+
         var oldTokenString = oldRefreshToken.ToString();
 
         // act
@@ -55,7 +55,7 @@ public class RefreshHandlerTests(PostgresTestFixture dbFixture) : IntegrationTes
         NewScope();
         var session = await DbContext.Sessions
             .FirstOrDefaultAsync(s => s.UserId == user.Id, TestContext.Current.CancellationToken);
-        
+
         session.Should().NotBeNull();
         session.RefreshToken.ToString().Should().NotBe(oldTokenString);
     }
@@ -102,7 +102,7 @@ public class RefreshHandlerTests(PostgresTestFixture dbFixture) : IntegrationTes
         FakeTime.AdjustTime(DateTimeOffset.UtcNow);
         var user = await Users.CreateGuestAsync();
         var refreshTokenService = Scope.ServiceProvider.GetRequiredService<IRefreshTokenService>();
-        
+
         var refreshToken = refreshTokenService.GenerateRefreshToken();
         user.AddSession(refreshToken);
         await DbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -130,7 +130,7 @@ public class RefreshHandlerTests(PostgresTestFixture dbFixture) : IntegrationTes
         FakeTime.AdjustTime(DateTimeOffset.UtcNow);
         var user = await Users.CreateGuestAsync();
         var refreshTokenService = Scope.ServiceProvider.GetRequiredService<IRefreshTokenService>();
-        
+
         var firstToken = refreshTokenService.GenerateRefreshToken();
         var secondToken = refreshTokenService.GenerateRefreshToken();
         user.AddSession(firstToken);
@@ -148,20 +148,20 @@ public class RefreshHandlerTests(PostgresTestFixture dbFixture) : IntegrationTes
 
         // assert
         res.IsSuccess.Should().BeTrue();
-        
+
         NewScope();
         var sessionsCountAfter = await DbContext.Sessions
             .CountAsync(s => s.UserId == user.Id, TestContext.Current.CancellationToken);
-        
+
         sessionsCountAfter.Should().Be(sessionsCountBefore);
 
         var allSessions = await DbContext.Sessions
             .Where(s => s.UserId == user.Id)
             .ToListAsync(TestContext.Current.CancellationToken);
-        
+
         var refreshedSession = allSessions
             .FirstOrDefault(s => s.RefreshToken.ToString() != firstTokenString);
-        
+
         refreshedSession.Should().NotBeNull();
     }
 
@@ -172,7 +172,7 @@ public class RefreshHandlerTests(PostgresTestFixture dbFixture) : IntegrationTes
         FakeTime.AdjustTime(DateTimeOffset.UtcNow);
         var user = await Users.CreateGuestAsync();
         var refreshTokenService = Scope.ServiceProvider.GetRequiredService<IRefreshTokenService>();
-        
+
         var refreshToken = refreshTokenService.GenerateRefreshToken();
         user.AddSession(refreshToken);
         await DbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -197,7 +197,7 @@ public class RefreshHandlerTests(PostgresTestFixture dbFixture) : IntegrationTes
         var user1 = await Users.CreateGuestAsync("user1", "user1@test.com", "+11111111111");
         var user2 = await Users.CreateGuestAsync("user2", "user2@test.com", "+22222222222");
         var refreshTokenService = Scope.ServiceProvider.GetRequiredService<IRefreshTokenService>();
-        
+
         var token1 = refreshTokenService.GenerateRefreshToken();
         var token2 = refreshTokenService.GenerateRefreshToken();
         user1.AddSession(token1);
@@ -208,9 +208,9 @@ public class RefreshHandlerTests(PostgresTestFixture dbFixture) : IntegrationTes
         var res1 = await Mediator.Send(
             new RefreshCommand(token1.ToString()),
             TestContext.Current.CancellationToken);
-        
+
         NewScope();
-        
+
         var res2 = await Mediator.Send(
             new RefreshCommand(token2.ToString()),
             TestContext.Current.CancellationToken);
@@ -228,7 +228,7 @@ public class RefreshHandlerTests(PostgresTestFixture dbFixture) : IntegrationTes
         FakeTime.AdjustTime(DateTimeOffset.UtcNow);
         var user = await Users.CreateGuestAsync();
         var refreshTokenService = Scope.ServiceProvider.GetRequiredService<IRefreshTokenService>();
-        
+
         var oldToken = refreshTokenService.GenerateRefreshToken();
         user.AddSession(oldToken);
         await DbContext.SaveChangesAsync(TestContext.Current.CancellationToken);

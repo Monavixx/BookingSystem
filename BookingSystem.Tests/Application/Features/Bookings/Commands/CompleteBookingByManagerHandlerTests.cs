@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookingSystem.Tests.Application.Features.Bookings.Commands;
 
-public class CompleteBookingByManagerHandlerTests(PostgresTestFixture dbFixture) : IntegrationTestBase(dbFixture)
+public class CompleteBookingByManagerHandlerTests(IntegrationTestFixture dbFixture) : IntegrationTestBase(dbFixture)
 {
     [Fact]
     public async Task When_Manager_BookingStatusSeated_ShouldCompleteBooking()

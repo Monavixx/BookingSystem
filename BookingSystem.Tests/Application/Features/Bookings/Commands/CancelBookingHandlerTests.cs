@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookingSystem.Tests.Application.Features.Bookings.Commands;
 
-public class CancelBookingHandlerTests(PostgresTestFixture dbFixture) : IntegrationTestBase(dbFixture)
+public class CancelBookingHandlerTests(IntegrationTestFixture dbFixture) : IntegrationTestBase(dbFixture)
 {
     [Theory]
     [InlineData(0)]

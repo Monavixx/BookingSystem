@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookingSystem.Tests.Application.Features.Restaurants.Commands;
 
-public class DeleteTablesHandlerTests(PostgresTestFixture dbFixture) : IntegrationTestBase(dbFixture)
+public class DeleteTablesHandlerTests(IntegrationTestFixture dbFixture) : IntegrationTestBase(dbFixture)
 {
     private Base5Users _users = null!;
     private Restaurant _restaurant1 = null!, _restaurant2 = null!;

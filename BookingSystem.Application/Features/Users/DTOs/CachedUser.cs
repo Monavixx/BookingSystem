@@ -4,17 +4,17 @@ namespace BookingSystem.Application.Features.Users.DTOs;
 
 public class CachedUser
 {
-    public Guid Id { get; private set; }
-    public string Username { get; private set; } = null!;
-    public string Email { get; private set; } = null!;
-    public string PhoneNumber { get; private set; } = null!;
-    public DateTimeOffset RegistrationDateTime { get; private set; }
-    public DateOnly BirthDate { get; private set; }
-    public string FirstName { get; private set; } = null!;
-    public string LastName { get; private set; } = null!;
-    public UserRole Role { get; private set; } = UserRole.Guest;
-    public bool IsBlocked { get; private set; }
-    public DateTimeOffset? BlockedUntil { get; private set; }
+    public Guid Id { get; set; }
+    public string Username { get; set; } = null!;
+    public string Email { get; set; } = null!;
+    public string PhoneNumber { get; set; } = null!;
+    public DateTimeOffset RegistrationDateTime { get; set; }
+    public DateOnly BirthDate { get; set; }
+    public string FirstName { get; set; } = null!;
+    public string LastName { get; set; } = null!;
+    public UserRole Role { get; set; } = UserRole.Guest;
+    public bool IsBlocked { get; set; }
+    public DateTimeOffset? BlockedUntil { get; set; }
 
     public static CachedUser FromUser(User user)
         => new()

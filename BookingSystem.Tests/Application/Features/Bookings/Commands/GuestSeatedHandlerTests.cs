@@ -11,7 +11,7 @@ using Moq;
 
 namespace BookingSystem.Tests.Application.Features.Bookings.Commands;
 
-public class GuestSeatedHandlerTests(PostgresTestFixture dbFixture) : IntegrationTestBase(dbFixture)
+public class GuestSeatedHandlerTests(IntegrationTestFixture dbFixture) : IntegrationTestBase(dbFixture)
 {
     [Fact]
     public async Task When_BookingDoesNotExist_ShouldReturnNotFound()
