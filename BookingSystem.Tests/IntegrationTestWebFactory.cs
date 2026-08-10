@@ -3,18 +3,15 @@ using BookingSystem.Application.Persistence;
 using BookingSystem.Infrastructure.Services;
 using BookingSystem.Tests.Fakes;
 using BookingSystem.Tests.Services;
-using Hangfire;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Time.Testing;
 using Moq;
+using StackExchange.Redis;
 
 namespace BookingSystem.Tests;
 
@@ -41,38 +38,22 @@ public class IntegrationTestWebFactory : WebApplicationFactory<Program>
         {
             logging.ClearProviders();
         });
-        builder.UseSetting("ConnectionStrings:Redis", RedisConnectionString);
         builder.ConfigureServices(services =>
         {
-            var hangfireServer =
-                services.SingleOrDefault(d =>
-                    d.ServiceType == typeof(IHostedService)
-                    && d.ImplementationType == typeof(BackgroundJobServerHostedService));
-            if (hangfireServer is not null) services.Remove(hangfireServer);
+            services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(ConfigurationOptions.Parse(RedisConnectionString)));
 
-            services.Replace(ServiceDescriptor.Scoped(_ => GetBackgroundJobService()));
+            services.Add(ServiceDescriptor.Scoped(_ => GetBackgroundJobService()));
 
-            var descriptors = services.Where(d =>
-                    d.ServiceType == typeof(DbContextOptions<AppDbContext>) ||
-                    d.ServiceType == typeof(AppDbContext) ||
-                    d.ServiceType == typeof(IDbContextFactory<AppDbContext>) ||
-                    (d.ServiceType.IsGenericType &&
-                     d.ServiceType.GetGenericTypeDefinition() == typeof(IDbContextOptionsConfiguration<>)))
-                .ToList();
-
-            foreach (var d in descriptors)
-                services.Remove(d);
-
-            services.Replace(ServiceDescriptor.Singleton<TimeProvider>(FakeTime));
+            services.AddSingleton<TimeProvider>(FakeTime);
 
             services.AddDbContextFactory<AppDbContext>(options =>
             {
                 options.UseNpgsql(PostgresConnectionString)
                     .UseSnakeCaseNamingConvention();
-                options.ConfigureWarnings(c => c.Ignore(RelationalEventId.PendingModelChangesWarning));
+                // options.ConfigureWarnings(c => c.Ignore(RelationalEventId.PendingModelChangesWarning));
             });
-            services.Replace(ServiceDescriptor.Scoped<ICurrentUserService, FakeCurrentUserService>());
-            services.Replace(ServiceDescriptor.Scoped<IReadOnlyCurrentUserService, FakeReadOnlyCurrentUserService>());
+            services.AddScoped<ICurrentUserService, FakeCurrentUserService>();
+            services.AddScoped<IReadOnlyCurrentUserService, FakeReadOnlyCurrentUserService>();
             services.AddScoped<UserTestDataService>();
             services.AddScoped<RestaurantTestDataService>();
             services.AddScoped<BookingTestDataService>();

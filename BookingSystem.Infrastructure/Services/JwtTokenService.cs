@@ -9,13 +9,13 @@ using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegiste
 
 namespace BookingSystem.Infrastructure.Services;
 
-internal class JwtTokenService : IJwtTokenService
+public class JwtTokenService : IJwtTokenService
 {
     private readonly TimeProvider _timeProvider;
     private readonly JwtOptions _options;
     private readonly SymmetricSecurityKey _key;
-    private static readonly JwtSecurityTokenHandler TokenHandler = new ();
-    
+    private static readonly JwtSecurityTokenHandler TokenHandler = new();
+
     public JwtTokenService(IOptions<JwtOptions> options, TimeProvider timeProvider)
     {
         _timeProvider = timeProvider;

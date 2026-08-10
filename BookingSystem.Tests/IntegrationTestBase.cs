@@ -43,7 +43,11 @@ public abstract class IntegrationTestBase : IAsyncLifetime
     protected IntegrationTestBase(IntegrationTestFixture dbFixture)
     {
         DbFixture = dbFixture;
-        Factory = new IntegrationTestWebFactory { PostgresConnectionString = DbFixture.PostgresConnectionString };
+        Factory = new IntegrationTestWebFactory
+        {
+            PostgresConnectionString = DbFixture.PostgresConnectionString,
+            RedisConnectionString = DbFixture.RedisConnectionString
+        };
     }
 
     protected void SetReadOnlyCurrentUser(User user) => CurrentUserService.UserIdGuid = user.Id.Value;

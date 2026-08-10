@@ -19,6 +19,10 @@ public sealed class ConstraintErrorRegistry : ConstraintErrorRegistryBase
         _resolved = new Lazy<FrozenDictionary<(string, string), DomainError>>(() => Build(model),
             LazyThreadSafetyMode.ExecutionAndPublication);
     }
+    public ConstraintErrorRegistry()
+    {
+        _resolved = new(() => FrozenDictionary.Create<(string, string), DomainError>());
+    }
 
     public override ConstraintErrorRegistryBase Register<TEntity>(Expression<Func<TEntity, object?>> selector,
         ConstraintViolationType constraintViolationType, DomainError error)
@@ -80,7 +84,7 @@ public sealed class ConstraintErrorRegistry : ConstraintErrorRegistryBase
         _descriptors = null!;
 
         AddPrimaryKeys(result, model);
-        
+
         return result.ToFrozenDictionary();
     }
 
@@ -90,7 +94,7 @@ public sealed class ConstraintErrorRegistry : ConstraintErrorRegistryBase
             MemberExpression memberExpression => [memberExpression.Member.Name],
             UnaryExpression { Operand: MemberExpression memberExpression } => [memberExpression.Member.Name],
             NewExpression { Members: not null } newExpression =>
-                [..newExpression.Members.Select(m => m.Name)],
+                [.. newExpression.Members.Select(m => m.Name)],
             _ => throw new ArgumentException(
                 "Invalid expression format. Expected a member access or an anonymous object creation.",
                 nameof(expression))

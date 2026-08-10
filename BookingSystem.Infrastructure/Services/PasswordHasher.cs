@@ -4,14 +4,14 @@ using Konscious.Security.Cryptography;
 
 namespace BookingSystem.Infrastructure.Services;
 
-internal class PasswordHasher : IPasswordHasher
+public class PasswordHasher : IPasswordHasher
 {
     public byte[] HashPassword(string password)
     {
         var salt = RandomNumberGenerator.GetBytes(16);
-        return salt.Concat(HashPassword(password, salt)).ToArray();
+        return [.. salt, .. HashPassword(password, salt)];
     }
-    
+
     private static byte[] HashPassword(string password, byte[] salt)
     {
         using var a = new Argon2id(System.Text.Encoding.UTF8.GetBytes(password));

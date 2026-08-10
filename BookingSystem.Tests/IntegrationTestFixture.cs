@@ -16,6 +16,7 @@ public class IntegrationTestFixture : IAsyncLifetime
         new RedisBuilder("redis:latest").Build();
 
     public string PostgresConnectionString => $"{_postgresContainer.GetConnectionString()};Include Error Detail=true;";
+    public string RedisConnectionString => _redisContainer.GetConnectionString();
     private Respawner _respawner = null!;
 
     public async ValueTask InitializeAsync()
