@@ -13,7 +13,7 @@ public class SetWorkingScheduleHandlerTests(IntegrationTestFixture dbFixture) : 
     {
         var manager = await Users.CreateManagerAsync();
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
-        SetReadOnlyCurrentUser(manager);
+        SetCurrentUser(manager);
 
         var res = await Mediator.Send(new SetWorkingScheduleCommand(restaurant.Id.Value, [
             new DayOfWeekScheduleRequest(DayOfWeek.Monday, TimeOnly.FromTimeSpan(new TimeSpan(9, 0, 0)),
@@ -51,7 +51,7 @@ public class SetWorkingScheduleHandlerTests(IntegrationTestFixture dbFixture) : 
                     .WithWorkingSchedule(null)));
         var restaurant = restaurants[0];
 
-        SetReadOnlyCurrentUser(manager);
+        SetCurrentUser(manager);
 
         var res = await Mediator.Send(new SetWorkingScheduleCommand(restaurant.Id.Value, [
             new DayOfWeekScheduleRequest(DayOfWeek.Monday, TimeOnly.FromTimeSpan(new TimeSpan(9, 0, 0)),

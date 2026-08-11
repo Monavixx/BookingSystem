@@ -19,7 +19,7 @@ public class CancelBookingHandlerTests(IntegrationTestFixture dbFixture) : Integ
     {
         var users = await Users.CreateBase3Async();
         User manager = users[1], guest = users[2];
-        SetReadOnlyCurrentUser(users[role]);
+        SetCurrentUser(users[role]);
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
         var booking = await Bookings.Create(builder => builder
             .WithGuest(guest)
@@ -51,7 +51,7 @@ public class CancelBookingHandlerTests(IntegrationTestFixture dbFixture) : Integ
             .WithTimeSlotNoChecking(FakeTime.GetUtcNow().AddHours(1), TimeSpan.FromMinutes(90)));
         NewScope();
 
-        SetReadOnlyCurrentUser(anotherGuest);
+        SetCurrentUser(anotherGuest);
         var res = await Mediator.Send(new CancelBookingCommand(booking.Id.Value), TestContext.Current.CancellationToken);
         res.ShouldContain(BookingErrors.AccessDenied);
 
@@ -72,7 +72,7 @@ public class CancelBookingHandlerTests(IntegrationTestFixture dbFixture) : Integ
             .WithTableNumber(restaurant.Tables.First().TableNumber));
         NewScope();
 
-        SetReadOnlyCurrentUser(anotherManager);
+        SetCurrentUser(anotherManager);
         var res = await Mediator.Send(new CancelBookingCommand(booking.Id.Value), TestContext.Current.CancellationToken);
         res.ShouldContain(BookingErrors.AccessDenied);
 
@@ -97,7 +97,7 @@ public class CancelBookingHandlerTests(IntegrationTestFixture dbFixture) : Integ
             .WithTableNumber(restaurant.Tables.First().TableNumber));
         NewScope();
 
-        SetReadOnlyCurrentUser(guest);
+        SetCurrentUser(guest);
         var res = await Mediator.Send(new CancelBookingCommand(booking.Id.Value), TestContext.Current.CancellationToken);
         res.ShouldContain(BookingErrors.Status.InvalidStatusOrReasonToCancelCode);
 
@@ -109,7 +109,7 @@ public class CancelBookingHandlerTests(IntegrationTestFixture dbFixture) : Integ
     public async Task When_BookingDoesNotExist_ShouldReturnNotFound()
     {
         var users = await Users.CreateBase3Async();
-        SetReadOnlyCurrentUser(users[2]);
+        SetCurrentUser(users[2]);
         var res = await Mediator.Send(new CancelBookingCommand(Guid.NewGuid()), TestContext.Current.CancellationToken);
         res.ShouldContain(BookingErrors.NotFound);
     }
@@ -128,7 +128,7 @@ public class CancelBookingHandlerTests(IntegrationTestFixture dbFixture) : Integ
             .WithTableNumber(restaurant.Tables.First().TableNumber));
         NewScope();
 
-        SetReadOnlyCurrentUser(guest);
+        SetCurrentUser(guest);
         var res = await Mediator.Send(new CancelBookingCommand(booking.Id.Value), TestContext.Current.CancellationToken);
         res.ShouldContain(BookingErrors.Status.InvalidStatusOrReasonToCancelCode);
 
@@ -141,7 +141,7 @@ public class CancelBookingHandlerTests(IntegrationTestFixture dbFixture) : Integ
     {
         var users = await Users.CreateBase3Async();
         User manager = users[1], guest = users[2];
-        SetReadOnlyCurrentUser(guest);
+        SetCurrentUser(guest);
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
         var booking = await Bookings.Create(builder => builder
             .WithGuest(guest)
@@ -169,7 +169,7 @@ public class CancelBookingHandlerTests(IntegrationTestFixture dbFixture) : Integ
     {
         var users = await Users.CreateBase3Async();
         User manager = users[1], guest = users[2];
-        SetReadOnlyCurrentUser(manager);
+        SetCurrentUser(manager);
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
         var booking = await Bookings.Create(builder => builder
             .WithGuest(guest)

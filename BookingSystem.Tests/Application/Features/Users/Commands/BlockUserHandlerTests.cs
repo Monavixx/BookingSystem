@@ -10,7 +10,7 @@ public class BlockUserHandlerTests(IntegrationTestFixture dbFixture) : Integrati
     {
         var admin =
             await Users.CreateAdminAsync("eprerereee", "fwrfnrwfnrihion@mmm.rre", "+79264875151");
-        SetReadOnlyCurrentUser(admin);
+        SetCurrentUser(admin);
     }
 
     [Fact]

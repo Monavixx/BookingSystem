@@ -37,7 +37,7 @@ public class CreateBookingHandlerTests(IntegrationTestFixture dbFixture) : Integ
         var users = await Users.CreateBase3Async();
         User guest = users[2], manager = users[1];
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
-        SetReadOnlyCurrentUser(guest);
+        SetCurrentUser(guest);
 
         var scheduledAt = FakeTime.GetUtcNow().AddHours(1);
         var res = await Mediator.Send(new CreateBookingCommand(
@@ -67,7 +67,7 @@ public class CreateBookingHandlerTests(IntegrationTestFixture dbFixture) : Integ
         var users = await Users.CreateBase3Async();
         User guest = users[2], manager = users[1];
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
-        SetReadOnlyCurrentUser(guest);
+        SetCurrentUser(guest);
 
         var scheduledAt = FakeTime.GetUtcNow().AddHours(1);
         var res = await Mediator.Send(new CreateBookingCommand(
@@ -89,7 +89,7 @@ public class CreateBookingHandlerTests(IntegrationTestFixture dbFixture) : Integ
         var users = await Users.CreateBase3Async();
         User guest = users[2], manager = users[1];
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
-        SetReadOnlyCurrentUser(guest);
+        SetCurrentUser(guest);
 
         var scheduledAt = FakeTime.GetUtcNow().AddHours(-1);
 
@@ -113,7 +113,7 @@ public class CreateBookingHandlerTests(IntegrationTestFixture dbFixture) : Integ
         User guest = users[2], manager = users[1];
         var guest2 = await Users.CreateGuestAsync("bimba", "bimba@gmail.com", "+77777778899");
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
-        SetReadOnlyCurrentUser(guest);
+        SetCurrentUser(guest);
 
         var scheduledAt = FakeTime.GetUtcNow().AddHours(1);
 
@@ -133,7 +133,7 @@ public class CreateBookingHandlerTests(IntegrationTestFixture dbFixture) : Integ
         BackgroundJobServiceMock.Reset();
         NewScope();
 
-        SetReadOnlyCurrentUser(guest2);
+        SetCurrentUser(guest2);
 
         var res = await Mediator.Send(new CreateBookingCommand(
                 GuestCount: 2,
@@ -158,7 +158,7 @@ public class CreateBookingHandlerTests(IntegrationTestFixture dbFixture) : Integ
         User guest = users[2], manager = users[1];
         var guest2 = await Users.CreateGuestAsync("bimba", "bimba@gmail.com", "+77777778899");
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
-        SetReadOnlyCurrentUser(guest);
+        SetCurrentUser(guest);
 
         var scheduledAt1 = FakeTime.GetUtcNow().AddHours(1);
         var scheduledAt2 = scheduledAt1.AddHours(3); // Non-overlapping time slot
@@ -180,7 +180,7 @@ public class CreateBookingHandlerTests(IntegrationTestFixture dbFixture) : Integ
         var firstBookingId = firstBooking.Id;
 
         NewScope();
-        SetReadOnlyCurrentUser(guest2);
+        SetCurrentUser(guest2);
         var res = await Mediator.Send(new CreateBookingCommand(
                 GuestCount: 4,
                 RestaurantId: restaurant.Id.Value,
@@ -204,7 +204,7 @@ public class CreateBookingHandlerTests(IntegrationTestFixture dbFixture) : Integ
         var restaurant = await Restaurants.CreateDefaultWithTables(manager.Id.Value,
             (1, 2), (2, 3),
             (3, 5), (4, 5), (5, 10));
-        SetReadOnlyCurrentUser(guest);
+        SetCurrentUser(guest);
 
         var scheduledAt = FakeTime.GetUtcNow().AddHours(1);
 

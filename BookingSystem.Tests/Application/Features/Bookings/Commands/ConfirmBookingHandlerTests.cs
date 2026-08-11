@@ -14,7 +14,7 @@ public class ConfirmBookingHandlerTests(IntegrationTestFixture dbFixture) : Inte
     {
         var users = await Users.CreateBase3Async();
         User manager = users[1], guest = users[2];
-        SetReadOnlyCurrentUser(manager);
+        SetCurrentUser(manager);
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
         var booking = await Bookings.Create(c => c
             .WithGuest(guest)
@@ -35,7 +35,7 @@ public class ConfirmBookingHandlerTests(IntegrationTestFixture dbFixture) : Inte
     public async Task When_BookingDoesNotExist_ShouldReturnNotFound()
     {
         var manager = await Users.CreateManagerAsync();
-        SetReadOnlyCurrentUser(manager);
+        SetCurrentUser(manager);
         NewScope();
 
         var res = await Mediator.Send(
@@ -54,7 +54,7 @@ public class ConfirmBookingHandlerTests(IntegrationTestFixture dbFixture) : Inte
             .WithGuest(guest)
             .WithRestaurant(restaurant)
             .WithStatus(BookingStatus.ConfirmedByGuest));
-        SetReadOnlyCurrentUser(anotherManager);
+        SetCurrentUser(anotherManager);
         NewScope();
 
         var res = await Mediator.Send(
@@ -79,7 +79,7 @@ public class ConfirmBookingHandlerTests(IntegrationTestFixture dbFixture) : Inte
             .WithGuest(guest)
             .WithRestaurant(restaurant)
             .WithStatus(BookingStatus.ConfirmedByGuest));
-        SetReadOnlyCurrentUser(guest);
+        SetCurrentUser(guest);
         NewScope();
 
         var res = await Mediator.Send(
@@ -104,7 +104,7 @@ public class ConfirmBookingHandlerTests(IntegrationTestFixture dbFixture) : Inte
     {
         var users = await Users.CreateBase3Async();
         User manager = users[1], guest = users[2];
-        SetReadOnlyCurrentUser(manager);
+        SetCurrentUser(manager);
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
         var booking = await Bookings.Create(c => c
             .WithGuest(guest)
@@ -130,7 +130,7 @@ public class ConfirmBookingHandlerTests(IntegrationTestFixture dbFixture) : Inte
     {
         var users = await Users.CreateBase3Async();
         User manager = users[1], guest = users[2];
-        SetReadOnlyCurrentUser(manager);
+        SetCurrentUser(manager);
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
 
         var booking1 = await Bookings.Create(c => c
@@ -171,7 +171,7 @@ public class ConfirmBookingHandlerTests(IntegrationTestFixture dbFixture) : Inte
                 .AddRestaurant(manager, (1, 2), (2, 3), (3, 8), (4, 3));
         });
 
-        SetReadOnlyCurrentUser(manager);
+        SetCurrentUser(manager);
         var booking1 = await Bookings.Create(c => c
             .WithGuest(guest)
             .WithRestaurant(restaurants[0])
@@ -203,7 +203,7 @@ public class ConfirmBookingHandlerTests(IntegrationTestFixture dbFixture) : Inte
     {
         var users = await Users.CreateBase3Async();
         User manager = users[1], guest = users[2];
-        SetReadOnlyCurrentUser(manager);
+        SetCurrentUser(manager);
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
         var booking = await Bookings.Create(c => c
             .WithGuest(guest)

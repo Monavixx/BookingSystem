@@ -41,7 +41,7 @@ public class GetAllBookingsHandlerTests(IntegrationTestFixture dbFixture) : Inte
     [Fact]
     public async Task When_Admin_NoFilterProvided_ShouldReturnAllBookings()
     {
-        SetReadOnlyCurrentUser(_users.Admin);
+        SetCurrentUser(_users.Admin);
         var res = await Mediator.Send(new GetAllBookingsQuery(), TestContext.Current.CancellationToken);
 
         res.IsSuccess.Should().BeTrue();
@@ -52,7 +52,7 @@ public class GetAllBookingsHandlerTests(IntegrationTestFixture dbFixture) : Inte
     [Fact]
     public async Task When_Admin_RestaurantFilterProvided_ShouldReturnAllBookingsFromTheRestaurant()
     {
-        SetReadOnlyCurrentUser(_users.Admin);
+        SetCurrentUser(_users.Admin);
         var res = await Mediator.Send(new GetAllBookingsQuery(RestaurantId: _restaurant1.Id.Value),
             TestContext.Current.CancellationToken);
 
@@ -63,7 +63,7 @@ public class GetAllBookingsHandlerTests(IntegrationTestFixture dbFixture) : Inte
     [Fact]
     public async Task When_Manager_NoFilterProvided_ShouldReturnAllTheirBookingsAndBookingsFromRestaurantsOwnedByThem()
     {
-        SetReadOnlyCurrentUser(_users.AnotherManager);
+        SetCurrentUser(_users.AnotherManager);
         var res = await Mediator.Send(new GetAllBookingsQuery(), TestContext.Current.CancellationToken);
         res.IsSuccess.Should().BeTrue();
         res.Value.Count.Should().Be(2);
@@ -72,7 +72,7 @@ public class GetAllBookingsHandlerTests(IntegrationTestFixture dbFixture) : Inte
     [Fact]
     public async Task When_Guest_NoFilterProvided_ShouldReturnAllTheirBookings()
     {
-        SetReadOnlyCurrentUser(_users.Guest);
+        SetCurrentUser(_users.Guest);
         var res = await Mediator.Send(new GetAllBookingsQuery(), TestContext.Current.CancellationToken);
         res.IsSuccess.Should().BeTrue();
         res.Value.Count.Should().Be(2);
@@ -81,7 +81,7 @@ public class GetAllBookingsHandlerTests(IntegrationTestFixture dbFixture) : Inte
     [Fact]
     public async Task When_Guest_FiltersProvided_SuchBookingsDoesNotExist_ShouldReturnEmptyCollection()
     {
-        SetReadOnlyCurrentUser(_users.Guest);
+        SetCurrentUser(_users.Guest);
         var res = await Mediator.Send(new GetAllBookingsQuery(TableNumber: 10), TestContext.Current.CancellationToken);
         res.IsSuccess.Should().BeTrue();
         res.Value.Should().BeEmpty();
@@ -91,7 +91,7 @@ public class GetAllBookingsHandlerTests(IntegrationTestFixture dbFixture) : Inte
     public async Task When_Admin_StartFilterProvided_ShouldReturnAllBookingsThatStartsNotEarlierThanRequested()
     {
         var start = FakeTime.GetUtcNow().AddHours(3.5);
-        SetReadOnlyCurrentUser(_users.Admin);
+        SetCurrentUser(_users.Admin);
         var res = await Mediator.Send(new GetAllBookingsQuery(Start: start, TimeFilterMethod: TimeFilterMethod.In),
             TestContext.Current.CancellationToken);
         res.IsSuccess.Should().BeTrue();
@@ -102,7 +102,7 @@ public class GetAllBookingsHandlerTests(IntegrationTestFixture dbFixture) : Inte
     [Fact]
     public async Task When_StartOrEndAreNotUtc_StillShouldReturnFilteredBookings()
     {
-        SetReadOnlyCurrentUser(_users.Admin);
+        SetCurrentUser(_users.Admin);
         FakeTime.SetLocalTimeZone(TimeZoneInfo.FindSystemTimeZoneById("Europe/Moscow"));
         var start = FakeTime.GetLocalNow().AddHours(2);
         var end = FakeTime.GetLocalNow().AddHours(5.51);
@@ -118,7 +118,7 @@ public class GetAllBookingsHandlerTests(IntegrationTestFixture dbFixture) : Inte
     [Fact]
     public async Task When_StartOrEndAreNotUtc_And_TimeFilterModeIsOverlapping_ShouldReturnFilteredBookings()
     {
-        SetReadOnlyCurrentUser(_users.Admin);
+        SetCurrentUser(_users.Admin);
         FakeTime.SetLocalTimeZone(TimeZoneInfo.FindSystemTimeZoneById("Europe/Moscow"));
         var start = FakeTime.GetLocalNow().AddHours(2);
         var end = FakeTime.GetLocalNow().AddHours(5.51);

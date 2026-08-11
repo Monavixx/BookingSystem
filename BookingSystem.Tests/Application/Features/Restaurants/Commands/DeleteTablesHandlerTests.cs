@@ -29,7 +29,7 @@ public class DeleteTablesHandlerTests(IntegrationTestFixture dbFixture) : Integr
     [Fact]
     public async Task When_Manager_ProvidedTableExists_ShouldDeleteTable()
     {
-        SetReadOnlyCurrentUser(_users.Manager);
+        SetCurrentUser(_users.Manager);
         var res = await Mediator.Send(new DeleteTablesCommand(
         [
             new TableId(_restaurant1.Id, 2),
@@ -45,7 +45,7 @@ public class DeleteTablesHandlerTests(IntegrationTestFixture dbFixture) : Integr
     [Fact]
     public async Task When_Manager_ProvidedTableDoesNotExist_ShouldReturnError()
     {
-        SetReadOnlyCurrentUser(_users.Manager);
+        SetCurrentUser(_users.Manager);
         var res = await Mediator.Send(new DeleteTablesCommand(
         [
             new TableId(_restaurant1.Id, 2),

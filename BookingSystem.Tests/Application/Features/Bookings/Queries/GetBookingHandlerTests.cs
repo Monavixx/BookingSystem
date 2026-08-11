@@ -18,7 +18,7 @@ public class GetBookingHandlerTests(IntegrationTestFixture fixture) : Integratio
                 .WithStatus(BookingStatus.Confirmed));
         NewScope();
 
-        SetReadOnlyCurrentUser(Guest);
+        SetCurrentUser(Guest);
         var res = await Mediator.Send(new GetBookingQuery(booking.Id.Value), TestContext.Current.CancellationToken);
         res.ShouldBeSuccess();
         res.Value.Id.Should().Be(booking.Id.Value);
@@ -35,7 +35,7 @@ public class GetBookingHandlerTests(IntegrationTestFixture fixture) : Integratio
                 .WithStatus(BookingStatus.Confirmed));
         NewScope();
 
-        SetReadOnlyCurrentUser(AnotherGuest);
+        SetCurrentUser(AnotherGuest);
         var res = await Mediator.Send(new GetBookingQuery(booking.Id.Value), TestContext.Current.CancellationToken);
         res.ShouldContain(BookingErrors.AccessDenied);
     }
@@ -51,7 +51,7 @@ public class GetBookingHandlerTests(IntegrationTestFixture fixture) : Integratio
                 .WithStatus(BookingStatus.Confirmed));
         NewScope();
 
-        SetReadOnlyCurrentUser(Guest);
+        SetCurrentUser(Guest);
         var res = await Mediator.Send(new GetBookingQuery(Guid.NewGuid()), TestContext.Current.CancellationToken);
         res.ShouldContain(BookingErrors.NotFound);
     }
@@ -67,7 +67,7 @@ public class GetBookingHandlerTests(IntegrationTestFixture fixture) : Integratio
                 .WithStatus(BookingStatus.Confirmed));
         NewScope();
 
-        SetReadOnlyCurrentUser(Manager);
+        SetCurrentUser(Manager);
         var res = await Mediator.Send(new GetBookingQuery(booking.Id.Value), TestContext.Current.CancellationToken);
         res.ShouldBeSuccess();
         res.Value.Id.Should().Be(booking.Id.Value);
@@ -84,7 +84,7 @@ public class GetBookingHandlerTests(IntegrationTestFixture fixture) : Integratio
                 .WithStatus(BookingStatus.Confirmed));
         NewScope();
 
-        SetReadOnlyCurrentUser(Admin);
+        SetCurrentUser(Admin);
         var res = await Mediator.Send(new GetBookingQuery(booking.Id.Value), TestContext.Current.CancellationToken);
         res.ShouldBeSuccess();
         res.Value.Id.Should().Be(booking.Id.Value);
@@ -101,7 +101,7 @@ public class GetBookingHandlerTests(IntegrationTestFixture fixture) : Integratio
                 .WithStatus(BookingStatus.Confirmed));
         NewScope();
 
-        SetReadOnlyCurrentUser(AnotherGuest);
+        SetCurrentUser(AnotherGuest);
         var res = await Mediator.Send(new GetBookingQuery(booking.Id.Value), TestContext.Current.CancellationToken);
         res.ShouldContain(BookingErrors.AccessDenied);
     }

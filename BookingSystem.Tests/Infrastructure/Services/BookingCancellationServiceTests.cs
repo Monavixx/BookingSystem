@@ -32,7 +32,7 @@ public class BookingCancellationServiceTests(IntegrationTestFixture fixture) : I
                 .WithRestaurant(_restaurant)
                 .WithGuest(_guest)
                 .WithTableNumber(1));
-        SetReadOnlyCurrentUser(_manager);
+        SetCurrentUser(_manager);
         var res = await _bookingCancellationService.CancelAsync(booking.Id, CancellationReason.ManagerOrAdminBeenAskedByGuest);
 
         res.ShouldBeSuccess();
@@ -51,7 +51,7 @@ public class BookingCancellationServiceTests(IntegrationTestFixture fixture) : I
                 .WithRestaurant(_restaurant)
                 .WithGuest(_guest)
                 .WithTableNumber(1));
-        SetReadOnlyCurrentUser(_guest);
+        SetCurrentUser(_guest);
         var res = await _bookingCancellationService.CancelAsync(booking.Id, CancellationReason.GuestRequest);
 
         res.ShouldContain(BookingErrors.Status.InvalidStatusOrReasonToCancelCode);
@@ -60,7 +60,7 @@ public class BookingCancellationServiceTests(IntegrationTestFixture fixture) : I
     [Fact]
     public async Task CancelAsync_WhenBookingDoesNotExist_ShouldReturnError()
     {
-        SetReadOnlyCurrentUser(_guest);
+        SetCurrentUser(_guest);
         var res = await _bookingCancellationService.CancelAsync(BookingId.New(), CancellationReason.GuestRequest);
 
         res.ShouldContain(BookingErrors.NotFound);

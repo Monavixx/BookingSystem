@@ -11,7 +11,7 @@ public class MakeManagerHandlerTests(IntegrationTestFixture fixture) : Integrati
     {
         var admin = await Users.CreateAdminAsync();
         var guest = await Users.CreateGuestAsync();
-        SetReadOnlyCurrentUser(admin);
+        SetCurrentUser(admin);
         NewScope();
 
         var res = await Mediator.Send(new MakeManagerCommand(guest.Id.Value), TestContext.Current.CancellationToken);

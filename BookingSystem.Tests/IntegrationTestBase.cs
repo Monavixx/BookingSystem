@@ -50,19 +50,18 @@ public abstract class IntegrationTestBase : IAsyncLifetime
         };
     }
 
-    protected void SetReadOnlyCurrentUser(User user) => CurrentUserService.UserIdGuid = user.Id.Value;
-    protected void SetReadOnlyCurrentUser(Guid id) => CurrentUserService.UserIdGuid = id;
-    protected void SetReadOnlyCurrentUser(UserId id) => CurrentUserService.UserIdGuid = id.Value;
-    protected void SetCurrentUser(User user) => CurrentUserService.UserIdGuid = user.Id.Value;
-    protected void SetCurrentUser(Guid id) => CurrentUserService.UserIdGuid = id;
-    protected void SetCurrentUser(UserId id) => CurrentUserService.UserIdGuid = id.Value;
+    protected void SetCurrentUser(User user) => ReadOnlyCurrentUserService.UserIdGuid = CurrentUserService.UserIdGuid = user.Id.Value;
+    protected void SetCurrentUser(Guid id) => ReadOnlyCurrentUserService.UserIdGuid = CurrentUserService.UserIdGuid = id;
+    protected void SetCurrentUser(UserId id) => ReadOnlyCurrentUserService.UserIdGuid = CurrentUserService.UserIdGuid = id.Value;
 
     protected IServiceScope NewScope()
     {
         var userId = CurrentUserService.UserIdGuid;
+        var readOnlyUserId = ReadOnlyCurrentUserService.UserIdGuid;
         Scope.Dispose();
         Scope = Factory.Services.CreateScope();
         CurrentUserService.UserIdGuid = userId;
+        ReadOnlyCurrentUserService.UserIdGuid = readOnlyUserId;
         return Scope;
     }
 

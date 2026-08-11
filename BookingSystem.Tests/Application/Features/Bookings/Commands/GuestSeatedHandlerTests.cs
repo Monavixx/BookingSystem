@@ -17,7 +17,7 @@ public class GuestSeatedHandlerTests(IntegrationTestFixture dbFixture) : Integra
     public async Task When_BookingDoesNotExist_ShouldReturnNotFound()
     {
         var manager = await Users.CreateManagerAsync();
-        SetReadOnlyCurrentUser(manager);
+        SetCurrentUser(manager);
         var randomBookingId = Guid.NewGuid();
 
         NewScope();
@@ -32,7 +32,7 @@ public class GuestSeatedHandlerTests(IntegrationTestFixture dbFixture) : Integra
         var users = await Users.CreateBase3Async();
         var realManager = await Users.CreateManagerAsync("realManager12", "realMan23@gm.co", "+74561231245");
         User manager = users[1], guest = users[0];
-        SetReadOnlyCurrentUser(manager);
+        SetCurrentUser(manager);
 
         var restaurant = await Restaurants.CreateDefault(realManager.Id.Value);
         var booking = await Bookings.Create(builder =>
@@ -59,7 +59,7 @@ public class GuestSeatedHandlerTests(IntegrationTestFixture dbFixture) : Integra
     {
         var users = await Users.CreateBase3Async();
         User manager = users[1], guest = users[0];
-        SetReadOnlyCurrentUser(manager);
+        SetCurrentUser(manager);
 
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
         var booking = await Bookings.Create(builder =>
@@ -78,11 +78,11 @@ public class GuestSeatedHandlerTests(IntegrationTestFixture dbFixture) : Integra
     }
 
     [Fact]
-    public async Task When_AvailabilityStateExpired_ReturnsInternalServerError()
+    public async Task When_AvailabilityStateExpired_ReturnsExpired()
     {
         var users = await Users.CreateBase3Async();
         User manager = users[1], guest = users[0];
-        SetReadOnlyCurrentUser(manager);
+        SetCurrentUser(manager);
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
         var booking = await Bookings.Create(builder =>
         {
@@ -106,7 +106,7 @@ public class GuestSeatedHandlerTests(IntegrationTestFixture dbFixture) : Integra
     {
         var users = await Users.CreateBase3Async();
         User manager = users[1], guest = users[0];
-        SetReadOnlyCurrentUser(manager);
+        SetCurrentUser(manager);
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
 
         var scheduledAt = FakeTime.GetUtcNow().AddSeconds(-5);
@@ -160,7 +160,7 @@ public class GuestSeatedHandlerTests(IntegrationTestFixture dbFixture) : Integra
     {
         var users = await Users.CreateBase3Async();
         User manager = users[1], guest = users[0];
-        SetReadOnlyCurrentUser(manager);
+        SetCurrentUser(manager);
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
 
         var scheduledAt = FakeTime.GetUtcNow().AddMinutes(10);
@@ -195,7 +195,7 @@ public class GuestSeatedHandlerTests(IntegrationTestFixture dbFixture) : Integra
         var users = await Users.CreateBase3Async();
         User manager = users[1], guest = users[0];
         var guest2 = await Users.CreateGuestAsync("guest2", "guest2@example.com", "+76365257845");
-        SetReadOnlyCurrentUser(manager);
+        SetCurrentUser(manager);
         var restaurant = await Restaurants.CreateDefault(manager.Id.Value);
         _ = await Bookings.Create(c => c.WithGuest(guest2)
             .WithRestaurant(restaurant)

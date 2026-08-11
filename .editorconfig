@@ -5,3 +5,6 @@ comment_sense.require_ending_punctuation = true
 
 # CSENSE002: Missing parameter documentation
 dotnet_diagnostic.CSENSE002.severity = silent
+
+# CSENSE001: Public API is missing documentation
+dotnet_diagnostic.CSENSE001.severity = none

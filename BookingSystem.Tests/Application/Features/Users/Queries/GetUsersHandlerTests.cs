@@ -12,7 +12,7 @@ public class GetUsersHandlerTests(IntegrationTestFixture dbFixture) : Integratio
     protected override async ValueTask InitAsync()
     {
         _admin = await Users.CreateAdminAsync();
-        SetReadOnlyCurrentUser(_admin);
+        SetCurrentUser(_admin);
     }
 
     [Fact]
