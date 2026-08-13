@@ -44,11 +44,10 @@ public class CreateBookingHandler(AppDbContext dbContext, BookingDurationCalcula
         {
             var dbTransaction = transaction.GetDbTransaction();
 
-            var table = await GetTableAsync(dbTransaction, request.RestaurantId, request.GuestCount, scheduledAt,
+            var tableRes = await GetTableAsync(dbTransaction, request.RestaurantId, request.GuestCount, scheduledAt,
                 request.TableNumber, endTime);
-            if (table is null) return TableErrors.NotFound;
-            if (table.Capacity < request.GuestCount)
-                return BookingErrors.CapacityExceeded;
+            if (tableRes.IsFailed) return tableRes.ToResult();
+            var table = tableRes.Value;
 
             var slot = BookingTimeSlot.Create(scheduledAt, endTime);
             if (slot.IsFailed) return slot.ToResult<BookingDto>();
@@ -74,12 +73,13 @@ public class CreateBookingHandler(AppDbContext dbContext, BookingDurationCalcula
         return new BookingDto(booking);
     }
 
-    private async Task<TableDto?> GetTableAsync(IDbTransaction transaction, Guid restaurantId, int guestCount,
+    private async Task<Result<TableDto>> GetTableAsync(IDbTransaction transaction, Guid restaurantId, int guestCount,
         DateTimeOffset scheduledAt, int? tableNumber, DateTimeOffset endTime)
     {
+        var connection = dbContext.Database.GetDbConnection();
         if (tableNumber is null)
         {
-            return await dbContext.Database.GetDbConnection().QueryFirstOrDefaultAsync<TableDto>(
+            return await connection.QueryFirstOrDefaultAsync<TableDto>(
                 """
                  SELECT t.capacity as Capacity, 
                         t.restaurant_id as RestaurantId, 
@@ -105,10 +105,10 @@ public class CreateBookingHandler(AppDbContext dbContext, BookingDurationCalcula
                     ScheduledAt = scheduledAt,
                     EndTime = endTime,
                     FinalStatuses = BookingStatusHelper.FinalIntStatuses
-                }, transaction: transaction);
+                }, transaction: transaction) ?? Result.Fail<TableDto>(TableErrors.NotFound);
         }
 
-        return await dbContext.Database.GetDbConnection().QueryFirstOrDefaultAsync<TableDto>(
+        var table = await connection.QueryFirstOrDefaultAsync<TableDto>(
             """
             SELECT capacity as Capacity, 
                    restaurant_id as RestaurantId, 
@@ -118,5 +118,29 @@ public class CreateBookingHandler(AppDbContext dbContext, BookingDurationCalcula
             LIMIT 1
             """,
             new { RestaurantId = restaurantId, TableNumber = tableNumber }, transaction: transaction);
+        if (table is null) return TableErrors.NotFound;
+        if (table.Capacity < guestCount) return BookingErrors.CapacityExceeded;
+        var isAvailable = await connection.ExecuteScalarAsync<bool>(
+                """
+                SELECT NOT EXISTS(
+                   SELECT 1 FROM bookings b
+                   WHERE b.restaurant_id = @RestaurantId
+                     AND b.table_number = @TableNumber
+                     AND b.start_time < @EndTime
+                     AND b.end_time > @ScheduledAt 
+                     AND b.status != ALL(@FinalStatuses)
+                )
+                """,
+                new
+                {
+                    RestaurantId = restaurantId,
+                    table.TableNumber,
+                    GuestCount = guestCount,
+                    ScheduledAt = scheduledAt,
+                    EndTime = endTime,
+                    FinalStatuses = BookingStatusHelper.FinalIntStatuses
+                });
+        if (!isAvailable) return BookingErrors.TableNotAvailable;
+        return table;
     }
 }

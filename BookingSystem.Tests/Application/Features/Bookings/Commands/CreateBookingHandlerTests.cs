@@ -2,6 +2,7 @@ using System.Linq.Expressions;
 using BookingSystem.Application.Features.Bookings.Abstractions;
 using BookingSystem.Application.Features.Bookings.Commands.Create;
 using BookingSystem.Domain.Bookings;
+using BookingSystem.Domain.Bookings.Errors;
 using BookingSystem.Domain.Bookings.Services;
 using BookingSystem.Domain.Bookings.ValueObjects;
 using BookingSystem.Domain.Restaurants.Errors;
@@ -221,5 +222,35 @@ public class CreateBookingHandlerTests(IntegrationTestFixture dbFixture) : Integ
         booking.TableNumber.Should().BeOneOf(3, 4); // The table with the smallest capacity that fits 5 guests
 
         ShouldScheduleBookingStatusChangeJobWithTimeout(booking);
+    }
+
+    [Fact]
+    public async Task When_TableNumberIsSpecified_AndTimeSlotsOverlaps_ShouldNotCreateBookingAndReturnError()
+    {
+        var users = await Users.CreateBase5Async();
+        var restaurant = await Restaurants.CreateDefaultWithTables(users.Manager.Id.Value,
+            (1, 2), (2, 3),
+            (3, 5), (4, 5), (5, 10));
+        SetCurrentUser(users.Guest);
+
+        var scheduledAt = FakeTime.GetUtcNow().AddHours(1);
+        var existingBooking = await Bookings.Create(c => c
+                .WithGuest(users.AnotherGuest)
+                .WithRestaurant(restaurant)
+                .WithGuestCount(5)
+                .WithTableNumber(3)
+                .WithTimeSlotNoChecking(scheduledAt.Add(TimeSpan.FromMinutes(20)), TimeSpan.FromMinutes(120)));
+
+        NewScope();
+        var res = await Mediator.Send(new CreateBookingCommand(
+                GuestCount: 5,
+                RestaurantId: restaurant.Id.Value,
+                TableNumber: 3,
+                ScheduledAt: scheduledAt), TestContext.Current.CancellationToken);
+
+        res.ShouldContain(BookingErrors.TableNotAvailable);
+
+        var booking = await NewDbContext().Bookings.SingleOrDefaultAsync(cancellationToken: TestContext.Current.CancellationToken);
+        booking.Should().NotBeNull();
     }
 }
