@@ -1,6 +1,5 @@
 using BookingSystem.Application.Common.Abstractions;
 using BookingSystem.Application.Persistence;
-using BookingSystem.Domain.Common.Errors;
 using BookingSystem.Domain.Restaurants.Errors;
 using BookingSystem.Domain.Restaurants.ValueObjects;
 using Dapper;
@@ -32,9 +31,6 @@ public class DeleteRestaurantHandler(
             .Where(r => r.Id == new RestaurantId(request.RestaurantId))
             .ExecuteDeleteAsync(cancellationToken);
         if (rows <= 0) return Result.Fail(RestaurantErrors.NotFound);
-        if (rows > 1)
-            return Result.Fail(new InternalServerError("Restaurants.Ambiguous",
-                "There are two restaurants with the same id"));
         logger.LogInformation("Restaurant {RestaurantId} deleted", request.RestaurantId);
         return Result.Ok();
     }

@@ -8,3 +8,6 @@ dotnet_diagnostic.CSENSE002.severity = silent
 
 # CSENSE001: Public API is missing documentation
 dotnet_diagnostic.CSENSE001.severity = none
+
+# CA1873: Avoid potentially expensive logging
+dotnet_diagnostic.CA1873.severity = silent
