@@ -1,6 +1,5 @@
 ﻿using BookingSystem.Application.Persistence.Abstractions;
 using BookingSystem.Domain.FavoriteRestaurants;
-using BookingSystem.Domain.Restaurants;
 using BookingSystem.Domain.Restaurants.Errors;
 using BookingSystem.Domain.Restaurants.ValueObjects;
 using BookingSystem.Domain.Users;
@@ -30,7 +29,7 @@ public class FavoriteRestaurantConfiguration : IEntityTypeConfiguration<Favorite
             .WithMany(u => u.FavoriteRestaurants)
             .HasForeignKey(fr => fr.UserId)
             .OnDelete(DeleteBehavior.Cascade);
-        builder.HasOne<Restaurant>(fr => fr.Restaurant)
+        builder.HasOne(fr => fr.Restaurant)
             .WithMany()
             .HasForeignKey(fr => fr.RestaurantId)
             .OnDelete(DeleteBehavior.Cascade);
