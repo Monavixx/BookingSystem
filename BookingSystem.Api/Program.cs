@@ -75,7 +75,6 @@ try
 catch (HostAbortedException) { }
 catch (Exception ex)
 {
-    await File.AppendAllTextAsync("/home/monavixx/log-this-shit", ex.ToString());
     Log.Fatal(ex, "Application terminated unexpectedly");
 }
 finally
@@ -138,7 +137,9 @@ static void AddCoreServices(WebApplicationBuilder builder)
 
         if (!builder.Environment.IsEnvironment("Test"))
         {
-            s.WriteTo.Seq("http://localhost:5341");
+            var seqConnection = builder.Configuration.GetConnectionString("Seq");
+            if (!string.IsNullOrEmpty(seqConnection))
+                s.WriteTo.Seq(seqConnection);
             s.ReadFrom.Configuration(builder.Configuration);
         }
     })

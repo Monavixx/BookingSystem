@@ -25,3 +25,14 @@ services:
     ports:
       - "6379:6379"
     command: redis-server --save 20 1 --loglevel warning --requirepass admin
+  app:
+    container_name: booking_system_app
+    build: .
+    profiles: ["app"]
+    depends_on:
+      - db
+      - redis
+      - seq
+    ports:
+      - "8080:8080"
+    
