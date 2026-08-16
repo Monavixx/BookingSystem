@@ -6,3 +6,4 @@
 BookingSystem.Tests/
 .git/
 .gitignore
+dotnet-tools.json

@@ -15,6 +15,13 @@ services:
       timeout: 5s
       retries: 10
     container_name: BookingSystemDB
+  migrate:
+    build:
+      context: .
+      target: migrations
+    depends_on:
+      db:
+        condition: service_healthy
   seq:
     image: datalust/seq:latest
     ports:
@@ -32,11 +39,15 @@ services:
     command: redis-server --save 20 1 --loglevel warning --requirepass admin
   app:
     container_name: booking_system_app
-    build: .
+    build: 
+      context: .
+      target: app
     profiles: ["app"]
     depends_on:
       db:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
       redis:
         condition: service_started
       seq:
