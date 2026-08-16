@@ -9,6 +9,11 @@ services:
       - "5432:5432"
     volumes:
       - ./postgres-init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d BookingSystemDB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     container_name: BookingSystemDB
   seq:
     image: datalust/seq:latest
@@ -30,9 +35,12 @@ services:
     build: .
     profiles: ["app"]
     depends_on:
-      - db
-      - redis
-      - seq
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      seq:
+        condition: service_started
     ports:
       - "8080:8080"
     
