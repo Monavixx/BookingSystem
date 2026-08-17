@@ -19,7 +19,7 @@
         devShells.default = pkgs.mkShell {
           name = "dotnet-dev";
 
-          packages = with pkgs; [
+          packages = [
             dotnet
           ];
 
